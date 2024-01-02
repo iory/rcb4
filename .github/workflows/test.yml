@@ -48,8 +48,15 @@ jobs:
     - name: Install Pytest
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install pytest hacking
+        pip install pytest hacking pytest-cov
     - name: Install python package
       run: pip install .
     - name: Run Pytest
-      run: pytest -v tests
+      run: |
+        set -o pipefail
+        pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered --cov=. tests/ | tee pytest-coverage.txt
+    - name: Pytest coverage comment
+      uses: MishaKav/pytest-coverage-comment@main
+      with:
+        pytest-coverage-path: ./pytest-coverage.txt
+        junitxml-path: ./pytest.xml

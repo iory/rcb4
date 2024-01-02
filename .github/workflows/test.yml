@@ -56,10 +56,10 @@ jobs:
       run: |
         set -o pipefail
         coverage erase
-        coverage run -m pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered | tee pytest-coverage.txt
-        coverage report | tee -a pytest-coverage.txt
+        coverage run -m pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered
+        coverage xml
     - name: Pytest coverage comment
       uses: MishaKav/pytest-coverage-comment@main
       with:
-        pytest-coverage-path: ./pytest-coverage.txt
+        pytest-xml-coverage-path: ./coverage.xml
         junitxml-path: ./pytest.xml

@@ -12,9 +12,9 @@ import numpy as np
 import serial
 import serial.tools.list_ports
 
+from rcb4.asm import encode_servo_ids_to_5bytes_bin
 from rcb4.asm import four_bit_to_num
 from rcb4.asm import rcb4_checksum
-from rcb4.asm import rcb4_servo_ids_to_5bytes
 from rcb4.asm import rcb4_servo_positions
 from rcb4.asm import rcb4_servo_svector
 from rcb4.asm import rcb4_velocity
@@ -438,7 +438,7 @@ class ARMH7Interface(object):
 
     def servo_angle_vector(self, servo_ids, servo_vector, velocity=1000):
         byte_list = [CommandTypes.MultiServoSingleVelocity.value] \
-            + rcb4_servo_ids_to_5bytes(servo_ids) \
+            + encode_servo_ids_to_5bytes_bin(servo_ids) \
             + [rcb4_velocity(velocity)] \
             + rcb4_servo_positions(servo_ids, servo_vector)
         byte_list.insert(0, 2 + len(byte_list))
@@ -468,7 +468,7 @@ class ARMH7Interface(object):
         if not isinstance(value, list) or not isinstance(value, tuple):
             value = [value] * len(servo_ids)
         byte_list = [CommandTypes.ServoParam.value] \
-            + rcb4_servo_ids_to_5bytes(servo_ids) \
+            + encode_servo_ids_to_5bytes_bin(servo_ids) \
             + [ServoParams.Stretch.value] \
             + rcb4_servo_svector(servo_ids, value)
         byte_list.insert(0, 2 + len(byte_list))

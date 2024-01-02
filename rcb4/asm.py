@@ -21,15 +21,77 @@ def rcb4_checksum(byte_list: List[int]) -> int:
     return sum(b & 0xff for b in byte_list) & 0xff
 
 
-def rcb4_servo_ids_to_5bytes(seq: List[int]) -> List[int]:
-    ids = [0, 0, 0, 0, 0]
-    for c in seq:
-        ids[c // 8] |= (1 << (c % 8))
-    return ids
-
-
 def rcb4_velocity(v):
     return min(255, int(round(v)))
+
+
+def encode_servo_ids_to_nbytes_bin(
+        ids: List[int], num_bytes: int) -> List[int]:
+    """Encode a list of servo motor IDs into a specified number of bytes.
+
+    This function takes a list of servo motor IDs (each between 0 and
+    num_bytes * 8 - 1) and encodes it into a specified number of bytes.
+    Each bit in the byte sequence represents whether a corresponding
+    servo motor is active (1) or not (0). The function then splits
+    this bit sequence into the specified number of bytes.
+
+    Parameters
+    ----------
+    ids : List[int]
+        A list of integers representing the servo motor IDs.
+        Each ID should be less than num_bytes * 8.
+    num_bytes : int
+        The number of bytes to encode the IDs into.
+
+    Returns
+    -------
+    List[int]
+        A list of integers, where each integer is
+        a byte representation (0-255) of the servo motor states.
+        The list represents the bit sequence split into the specified
+        number of bytes.
+    """
+    bit_representation = 0
+    for idx in ids:
+        bit_representation |= 1 << idx
+    return [(bit_representation >> (8 * i)) & 0xFF for i in range(num_bytes)]
+
+
+def encode_servo_ids_to_5bytes_bin(ids: List[int]) -> List[int]:
+    """Encode a list of servo motor IDs into a 5-byte representation.
+
+    This is a specialized use of the general
+    function 'encode_servo_ids_to_nbytes_bin' for encoding
+    servo motor IDs into 5 bytes. It's suitable for servo motors
+    with IDs ranging from 0 to 39.
+
+    Parameters
+    ----------
+    ids : List[int]
+        A list of integers representing the servo motor IDs.
+        Each ID should be in the range 0 to 39.
+
+    Returns
+    -------
+    List[int]
+        A list of 5 integers, each representing a byte of the servo
+        motor states.
+
+    Examples
+    --------
+    >>> encode_servo_ids_to_5bytes_bin([2, 9, 16, 23, 30])
+    [4, 2, 1, 128, 64]
+
+    The corresponding binary representation of each byte is:
+    '00000100' (for the servo with ID 2),
+    '00000010' (for the servo with ID 9),
+    '00000001' (for the servo with ID 16),
+    '10000000' (for the servo with ID 23),
+    '01000000' (for the servo with ID 30).
+
+    This means the servo motors with IDs 2, 9, 16, 23, and 30 are active.
+    """
+    return encode_servo_ids_to_nbytes_bin(ids, 5)
 
 
 def rcb4_servo_positions(

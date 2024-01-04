@@ -63,3 +63,19 @@ jobs:
       with:
         pytest-xml-coverage-path: ./coverage.xml
         junitxml-path: ./pytest.xml
+
+  industrial_ci:
+    name: Run ROS Tests
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        env:
+          - {ROS_DISTRO: noetic, ROS_REPO: main}
+        os: [self-hosted]
+        python-version: [3.7]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}
+      - name: Check Python Version
+        run: python --version

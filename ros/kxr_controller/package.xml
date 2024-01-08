@@ -20,6 +20,9 @@
   <build_depend>actionlib</build_depend>
   <build_depend>actionlib_msgs</build_depend>
   <build_depend>kxr_models</build_depend>
+  <build_depend>libspatialindex-dev</build_depend>
+  <build_depend>libblas-dev</build_depend>
+  <build_depend>liblapack-dev</build_depend>
 
   <exec_depend>roscpp</exec_depend>
   <exec_depend>controller_manager</exec_depend>

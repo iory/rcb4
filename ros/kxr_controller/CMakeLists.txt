@@ -20,6 +20,7 @@ if(GCC_VERSION VERSION_LESS 9.4.0 AND (CMAKE_SYSTEM_PROCESSOR MATCHES "arm" OR C
 endif()
 
 find_package(catkin REQUIRED COMPONENTS
+  catkin_virtualenv
   actionlib
   actionlib_msgs
   std_msgs
@@ -45,6 +46,14 @@ catkin_package(
   CATKIN_DEPENDS roscpp controller_manager hardware_interface angles urdf
 )
 
+catkin_generate_virtualenv(
+  INPUT_REQUIREMENTS requirements.in
+  PYTHON_INTERPRETER python3
+  USE_SYSTEM_PACKAGES TRUE
+  ISOLATE_REQUIREMENTS FALSE
+  CHECK_VENV FALSE
+)
+
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
@@ -56,6 +65,15 @@ add_dependencies(kxr_controller ${PROJECT_NAME}_generate_messages_cpp ${PROJECT_
 target_link_libraries(kxr_controller
   ${catkin_LIBRARIES}
   ${Eigen_LIBRARIES}
+)
+
+file(GLOB PYTHON_SCRIPT_FILES node_scripts/*)
+catkin_install_python(
+  PROGRAMS ${PYTHON_SCRIPT_FILES}
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+install(FILES requirements.txt
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
 )
 
 install(TARGETS kxr_controller

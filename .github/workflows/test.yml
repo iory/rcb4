@@ -74,13 +74,6 @@ jobs:
           - {ROS_DISTRO: noetic, ROS_REPO: main}
         os: [self-hosted]
     steps:
-      - name: Install APT On Linux
-        run: |
-          apt-get update && apt-get install sudo cmake -y
-          sudo apt-get update -qq -y
-          sudo apt-get install -qq -y libspatialindex-dev freeglut3-dev libsuitesparse-dev libblas-dev liblapack-dev
-      - name: Install scikit-robot
-        run: pip install scikit-robot
       - uses: actions/checkout@v3
       - uses: 'iory/industrial_ci@master'
         env: ${{matrix.env}}

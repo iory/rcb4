@@ -19,6 +19,13 @@ if(GCC_VERSION VERSION_LESS 9.4.0 AND (CMAKE_SYSTEM_PROCESSOR MATCHES "arm" OR C
   message(STATUS "GCC version is less than 9.4.0 and target architecture is ARM. Setting CXX_FLAGS_RELEASE to -O2.")
 endif()
 
+get_filename_component(RCB4_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
+message(STATUS "RCB4 Directory: ${RCB4_DIR}")
+
+# Command to copy the modified requirements.in to requirements.in.with_rcb4
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/requirements.in ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 COPYONLY)
+file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 "${RCB4_DIR}\n")
+
 find_package(catkin REQUIRED COMPONENTS
   catkin_virtualenv
   actionlib
@@ -47,7 +54,7 @@ catkin_package(
 )
 
 catkin_generate_virtualenv(
-  INPUT_REQUIREMENTS requirements.in
+  INPUT_REQUIREMENTS requirements.in.with_rcb4
   PYTHON_INTERPRETER python3
   USE_SYSTEM_PACKAGES TRUE
   ISOLATE_REQUIREMENTS FALSE

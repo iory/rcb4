@@ -66,6 +66,7 @@ jobs:
 
   industrial_ci:
     name: Run ROS Tests
+    needs: [formatting, tests]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

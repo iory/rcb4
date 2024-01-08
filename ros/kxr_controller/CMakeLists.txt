@@ -61,3 +61,18 @@ target_link_libraries(kxr_controller
 install(TARGETS kxr_controller
   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
+
+if(CATKIN_ENABLE_TESTING)
+  find_package(rostest REQUIRED)
+  find_package(roslaunch REQUIRED)
+  if(roslaunch_VERSION VERSION_LESS "1.11.1")
+    message(WARNING "roslaunch_add_file check fails with unsupported doc attributes ${roslaunch_VERSION}")
+  else()
+    file(GLOB LAUNCH_FILES launch/*.launch)
+    foreach(LAUNCH_FILE ${LAUNCH_FILES})
+      roslaunch_add_file_check(${LAUNCH_FILE})
+    endforeach()
+  endif()
+  add_rostest(test/kxr_controller.test ARGS namespace:="")
+  add_rostest(test/kxr_controller.test ARGS namespace:="robot_a")
+endif()

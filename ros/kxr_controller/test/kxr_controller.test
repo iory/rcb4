@@ -1,9 +1,51 @@
 <launch>
 
+  <arg name="namespace" default="" />
+
   <include file="$(find kxr_controller)/launch/kxr_controller.launch">
     <arg name="urdf_path" value="$(find kxr_models)/urdf/kxr_test_head.urdf" />
     <arg name="servo_config_path" value="$(find kxr_models)/config/kxr_test_head_servo_config.yaml" />
     <arg name="namespace" value="robot_a" />
   </include>
+
+  <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >
+    <test test-name="test_ros_topics"
+          name="test_ros_topics"
+          pkg="jsk_tools" type="test_topic_published.py"
+          retry="3" >
+      <rosparam>
+        topic_0: current_joint_states
+        timeout_0: 30
+        topic_1: joint_states
+        timeout_1: 30
+        topic_2: kxr_fullbody_controller/follow_joint_trajectory/status
+        timeout_2: 30
+        topic_3: kxr_fullbody_controller/servo_on_off_real_interface/status
+        timeout_3: 30
+        topic_4: kxr_fullbody_controller/servo_on_off/status
+        timeout_4: 30
+      </rosparam>
+    </test>
+  </group>
+
+  <group unless="$(eval len(arg('namespace')) > 0)">
+    <test test-name="test_ros_topics"
+          name="test_ros_topics"
+          pkg="jsk_tools" type="test_topic_published.py"
+          retry="3" >
+      <rosparam>
+        topic_0: current_joint_states
+        timeout_0: 30
+        topic_1: joint_states
+        timeout_1: 30
+        topic_2: kxr_fullbody_controller/follow_joint_trajectory/status
+        timeout_2: 30
+        topic_3: kxr_fullbody_controller/servo_on_off_real_interface/status
+        timeout_3: 30
+        topic_4: kxr_fullbody_controller/servo_on_off/status
+        timeout_4: 30
+      </rosparam>
+    </test>
+  </group>
 
 </launch>

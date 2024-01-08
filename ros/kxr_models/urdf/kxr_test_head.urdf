@@ -1,0 +1,77 @@
+<?xml version="1.0"?>
+<robot name="kxrl2l2a6h2m"
+       xmlns:xi="http://www.w3.org/2001/XInclude">
+  <link name="bodyset94472077639384">
+    <visual>
+      <origin xyz="0 0 0.1205" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/bodyset94472077639384_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.1205" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/bodyset94472077639384_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.437124" />
+      <origin xyz="-0.005319 2.13443e-10 0.029207" rpy="0 -0 0"/>
+      <inertia ixx="0.001306" ixy="-8.28224e-06" ixz="-1.69917e-06" iyy="0.001381" iyz="1.4569e-06" izz="0.002216"/>
+    </inertial>
+  </link>
+  <link name="HEAD_LINK0">
+    <visual>
+      <origin xyz="-0.00725 0 0.084" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/HEAD_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="-0.00725 0 0.084" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/HEAD_LINK0_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.037398" />
+      <origin xyz="0 1.22056e-18 0.023093" rpy="0 -0 0"/>
+      <inertia ixx="6.28707e-05" ixy="3.12188e-21" ixz="8.61164e-09" iyy="6.69539e-05" iyz="-5.25778e-09" izz="2.5436e-05"/>
+    </inertial>
+  </link>
+  <link name="HEAD_LINK1">
+    <visual>
+      <origin xyz="0 0 0.036" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/HEAD_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0.036" rpy="0 -0 0"/>
+      <geometry>
+        <mesh filename="package://kxr_models/meshes/kxrl2l2a6h2m/HEAD_LINK1_mesh.dae" scale="1 1 1" />
+      </geometry>
+    </collision>
+    <inertial>
+      <mass value="0.160516" />
+      <origin xyz="0.001469 -6.19726e-19 0.171559" rpy="0 -0 0"/>
+      <inertia ixx="0.00092" ixy="-1.79922e-07" ixz="-6.65543e-08" iyy="0.000849" iyz="-1.79583e-08" izz="0.000187"/>
+    </inertial>
+  </link>
+  <joint name="HEAD_JOINT0" type="revolute">
+    <parent link="bodyset94472077639384"/>
+    <child  link="HEAD_LINK0"/>
+    <origin xyz="-0.00725 0 0.084" rpy="0 -0 0 "/>
+    <axis   xyz="0 0 -1"/>
+    <limit lower="-2.96706" upper="2.96706" effort="0.656248" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+  <joint name="HEAD_JOINT1" type="revolute">
+    <parent link="HEAD_LINK0"/>
+    <child  link="HEAD_LINK1"/>
+    <origin xyz="0 0 0.036" rpy="0 -0 0 "/>
+    <axis   xyz="0 -1 0"/>
+    <limit lower="-2.0944" upper="2.0944" effort="0.656248" velocity="7.47998" />
+    <dynamics damping="0.2" friction="0" />
+  </joint>
+</robot>

@@ -73,10 +73,7 @@ jobs:
         env:
           - {ROS_DISTRO: noetic, ROS_REPO: main}
         os: [self-hosted]
-        python-version: [3.7]
     steps:
       - uses: actions/checkout@v3
       - uses: 'iory/industrial_ci@master'
         env: ${{matrix.env}}
-      - name: Check Python Version
-        run: python --version

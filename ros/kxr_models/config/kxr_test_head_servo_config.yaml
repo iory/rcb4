@@ -1,0 +1,4 @@
+joint_name_to_servo_id: {
+  HEAD_JOINT0: 32,
+  HEAD_JOINT1: 34
+}

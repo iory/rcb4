@@ -12,7 +12,7 @@
     <test test-name="test_ros_topics"
           name="test_ros_topics"
           pkg="jsk_tools" type="test_topic_published.py"
-          retry="3" >
+          retry="1" >
       <rosparam>
         topic_0: current_joint_states
         timeout_0: 30
@@ -32,7 +32,7 @@
     <test test-name="test_ros_topics"
           name="test_ros_topics"
           pkg="jsk_tools" type="test_topic_published.py"
-          retry="3" >
+          retry="1" >
       <rosparam>
         topic_0: current_joint_states
         timeout_0: 30

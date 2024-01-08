@@ -1,1 +1,1 @@
-scikit-robot>=0.0.35
+scikit-robot @ git+https://github.com/iory/scikit-robot@aarch64

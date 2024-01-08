@@ -176,6 +176,9 @@ class ARMH7Interface(object):
             self.serial.close()
         self.serial = None
 
+    def is_opened(self):
+        return self.serial is not None
+
     def serial_write(self, byte_list):
         if self.serial is None:
             raise RuntimeError('Serial is not opened.')
@@ -185,6 +188,7 @@ class ARMH7Interface(object):
             try:
                 self.serial.write(data_to_send)
             except serial.SerialException as e:
+                self.close()
                 print(f"Error sending data: {e}")
             ret = self.serial_read()
         return ret
@@ -199,10 +203,12 @@ class ARMH7Interface(object):
             ready, _, _ = select.select(
                 [self.serial], [], [], timeout - (time.time() - start_time))
             if not ready:
+                self.close()
                 raise serial.SerialException("Timeout: No data received.")
 
             chunk = self.serial.read(self.serial.in_waiting or 1)
             if not chunk:
+                self.close()
                 raise serial.SerialException(
                     "Timeout: Incomplete data received.")
             read_data += chunk

@@ -315,6 +315,9 @@ class RCB4ROSBridge(object):
         rate = rospy.Rate(100)
 
         while not rospy.is_shutdown():
+            if self.arm.is_opened() is False:
+                rospy.logwarn('Disconnected.')
+                break
             with self.lock:
                 av = self.arm.angle_vector()
             msg = JointState()

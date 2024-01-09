@@ -37,7 +37,7 @@ jobs:
     strategy:
       matrix:
         os: [self-hosted]
-        python-version: [3.8, 3.11]
+        python-version: [3.8]
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64
@@ -63,3 +63,17 @@ jobs:
       with:
         pytest-xml-coverage-path: ./coverage.xml
         junitxml-path: ./pytest.xml
+
+  industrial_ci:
+    name: Run ROS Tests
+    needs: [formatting, tests]
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        env:
+          - {ROS_DISTRO: noetic, ROS_REPO: main, DOCKER_RUN_OPTS: "--device=/dev/ttyFTDI0"}
+        os: [self-hosted]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'ros-industrial/industrial_ci@master'
+        env: ${{matrix.env}}

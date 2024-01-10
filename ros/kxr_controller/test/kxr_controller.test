@@ -24,6 +24,8 @@
         timeout_3: 30
         topic_4: kxr_fullbody_controller/servo_on_off/status
         timeout_4: 30
+        topic_5: imu
+        timeout_5: 30
       </rosparam>
     </test>
   </group>
@@ -44,6 +46,8 @@
         timeout_3: 30
         topic_4: kxr_fullbody_controller/servo_on_off/status
         timeout_4: 30
+        topic_5: imu
+        timeout_5: 30
       </rosparam>
     </test>
   </group>

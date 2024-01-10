@@ -12,6 +12,7 @@ from kxr_controller.msg import ServoOnOffAction
 from kxr_controller.msg import ServoOnOffResult
 import numpy as np
 import rospy
+import sensor_msgs.msg
 from sensor_msgs.msg import JointState
 from skrobot.model import RobotModel
 from skrobot.utils.urdf import no_mesh_load_mode
@@ -194,6 +195,15 @@ class RCB4ROSBridge(object):
         self.proc_robot_state_publisher = run_robot_state_publisher(
             clean_namespace)
 
+        self.publish_imu = rospy.get_param('~publish_imu', True)
+        if self.publish_imu:
+            self.imu_frame_id = rospy.get_param(
+                '~imu_frame_id', clean_namespace + '/' + r.root_link.name)
+            self.imu_publisher = rospy.Publisher(
+                clean_namespace + '/imu',
+                sensor_msgs.msg.Imu,
+                queue_size=1)
+
     def velocity_command_joint_state_callback(self, msg):
         servo_ids = []
         av_length = len(self.arm.servo_sorted_ids)
@@ -315,6 +325,15 @@ class RCB4ROSBridge(object):
             self.arm.servo_angle_vector(servo_ids, servo_vector, velocity=10)
         return self.servo_on_off_server.set_succeeded(ServoOnOffResult())
 
+    def create_imu_message(self):
+        msg = sensor_msgs.msg.Imu()
+        msg.header.frame_id = self.imu_frame_id
+        msg.header.stamp = rospy.Time.now()
+        q_wxyz = self.arm.read_quaternion()
+        (msg.orientation.w, msg.orientation.x,
+         msg.orientation.y, msg.orientation.z) = q_wxyz
+        return msg
+
     def run(self):
         rate = rospy.Rate(100)
 
@@ -335,6 +354,10 @@ class RCB4ROSBridge(object):
                                 av[self.id_to_index[servo_id]]))
                         msg.name.append(name)
             self.current_joint_states_pub.publish(msg)
+
+            if self.publish_imu:
+                imu_msg = self.create_imu_message()
+                self.imu_publisher.publish(imu_msg)
             rate.sleep()
 
 

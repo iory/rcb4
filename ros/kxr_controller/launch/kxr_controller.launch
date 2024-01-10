@@ -3,6 +3,8 @@
   <arg name="urdf_path" default="$(find kxr_models)/urdf/kxrl2l2a6h2m.urdf" />
   <arg name="servo_config_path" default="$(find kxr_models)/config/kxrl2l2a6h2m_servo_config.yaml" />
   <arg name="namespace" default="" />
+  <arg name="publish_imu" default="true" />
+  <arg name="imu_frame_id" default="/bodyset94472077639384" />
 
   <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >
     <node name="rcb4_ros_bridge"
@@ -13,6 +15,8 @@
       <rosparam subst_value="true" >
         urdf_path: $(arg urdf_path)
         servo_config_path: $(arg servo_config_path)
+        publish_imu: $(arg publish_imu)
+        imu_frame_id: $(arg namespace)/$(arg imu_frame_id)
       </rosparam>
     </node>
 
@@ -36,6 +40,8 @@
       <rosparam subst_value="true" >
         urdf_path: $(arg urdf_path)
         servo_config_path: $(arg servo_config_path)
+        publish_imu: $(arg publish_imu)
+        imu_frame_id: $(arg imu_frame_id)
       </rosparam>
     </node>
 

@@ -288,6 +288,7 @@ class ARMH7Interface(object):
         return cls(buf)
 
     def memory_write(self, addr, length, data):
+        addr = int(addr)  # for numpy
         cnt = 1
         e_size = length
         skip_size = 0
@@ -311,10 +312,10 @@ class ARMH7Interface(object):
         byte_list = bytearray(n)
         byte_list[0] = n
         byte_list[1] = 0xfa
-        byte_list[2:6] = addr.to_bytes(4, byteorder='little')
+        byte_list[2:6] = int(addr).to_bytes(4, byteorder='little')
         byte_list[6] = argc
         for i in range(argc):
-            byte_list[7 + i * 4] = args[i].to_bytes(4, byteorder='little')
+            byte_list[7 + i * 4] = int(args[i]).to_bytes(4, byteorder='little')
         byte_list[n - 1] = rcb4_checksum(byte_list[0:n-1])
         return self.serial_write(byte_list)
 

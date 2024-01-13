@@ -466,13 +466,58 @@ class ARMH7Interface(object):
                                        servo_vector,
                                        velocity=velocity)
 
-    def servo_angle_vector(self, servo_ids, servo_vector, velocity=1000):
+    def servo_angle_vector(self, servo_ids, servo_vector, velocity=127):
+        """Sends a command to control multiple servos.
+
+        This function sorts the servo IDs and corresponding angles,
+        constructs a command byte list, and sends it.
+        The velocity parameter is clamped between 1 and 255.
+
+        Parameters
+        ----------
+        servo_ids : array_like
+            Array of servo IDs. Each ID corresponds to a specific servo.
+        servo_vector : array_like
+            Array of angles (in servo pulse) for the servos.
+            Each angle corresponds to the servo ID at the same index
+            in servo_ids.
+        velocity : int, optional
+            Velocity for the servo movement, clamped between 1 and 255.
+            Default value is 127.
+
+        Raises
+        ------
+        ValueError
+            If the length of `servo_ids` does not match the length
+            of `servo_vector`.
+
+        Notes
+        -----
+        The function internally sorts `servo_ids` and `servo_vector`
+        based on the servo IDs to maintain the correspondence
+        between each servo ID and its angle. This sorted order is
+        used for constructing the command byte list.
+        """
+        if len(servo_ids) != len(servo_vector):
+            raise ValueError(
+                'Length of servo_ids and servo_vector must be the same.')
+
+        # Sort the servo vectors based on servo IDs
+        sorted_indices = np.argsort(servo_ids)
+        sorted_servo_ids = np.array(servo_ids)[sorted_indices]
+        sorted_servo_vector = np.array(servo_vector)[sorted_indices]
+
+        # Prepare the command byte list
         byte_list = [CommandTypes.MultiServoSingleVelocity.value] \
-            + encode_servo_ids_to_5bytes_bin(servo_ids) \
+            + encode_servo_ids_to_5bytes_bin(sorted_servo_ids) \
             + [rcb4_velocity(velocity)] \
-            + encode_servo_positions_to_bytes(servo_vector)
+            + encode_servo_positions_to_bytes(sorted_servo_vector)
+
+        # Add header (length) and checksum to the byte list
         byte_list.insert(0, 2 + len(byte_list))
         byte_list.append(rcb4_checksum(byte_list))
+
+        # send the command
         return self.serial_write(byte_list)
 
     def servo_param64(self, sid, param_names=None):

@@ -275,9 +275,6 @@ class RCB4ROSBridge(object):
             return
         svs = np.matmul(self.arm.joint_to_actuator_matrix, tmp_av)[
             np.array(valid_indices)]
-        indices = np.argsort(servo_ids)
-        svs = svs[indices]
-        servo_ids = np.array(servo_ids)[indices]
         if self._prev_velocity_command is not None and np.allclose(
                 self._prev_velocity_command, svs):
             return
@@ -330,9 +327,6 @@ class RCB4ROSBridge(object):
             return
         svs = np.matmul(self.arm.joint_to_actuator_matrix, tmp_av)[
             np.array(valid_indices)]
-        indices = np.argsort(servo_ids)
-        svs = svs[indices]
-        servo_ids = np.array(servo_ids)[indices]
         try:
             if len(worm_indices) > 0:
                 worm_av_tmp = np.array(self.arm.read_cstruct_slot_vector(
@@ -359,10 +353,6 @@ class RCB4ROSBridge(object):
             else:
                 servo_vector.append(32768)
                 self.joint_servo_on[joint_name] = False
-        servo_vector = np.array(servo_vector)
-        indices = np.argsort(servo_ids)
-        servo_vector = servo_vector[indices]
-        servo_ids = np.array(servo_ids)[indices]
         try:
             self.arm.servo_angle_vector(servo_ids, servo_vector, velocity=10)
         except RuntimeError as e:

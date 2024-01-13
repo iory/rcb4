@@ -22,7 +22,32 @@ def rcb4_checksum(byte_list: List[int]) -> int:
     return sum(b & 0xff for b in byte_list) & 0xff
 
 
-def rcb4_velocity(v):
+def rcb4_velocity(v) -> int:
+    """Adjust the velocity value to be within the range of 1 to 255.
+
+    This function takes an input velocity `v`, rounds it to the nearest
+    integer, and then clamps the value within the range 1 to 255 inclusive.
+
+    Parameters
+    ----------
+    v : float
+        The input velocity value that needs to be adjusted.
+
+    Returns
+    -------
+    int
+        The adjusted velocity value, which is an integer
+        in the range from 1 to 255 inclusive.
+
+    Examples
+    --------
+    >>> rcb4_velocity(0.5)
+    1
+    >>> rcb4_velocity(127.8)
+    128
+    >>> rcb4_velocity(300)
+    255
+    """
     return max(1, min(255, int(round(v))))
 
 

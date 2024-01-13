@@ -22,10 +22,6 @@ endif()
 get_filename_component(RCB4_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../.." ABSOLUTE)
 message(STATUS "RCB4 Directory: ${RCB4_DIR}")
 
-# Command to copy the modified requirements.in to requirements.in.with_rcb4
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/requirements.in ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 COPYONLY)
-file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 "${RCB4_DIR}\n")
-
 find_package(catkin REQUIRED COMPONENTS
   catkin_virtualenv
   actionlib
@@ -56,11 +52,23 @@ catkin_package(
 )
 
 catkin_generate_virtualenv(
-  INPUT_REQUIREMENTS requirements.in.with_rcb4
+  INPUT_REQUIREMENTS requirements.in
   PYTHON_INTERPRETER python3
   USE_SYSTEM_PACKAGES TRUE
   ISOLATE_REQUIREMENTS FALSE
   CHECK_VENV FALSE
+)
+
+add_custom_command(
+  OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/after_venv_script"
+  COMMAND echo "${_python} -m pip install ${RCB4_DIR}"
+  COMMAND . ${_venv_setup} && ${_python} -m pip install ${RCB4_DIR}
+  DEPENDS ${PROJECT_NAME}_generate_virtualenv
+)
+
+add_custom_target(
+  run_after_venv ALL
+  DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/after_venv_script"
 )
 
 include_directories(

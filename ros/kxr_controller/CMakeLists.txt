@@ -59,12 +59,16 @@ catkin_generate_virtualenv(
   CHECK_VENV FALSE
 )
 
+set(_python "${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/venv/bin/python")
+set(_venv_setup "${CATKIN_DEVEL_PREFIX}/${CATKIN_PACKAGE_SHARE_DESTINATION}/venv/bin/activate")
+
 add_custom_command(
   OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/after_venv_script"
   COMMAND echo "${_python} -m pip install ${RCB4_DIR}"
   COMMAND . ${_venv_setup} && ${_python} -m pip install ${RCB4_DIR}
-  DEPENDS ${PROJECT_NAME}_generate_virtualenv
+  DEPENDS ${PROJECT_NAME}_generate_virtualenv ${_venv_setup} ${_python}
 )
+
 
 add_custom_target(
   run_after_venv ALL

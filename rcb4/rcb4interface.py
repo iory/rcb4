@@ -7,6 +7,7 @@ class CommandTypes(Enum):
     Call = 0x0C
     SingleServo = 0x0F
     MultiServoSingleVelocity = 0x10
+    MultiServoMultiVelocities = 0x11
     ServoParam = 0x12
     Version = 0xFD
     AckCheck = 0xFE

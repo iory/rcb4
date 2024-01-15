@@ -143,6 +143,59 @@ def encode_servo_positions_to_bytes(fvector: List[float]) -> List[int]:
     return list(int_positions.tobytes())
 
 
+def encode_servo_velocity_and_position_to_bytes(
+        velocities: List[float], positions: List[float]) -> List[int]:
+    """Convert lists of servo velocities and positions to a byte sequence.
+
+    This function takes lists of servo velocities and positions, clips them to
+    appropriate ranges, and encodes them as a sequence of bytes. Each velocity
+    is represented as a single byte (uint8), and each position is represented
+    as two bytes (uint16). The resulting byte sequence alternates between
+    a velocity byte and the two bytes of a position.
+
+    Parameters
+    ----------
+    velocities : List[float]
+        A list of servo velocities. Each velocity should be a float, and
+        the list will be clipped to the range [1, 255].
+
+    positions : List[float]
+        A list of servo positions. Each position should be a float, and
+        the list will be clipped to the range [0, 65535].
+
+    Returns
+    -------
+    List[int]
+        A list of bytes representing the interleaved velocities and positions.
+        Each velocity is followed by the low byte and then the high byte of the
+        corresponding position.
+
+    Examples
+    --------
+    >>> encode_servo_velocity_and_position_to_bytes(
+    [100.5, 200.3, 300.7], [400.9, 500.1, 600.5])
+    [100, 145, 1, 200, 244, 1, 255, 88, 2]
+
+    Note
+    ----
+    The function assumes that the lengths of `velocities` and `positions`
+    are the same.
+    """
+    velocities = np.clip(velocities, 1, 0xFF)
+    positions = np.clip(positions, 0, 0xFFFF)
+
+    int_positions = np.round(positions).astype(np.uint16)
+    int_velocities = np.round(velocities).astype(np.uint8)
+
+    # Split the 16-bit position data into two 8-bit parts
+    positions_low = (int_positions & 0xFF).astype(np.uint8)
+    positions_high = (int_positions >> 8).astype(np.uint8)
+
+    velocities_positions = np.vstack(
+        (int_velocities, positions_low, positions_high)).T.flatten()
+    return list(velocities_positions.tobytes())
+
+
 def four_bit_to_num(lst: List[int], values: List[int]):
     result = 0
     for index in lst:

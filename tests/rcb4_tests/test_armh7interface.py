@@ -71,6 +71,21 @@ class TestRobotModel(unittest.TestCase):
         time.sleep(4.0)
         if np.any(np.abs(self.interface.angle_vector() - 16) > 2.0):
             self.assertRaises()
+
+        # multi velocities
+        reference = [7500, 7500]
+        self.interface.servo_angle_vector(
+            [32, 34],
+            reference,
+            velocity=[10, 1])
+        time.sleep(1.0)
+        testing.assert_array_almost_equal(
+            self.interface.reference_angle_vector(),
+            reference)
+        time.sleep(4.0)
+        if np.any(np.abs(self.interface.angle_vector() - 0) > 2.0):
+            self.assertRaises()
+
         self.interface.neutral()
         time.sleep(4.0)
         self.interface.free()

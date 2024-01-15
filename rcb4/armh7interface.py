@@ -15,6 +15,7 @@ import serial.tools.list_ports
 
 from rcb4.asm import encode_servo_ids_to_5bytes_bin
 from rcb4.asm import encode_servo_positions_to_bytes
+from rcb4.asm import encode_servo_velocity_and_position_to_bytes
 from rcb4.asm import four_bit_to_num
 from rcb4.asm import rcb4_checksum
 from rcb4.asm import rcb4_servo_svector
@@ -552,7 +553,7 @@ class ARMH7Interface(object):
             Array of angles (in servo pulse) for the servos.
             Each angle corresponds to the servo ID at the same index
             in servo_ids.
-        velocity : int, optional
+        velocity : int, or array like optional
             Velocity for the servo movement, clamped between 1 and 255.
             Default value is 127.
 
@@ -579,10 +580,18 @@ class ARMH7Interface(object):
         sorted_servo_vector = np.array(servo_vector)[sorted_indices]
 
         # Prepare the command byte list
-        byte_list = [CommandTypes.MultiServoSingleVelocity.value] \
-            + encode_servo_ids_to_5bytes_bin(sorted_servo_ids) \
-            + [rcb4_velocity(velocity)] \
-            + encode_servo_positions_to_bytes(sorted_servo_vector)
+        if isinstance(velocity, list) or isinstance(velocity, tuple) \
+           or isinstance(velocity, np.ndarray):
+            sorted_servo_velocities = np.array(velocity)[sorted_indices]
+            byte_list = [CommandTypes.MultiServoMultiVelocities.value] \
+                + encode_servo_ids_to_5bytes_bin(sorted_servo_ids) \
+                + encode_servo_velocity_and_position_to_bytes(
+                    sorted_servo_velocities, sorted_servo_vector)
+        else:
+            byte_list = [CommandTypes.MultiServoSingleVelocity.value] \
+                + encode_servo_ids_to_5bytes_bin(sorted_servo_ids) \
+                + [rcb4_velocity(velocity)] \
+                + encode_servo_positions_to_bytes(sorted_servo_vector)
 
         # Add header (length) and checksum to the byte list
         byte_list.insert(0, 2 + len(byte_list))

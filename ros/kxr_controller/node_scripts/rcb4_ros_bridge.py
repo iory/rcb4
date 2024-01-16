@@ -330,12 +330,13 @@ class RCB4ROSBridge(object):
         msg = sensor_msgs.msg.Imu()
         msg.header.frame_id = self.imu_frame_id
         msg.header.stamp = rospy.Time.now()
-        q_wxyz = self.arm.read_quaternion()
+        q_wxyz, acc, gyro = self.arm.read_imu_data()
         (msg.orientation.w, msg.orientation.x,
          msg.orientation.y, msg.orientation.z) = q_wxyz
-        _, gyro = self.arm.gyro_norm_vector()
         (msg.angular_velocity.x, msg.angular_velocity.y,
          msg.angular_velocity.z) = gyro
+        (msg.linear_acceleration.x, msg.linear_acceleration.y,
+         msg.linear_acceleration.z) = acc
         return msg
 
     def run(self):

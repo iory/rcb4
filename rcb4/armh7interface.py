@@ -35,6 +35,7 @@ from rcb4.struct_header import SensorbaseStruct
 from rcb4.struct_header import ServoStruct
 from rcb4.struct_header import SystemStruct
 from rcb4.struct_header import WormmoduleStruct
+from rcb4.units import convert_data
 
 
 armh7_variable_list = [
@@ -637,6 +638,14 @@ class ARMH7Interface(object):
     def read_rpy(self):
         cs = self.memory_cstruct(Madgwick, 0)
         return [cs.roll, cs.pitch, cs.yaw]
+
+    def read_imu_data(self):
+        cs = self.memory_cstruct(Madgwick, 0)
+        acc = convert_data(cs.acc, 8)
+        q_wxyz = np.array([cs.q0, cs.q1, cs.q2, cs.q3], dtype=np.float32)
+        gyro = convert_data(cs.gyro, 2000)
+        gyro = np.deg2rad(gyro)
+        return q_wxyz, acc, gyro
 
     def gyro_norm_vector(self):
         g = self.memory_cstruct(Madgwick, 0).gyro

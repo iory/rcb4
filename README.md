@@ -1,9 +1,6 @@
 # rcb4
 
-### Roseus interface for KXR system
-https://gist.github.com/iory/d8ff5bb8b0ebed12deca371b891c7e08
-
-### Read worm gear magenc
+## Read worm gear magenc
 
 ```
 from rcb4.armh7interface import ARMH7Interface
@@ -16,8 +13,9 @@ while True:
         print(sensor.magenc)
 ```
 
-### Calibrate worm gear servo module
+## Calibrate worm gear servo module
 https://gist.github.com/iory/53399a69cec6127558ae123059cc2961
+
 
 ### Move Kondo motors
 
@@ -38,4 +36,32 @@ interface.hold([10])
 interface.angle_vector([-20], servo_ids=[10])
 # If arg is empty, free all motors
 interface.free([10])
+```
+
+# ROS
+
+## Start ROS controller
+
+On radxa,
+
+```
+roslaunch kxr_controller kxr_controller.launch urdf_path:=PATH_TO_URDF servo_config_path:=PATH_TO_SERVO_CONFIG
+```
+
+## Roseus interface for KXR system
+
+Start roseus interface for rcb4 on radxa
+
+```
+roslaunch kxreus eusmodel_server.launch
+```
+
+Start roseus client
+
+```
+roseus $(rospack find kxreus)/euslisp/kxr-interface.l
+(kxr-init)
+(send *ri* :servo-on)
+(send *ri* :angle-vector (send *robot* :angle-vector) 3000)
+(send *ri* :servo-off)
 ```

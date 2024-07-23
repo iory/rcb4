@@ -6,6 +6,7 @@
   <arg name="publish_imu" default="true" />
   <arg name="publish_sensor" default="false" />
   <arg name="publish_battery_voltage" default="false" />
+  <arg name="control_pressure" default="false" />
   <arg name="imu_frame_id" default="/bodyset94472077639384" />
   <arg name="control_loop_rate" default="20" />
   <arg name="use_rcb4" default="false" doc="Flag to use RCB4 mini board"/>
@@ -37,6 +38,7 @@
         publish_imu: $(arg publish_imu)
         publish_sensor: $(arg publish_sensor)
         publish_battery_voltage: $(arg publish_battery_voltage)
+        control_pressure: $(arg control_pressure)
         imu_frame_id: $(arg namespace)/$(arg imu_frame_id)
         use_rcb4: $(arg use_rcb4)
       </rosparam>
@@ -70,6 +72,7 @@
         publish_imu: $(arg publish_imu)
         publish_sensor: $(arg publish_sensor)
         publish_battery_voltage: $(arg publish_battery_voltage)
+        control_pressure: $(arg control_pressure)
         imu_frame_id: $(arg imu_frame_id)
         use_rcb4: $(arg use_rcb4)
       </rosparam>

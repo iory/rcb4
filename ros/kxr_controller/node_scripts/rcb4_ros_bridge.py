@@ -5,9 +5,12 @@ import os.path as osp
 import shlex
 import subprocess
 import sys
+import threading
 
 import actionlib
 import geometry_msgs.msg
+from kxr_controller.msg import PressureControlAction
+from kxr_controller.msg import PressureControlResult
 from kxr_controller.msg import ServoOnOffAction
 from kxr_controller.msg import ServoOnOffResult
 from kxr_controller.msg import Stretch
@@ -160,6 +163,9 @@ class RCB4ROSBridge(object):
         # set servo ids to rosparam
         rospy.set_param(clean_namespace + '/servo_ids',
                         self.interface.search_servo_ids().tolist())
+        # set air board ids to rosparam
+        rospy.set_param(clean_namespace + '/air_board_ids',
+                        self.interface.search_air_board_ids().tolist())
 
         wheel_servo_sorted_ids = []
         trim_vector_servo_ids = []
@@ -213,6 +219,7 @@ class RCB4ROSBridge(object):
 
         # TODO(someone) support rcb-4 miniboard
         if not rospy.get_param('~use_rcb4'):
+            # Stretch
             self.stretch_server = actionlib.SimpleActionServer(
                 clean_namespace
                 + '/kxr_fullbody_controller/stretch_interface',
@@ -228,6 +235,20 @@ class RCB4ROSBridge(object):
                 latch=True)
             rospy.sleep(0.1)
             self.publish_stretch()
+            # Pressure control
+            self.control_pressure = rospy.get_param('~control_pressure', False)
+            if self.control_pressure is True:
+                self.pressure_control_thread = None
+                self.pressure_control_server = actionlib.SimpleActionServer(
+                    clean_namespace
+                    + '/kxr_fullbody_controller/pressure_control_interface',
+                    PressureControlAction,
+                    execute_cb=self.pressure_control_callback,
+                    auto_start=False)
+                self.pressure_control_server.start()
+                self.air_board_ids = self.interface.search_air_board_ids() \
+                                                   .tolist()
+                self._pressure_publisher_dict = {}
 
         self.proc_controller_spawner = subprocess.Popen(
             [f'/opt/ros/{os.environ["ROS_DISTRO"]}/bin/rosrun',
@@ -428,6 +449,72 @@ class RCB4ROSBridge(object):
                 joint_names, stretch))
         return self.stretch_server.set_succeeded(StretchResult())
 
+    def publish_pressure(self):
+        for idx in self.air_board_ids:
+            try:
+                key = f'{idx}'
+                if key not in self._pressure_publisher_dict:
+                    self._pressure_publisher_dict[key] = rospy.Publisher(
+                        self.clean_namespace
+                        + '/kxr_fullbody_controller/pressure/'+key,
+                        std_msgs.msg.Float32,
+                        queue_size=1)
+                pressure = self.interface.read_pressure_sensor(idx)
+                self._pressure_publisher_dict[key].publish(
+                    std_msgs.msg.Float32(data=pressure))
+            except serial.serialutil.SerialException as e:
+                rospy.logerr('[publish_pressure] {}'.format(str(e)))
+
+    def pressure_control_loop(self, idx, threshold, release):
+        while self.pressure_control_running is True:
+            if release is True:
+                self.interface.stop_pump()
+                # Stop valve between pump and valve
+                self.interface.close_work_valve(idx)
+                self.interface.open_air_connect_valve()
+                rospy.sleep(10)  # Wait until air is completely released
+                self.interface.close_air_connect_valve()
+                self.pressure_control_running = False
+            else:
+                self.interface.close_air_connect_valve()
+                try:
+                    pressure = self.interface.read_pressure_sensor(idx)
+                except serial.serialutil.SerialException as e:
+                    rospy.logerr('[publish_pressure] {}'.format(str(e)))
+                    continue
+                # Use pump when insufficient pressure reduction
+                if pressure > threshold:
+                    self.interface.start_pump()
+                    self.interface.open_work_valve(idx)
+                    # Use pump for 1[s].
+                    # This duration depends on vacuum pad size
+                    rospy.sleep(1)
+                    self.interface.close_work_valve(idx)
+                    rospy.sleep(0.3)  # Wait for valve to close completely
+                    # Stop pump
+                    self.interface.stop_pump()
+            rospy.sleep(1)  # pressure control loop rate
+
+    def pressure_control_callback(self, goal):
+        if self.pressure_control_thread is not None:
+            # Finish existing thread
+            self.pressure_control_running = False
+            # Wait for the finishing process complete
+            while self.pressure_control_thread.is_alive() is True:
+                rospy.sleep(0.1)
+        # Set new thread
+        idx = goal.board_idx
+        threshold = goal.threshold
+        release = goal.release
+        self.pressure_control_running = True
+        self.pressure_control_thread = threading.Thread(
+            target=self.pressure_control_loop,
+            args=(idx, threshold, release,),
+            daemon=True)
+        self.pressure_control_thread.start()
+        return self.pressure_control_server.set_succeeded(
+            PressureControlResult())
+
     def publish_imu_message(self):
         msg = sensor_msgs.msg.Imu()
         msg.header.frame_id = self.imu_frame_id
@@ -522,6 +609,8 @@ class RCB4ROSBridge(object):
                 self.publish_sensor_values()
             if self.publish_battery_voltage:
                 self.publish_battery_voltage_value()
+            if self.control_pressure:
+                self.publish_pressure()
             rate.sleep()
 
 

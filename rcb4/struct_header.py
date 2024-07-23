@@ -118,6 +118,19 @@ struct SensorbaseStruct
 """)
 SensorbaseStruct.__name__ = 'Sensor_vector'
 
+
+GPIOStruct = cstruct.parse("""
+struct GPIOStruct
+{
+    uint8_t port;
+    uint8_t id;
+    uint8_t mode;
+    uint8_t gpio_updated;
+};
+""")
+GPIOStruct.__name__ = 'GPIO_vector'
+
+
 ImuData = cstruct.parse("""
 struct ImuData_t
 {

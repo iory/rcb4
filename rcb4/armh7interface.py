@@ -1114,6 +1114,33 @@ class ARMH7Interface(object):
         return [self.read_jb_cstruct(idx)
                 for idx in self.id_vector]
 
+    def read_pressure_sensor(self, board_idx):
+        """Returns pressure sensor value of air_relay board.
+
+        Equation for calculating pressure value is following
+        - v_diff[V]:
+            (3.1395 * pressure[kPa] + 10.739) / 1000
+            output of wheatstone bridge in pressure sensor
+            when sensor input voltage is 5V, so need to convert for 4.14V.
+            4.14V is determined by constant current circuit.
+            -> See https://api.puiaudio.com/file/2ee7baab-a644-43d5-
+               96e0-0b83ff2e8e64.pdf, p.3
+        - v_amplified[V]:
+            v_diff[V] * GAIN + V_OFFSET[V]
+        - adc_raw:
+            v_amplified[V] / 3.3[V] * 4095 (12bit)
+        """
+        V_OFFSET = 1.65
+        GAIN = 7.4
+
+        all_sensor_data = self.read_jb_cstruct(board_idx)
+        adc_raw = all_sensor_data.adc[3]
+
+        v_amplified = 3.3 * adc_raw / 4095
+        v_diff = (v_amplified - V_OFFSET) / GAIN
+        pressure = (v_diff * 1000 * 5.0 / 4.14 - 10.739) / 3.1395
+        return pressure
+
     @property
     def servo_id_to_worm_id(self):
         return self._servo_id_to_worm_id

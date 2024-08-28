@@ -11,7 +11,10 @@ import threading
 import xml.etree.ElementTree as ET
 
 import actionlib
+from actionlib_msgs.msg import GoalID
 import geometry_msgs.msg
+from kxr_controller.msg import AdjustAngleVectorAction
+from kxr_controller.msg import AdjustAngleVectorResult
 from kxr_controller.msg import PressureControl
 from kxr_controller.msg import PressureControlAction
 from kxr_controller.msg import PressureControlResult
@@ -211,7 +214,8 @@ class RCB4ROSBridge(object):
         # set servo ids to rosparam
         rospy.set_param(clean_namespace + '/servo_ids',
                         self.interface.search_servo_ids().tolist())
-        if not rospy.get_param('~use_rcb4'):
+        self.control_pressure = rospy.get_param('~control_pressure', False)
+        if not rospy.get_param('~use_rcb4') and self.control_pressure is True:
             # set air board ids to rosparam
             rospy.set_param(clean_namespace + '/air_board_ids',
                             self.interface.search_air_board_ids().tolist())
@@ -268,6 +272,22 @@ class RCB4ROSBridge(object):
         rospy.sleep(0.1)
         self.servo_on_off_server.start()
 
+        self.adjust_angle_vector_server = actionlib.SimpleActionServer(
+            clean_namespace
+            + '/kxr_fullbody_controller/adjust_angle_vector_interface',
+            AdjustAngleVectorAction,
+            execute_cb=self.adjust_angle_vector_callback,
+            auto_start=False)
+        # Avoid 'rospy.exceptions.ROSException: publish() to a closed topic'
+        rospy.sleep(0.1)
+        self.adjust_angle_vector_server.start()
+        self.cancel_motion_pub = rospy.Publisher(
+            clean_namespace
+            + '/kxr_fullbody_controller/follow_joint_trajectory'
+            + '/cancel',
+            GoalID,
+            queue_size=1)
+
         # TODO(someone) support rcb-4 miniboard
         if not rospy.get_param('~use_rcb4'):
             # Stretch
@@ -292,7 +312,6 @@ class RCB4ROSBridge(object):
             rospy.sleep(0.1)
             self.publish_stretch()
             # Pressure control
-            self.control_pressure = rospy.get_param('~control_pressure', False)
             if self.control_pressure is True:
                 self.pressure_control_thread = None
                 self.pressure_control_server = actionlib.SimpleActionServer(
@@ -483,6 +502,32 @@ class RCB4ROSBridge(object):
         except serial.serialutil.SerialException as e:
             rospy.logerr('[servo_on_off] {}'.format(str(e)))
         return self.servo_on_off_server.set_succeeded(ServoOnOffResult())
+
+    def adjust_angle_vector_callback(self, goal):
+        servo_ids = []
+        error_thresholds = []
+        for joint_name, error_threshold in zip(
+                goal.joint_names, goal.error_threshold):
+            if joint_name not in self.joint_name_to_id:
+                continue
+            servo_ids.append(self.joint_name_to_id[joint_name])
+            error_thresholds.append(error_threshold)
+        try:
+            adjust = self.interface.adjust_angle_vector(
+                servo_ids=servo_ids,
+                error_threshold=np.array(error_thresholds, dtype=np.float32))
+            # If adjustment occurs, cancel motion via follow joint trajectory
+            if adjust is True:
+                self.cancel_motion_pub.publish(GoalID())
+                rospy.logwarn(
+                    'Stop motion by sending follow joint trajectory cancel.')
+        except RuntimeError as e:
+            self.unsubscribe()
+            rospy.signal_shutdown('Disconnected {}.'.format(e))
+        except serial.serialutil.SerialException as e:
+            rospy.logerr('[adjust_angle_vector] {}'.format(str(e)))
+        return self.adjust_angle_vector_server.set_succeeded(
+            AdjustAngleVectorResult())
 
     def publish_stretch(self):
         # Get current stretch of all servo motors and publish them

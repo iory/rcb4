@@ -133,7 +133,7 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         start_time = time.time()
         # When all controllers finish interpolation or timeout,
         # return from this function
-        while True:
+        while not rospy.is_shutdown():
             self.adjust_angle_vector(
                 joint_names=joint_names,
                 error_threshold=error_threshold)

@@ -1,5 +1,4 @@
 import numbers
-import time
 
 import actionlib
 import actionlib_msgs.msg
@@ -130,7 +129,7 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
                 *args, timeout=timeout, **kwargs)
         if timeout == 0:
             timeout = float('inf')
-        start_time = time.time()
+        start_time = rospy.Time.now()
         # When all controllers finish interpolation or timeout,
         # return from this function
         while not rospy.is_shutdown():
@@ -141,7 +140,8 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
                 KXRROSRobotInterface, self).wait_interpolation(
                     *args, timeout=0.1, **kwargs)
             is_interpolating = any(is_interpolating_list)
-            elapsed_time = time.time() - start_time
+            elapsed_time = rospy.Time.now() - start_time
+            elapsed_time = elapsed_time.to_sec()
             if is_interpolating is False or elapsed_time > timeout:
                 return is_interpolating_list
 

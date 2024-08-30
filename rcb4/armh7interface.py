@@ -485,6 +485,7 @@ class ARMH7Interface(object):
         """
         if servo_ids is None:
             servo_ids = self.search_servo_ids()
+        servo_ids = np.array(servo_ids)
         # Ignore free servo
         servo_ids = servo_ids[
             self.reference_angle_vector(servo_ids=servo_ids) != 32768]
@@ -516,7 +517,7 @@ class ARMH7Interface(object):
             print(f'Servo {error_ids} error {error_av[error_indices]}[deg]'
                   f' exceeds threshold {error_threshold[error_indices]}[deg].')
             print('Stop motion by overriding reference angle vector with'
-                  'current angle vector.')
+                  ' current angle vector.')
             all_servo_ids = self.search_servo_ids()
             self.servo_angle_vector(
                 all_servo_ids,

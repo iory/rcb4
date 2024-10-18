@@ -1,6 +1,10 @@
+import numbers
+
 import actionlib
 import actionlib_msgs.msg
 import control_msgs.msg
+from kxr_controller.msg import AdjustAngleVectorAction
+from kxr_controller.msg import AdjustAngleVectorGoal
 from kxr_controller.msg import PressureControlAction
 from kxr_controller.msg import PressureControlGoal
 from kxr_controller.msg import ServoOnOffAction
@@ -8,6 +12,7 @@ from kxr_controller.msg import ServoOnOffGoal
 from kxr_controller.msg import Stretch
 from kxr_controller.msg import StretchAction
 from kxr_controller.msg import StretchGoal
+import numpy as np
 import rospy
 from skrobot.interfaces.ros.base import ROSRobotInterfaceBase
 import std_msgs.msg
@@ -32,6 +37,12 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
             namespace + '/kxr_fullbody_controller/servo_on_off',
             ServoOnOffAction)
         self.servo_on_off_client.wait_for_server()
+        # Adjust angle vector client
+        self.adjust_angle_vector_client = actionlib.SimpleActionClient(
+            namespace
+            + '/kxr_fullbody_controller/adjust_angle_vector_interface',
+            AdjustAngleVectorAction)
+        self.adjust_angle_vector_client.wait_for_server()
         # Stretch client
         self.stretch_client = actionlib.SimpleActionClient(
             namespace + '/kxr_fullbody_controller/stretch_interface',
@@ -89,6 +100,50 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         goal.joint_names = joint_names
         goal.servo_on_states = [False] * len(joint_names)
         client.send_goal(goal)
+
+    def adjust_angle_vector(
+            self, joint_names=None, error_threshold=np.deg2rad(5)):
+        if joint_names is None:
+            joint_names = self.joint_names
+        goal = AdjustAngleVectorGoal()
+        client = self.adjust_angle_vector_client
+        if client.get_state() == actionlib_msgs.msg.GoalStatus.ACTIVE:
+            client.cancel_goal()
+            client.wait_for_result(timeout=rospy.Duration(10))
+        goal.joint_names = joint_names
+        if isinstance(error_threshold, numbers.Number):
+            error_threshold = [
+                error_threshold for _ in range(len(joint_names))]
+        goal.error_threshold = error_threshold
+        client.send_goal(goal)
+
+    def wait_interpolation(
+            self, *args,
+            timeout=0,
+            adjust_angle_vector=False,
+            joint_names=None,
+            error_threshold=np.deg2rad(5),
+            **kwargs):
+        if adjust_angle_vector is False:
+            return super(KXRROSRobotInterface, self).wait_interpolation(
+                *args, timeout=timeout, **kwargs)
+        if timeout == 0:
+            timeout = float('inf')
+        start_time = rospy.Time.now()
+        # When all controllers finish interpolation or timeout,
+        # return from this function
+        while not rospy.is_shutdown():
+            self.adjust_angle_vector(
+                joint_names=joint_names,
+                error_threshold=error_threshold)
+            is_interpolating_list = super(
+                KXRROSRobotInterface, self).wait_interpolation(
+                    *args, timeout=0.1, **kwargs)
+            is_interpolating = any(is_interpolating_list)
+            elapsed_time = rospy.Time.now() - start_time
+            elapsed_time = elapsed_time.to_sec()
+            if is_interpolating is False or elapsed_time > timeout:
+                return is_interpolating_list
 
     def send_stretch(self, value=127, joint_names=None):
         if not self.enabled_stretch:

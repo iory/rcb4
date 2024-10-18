@@ -24,6 +24,9 @@ elf_infos = {
     'v0.6.4': ELFINFO(
         'https://github.com/iory/rcb4/releases/download/v0.6.4.elf/v0.6.4.elf',  # NOQA
         'e1c386f350f780536a51f3bb24cc0cd1'),
+    'v0.6.5': ELFINFO(
+        'https://github.com/iory/rcb4/releases/download/v0.6.5.elf/v0.6.5.elf',  # NOQA
+        '2ec2d0cde4c3d5c5a9da2f705d3c6c50'),
 }
 
 

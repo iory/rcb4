@@ -550,13 +550,16 @@ class RCB4ROSBridge:
                 servo_vector.append(32767)
             else:
                 servo_vector.append(32768)
-        try:
-            self.interface.servo_angle_vector(servo_ids, servo_vector, velocity=1)
-        except RuntimeError as e:
-            self.unsubscribe()
-            rospy.signal_shutdown(f"Disconnected {e}.")
-        except serial.serialutil.SerialException as e:
-            rospy.logerr(f"[servo_on_off] {e!s}")
+        max_retry_count = 10
+        for retry_count in range(max_retry_count):
+            try:
+                self.interface.servo_angle_vector(servo_ids, servo_vector, velocity=1)
+                break
+            except RuntimeError as e:
+                self.unsubscribe()
+                rospy.signal_shutdown(f"Disconnected {e}.")
+            except serial.serialutil.SerialException as e:
+                rospy.logerr(f"[servo_on_off] {e!s} Try {retry_count}/{max_retry_count}")
         return self.servo_on_off_server.set_succeeded(ServoOnOffResult())
 
     def adjust_angle_vector_callback(self, goal):

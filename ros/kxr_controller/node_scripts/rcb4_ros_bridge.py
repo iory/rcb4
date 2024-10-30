@@ -138,6 +138,7 @@ def set_robot_description(urdf_path, param_name="robot_description"):
 
 class RCB4ROSBridge:
     def __init__(self):
+        self._servo_lock = threading.Lock()
         self.proc_controller_spawner = None
         self.proc_robot_state_publisher = None
         self.proc_kxr_controller = None
@@ -523,7 +524,9 @@ class RCB4ROSBridge:
         ):
             return
         try:
-            self.interface.angle_vector(av, servo_ids, velocity=self.wheel_frame_count)
+            with self._servo_lock:
+                self.interface.angle_vector(
+                    av, servo_ids, velocity=self.wheel_frame_count)
             self._prev_velocity_command = av
         except serial.serialutil.SerialException as e:
             rospy.logerr(f"[velocity_command_joint] {e!s}")
@@ -535,7 +538,8 @@ class RCB4ROSBridge:
         if len(av) == 0:
             return
         try:
-            self.interface.angle_vector(av, servo_ids, velocity=self.frame_count)
+            with self._servo_lock:
+                self.interface.angle_vector(av, servo_ids, velocity=self.frame_count)
         except serial.serialutil.SerialException as e:
             rospy.logerr(f"[command_joint] {e!s}")
 
@@ -553,7 +557,9 @@ class RCB4ROSBridge:
         max_retry_count = 10
         for retry_count in range(max_retry_count):
             try:
-                self.interface.servo_angle_vector(servo_ids, servo_vector, velocity=1)
+                with self._servo_lock:
+                    self.interface.servo_angle_vector(servo_ids, servo_vector, velocity=1)
+                    rospy.sleep(0.1)
                 break
             except RuntimeError as e:
                 self.unsubscribe()

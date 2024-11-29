@@ -36,6 +36,7 @@
   <exec_depend>cmake_modules</exec_depend>
   <exec_depend>kxr_models</exec_depend>
   <exec_depend>rviz</exec_depend>
+  <exec_depend>ridgeback_control</exec_depend>
 
   <test_depend>roslaunch</test_depend>
   <test_depend>rostest</test_depend>

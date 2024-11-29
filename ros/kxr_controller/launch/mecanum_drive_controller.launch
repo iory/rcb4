@@ -1,0 +1,11 @@
+<launch>
+
+  <rosparam command="load" file="$(find kxr_models)/config/kxrmw4a6h2m_mecanum_drive_controller.yaml" />
+
+  <node name="mecanum_drive_controller_spawner"
+        pkg="controller_manager" type="spawner"
+        respawn="true" respawn_delay="5" output="screen"
+        args="ridgeback_control" >
+  </node>
+
+</launch>

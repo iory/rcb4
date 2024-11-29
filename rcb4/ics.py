@@ -188,6 +188,28 @@ class ICSServoController:
         ret = self.ics.read(5)
         return 0x1F & ret[4]
 
+    def set_response(self, value, servo_id=None):
+        """
+        Set the response parameter to the specified value.
+        """
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+
+        # Read the current parameters
+        ics_param64, _ = self.read_param(servo_id=servo_id)
+
+        # Update the 'response' field
+        indices = [51, 52]  # Indices for the 'response' parameter
+        ics_param64[indices[0] - 1] = (value >> 4) & 0x0F  # High 4 bits
+        ics_param64[indices[1] - 1] = value & 0x0F         # Low 4 bits
+
+        # Write back the updated parameters
+        self.set_param(ics_param64, servo_id=servo_id)
+
+        # Confirm the change
+        _, result = self.read_param(servo_id=servo_id)
+        print(f"Response set to {result['response']}")
+
     def reset_servo_position(self):
         self.set_angle(7500)
         print(f"{Fore.YELLOW}Servo reset to zero position.{Fore.RESET}")
@@ -257,6 +279,8 @@ class ICSServoController:
         # Calculate byte and bit for manipulation
         byte_idx = 14 if flag_name in ["slave", "rotation"] else 15
         bit_position = 3 if flag_name in ["slave", "serial"] else 0
+        if flag_name == 'b2':
+            bit_position = 2
         mask = 1 << bit_position
 
         # Set or clear the bit based on the `value` argument
@@ -273,6 +297,35 @@ class ICSServoController:
 
     def set_rotation(self, rotation=None, servo_id=None):
         return self.set_flag("rotation", rotation, servo_id=servo_id)
+
+    def set_stretch(self, stretch_values, servo_id=None):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+
+        # Read the current parameters
+        ics_param64, _ = self.read_param(servo_id=servo_id)
+
+        # Update the 'stretch-1', 'stretch-2', 'stretch-3' fields
+        for stretch_key, value in stretch_values.items():
+            if stretch_key == "stretch-1":
+                indices = [59, 60]
+            elif stretch_key == "stretch-2":
+                indices = [61, 62]
+            elif stretch_key == "stretch-3":
+                indices = [63, 64]
+            else:
+                raise ValueError(f"Unsupported stretch parameter: {stretch_key}")
+
+            # Split the value into two 4-bit chunks and store them in the corresponding indices
+            ics_param64[indices[0] - 1] = (value >> 4) & 0x0F  # High 4 bits
+            ics_param64[indices[1] - 1] = value & 0x0F         # Low 4 bits
+
+        # Write back the updated parameters
+        self.set_param(ics_param64, servo_id=servo_id)
+
+        # Confirm the change
+        _, result = self.read_param(servo_id=servo_id)
+        print(f"Stretch parameters set to: {stretch_values}")
 
     def set_serial(self, serial=None, servo_id=None):
         return self.set_flag("serial", serial, servo_id=servo_id)

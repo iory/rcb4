@@ -10,6 +10,9 @@ import serial.tools.list_ports
 import yaml
 
 
+degree_to_pulse = 29.633
+
+
 class KeyListener(threading.Thread):
     def __init__(self):
         super().__init__()
@@ -232,13 +235,13 @@ class ICSServoController:
 
     def increase_angle(self):
         angle = self.read_angle()
-        angle = min(11500, angle + 500)
+        angle = min(11500, angle + degree_to_pulse * 15)
         self.set_angle(angle)
         print(f"{Fore.BLUE}Angle increased to {angle}{Fore.RESET}")
 
     def decrease_angle(self):
         angle = self.read_angle()
-        angle = max(3500, angle - 500)
+        angle = max(3500, angle - degree_to_pulse * 15)
         self.set_angle(angle)
         print(f"{Fore.RED}Angle decreased to {angle}{Fore.RESET}")
 
@@ -547,7 +550,9 @@ class ICSServoController:
                 s += f' -> Next Servo ID: {str}'
             return s
         elif option == "Angle":
-            return f"{self.read_angle()}"
+            angle = self.read_angle()
+            angle = int((angle - 7500) / degree_to_pulse)
+            return f"{angle}"
         elif option == "Baud Rate":
             if param is not None:
                 baudrate = param["baud"]
@@ -595,6 +600,7 @@ class ICSServoController:
         return angle
 
     def set_angle(self, v=7500, servo_id=None):
+        v = int(v)
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.ics.write(bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]))

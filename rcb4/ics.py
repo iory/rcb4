@@ -232,13 +232,13 @@ class ICSServoController:
 
     def increase_angle(self):
         angle = self.read_angle()
-        angle = min(10000, angle + 500)
+        angle = min(11500, angle + 500)
         self.set_angle(angle)
         print(f"{Fore.BLUE}Angle increased to {angle}{Fore.RESET}")
 
     def decrease_angle(self):
         angle = self.read_angle()
-        angle = max(0, angle - 500)
+        angle = max(3500, angle - 500)
         self.set_angle(angle)
         print(f"{Fore.RED}Angle decreased to {angle}{Fore.RESET}")
 

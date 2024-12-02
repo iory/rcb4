@@ -139,7 +139,8 @@ class ICSServoController:
                             timeout=self.timeout,
                             parity=serial.PARITY_EVEN,
                         )
-                        if baudrate != self.baudrate:
+                        current_baudrate = self.baud()
+                        if current_baudrate != self.baudrate:
                             self.baud(self.baudrate)
                         return True
                     except IndexError:

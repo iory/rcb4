@@ -9,6 +9,8 @@ import serial
 import serial.tools.list_ports
 import yaml
 
+degree_to_pulse = 29.633
+
 
 class KeyListener(threading.Thread):
     def __init__(self):
@@ -147,6 +149,14 @@ class ICSServoController:
                         continue
         return False
 
+    def set_default_eeprom_param(self):
+        self.set_param(
+            [5, 10, 11, 4, 7, 15, 0, 0, 0, 2, 1, 14,
+             15, 10, 0, 6, 2, 12, 14, 12, 0, 13, 10,
+             12, 0, 0, 0, 0, 0, 10, 1, 14, 1, 2, 9, 8,
+             14, 13, 9, 13, 6, 14, 9, 11, 10, 12, 9, 5,
+             0, 14, 0, 1, 0, 0, 13, 2, 0, 0, 3, 12, 7, 8, 15, 14],)
+
     def read_baud(self):
         _, result = self.read_param()
         return result["baud"]
@@ -232,13 +242,13 @@ class ICSServoController:
 
     def increase_angle(self):
         angle = self.read_angle()
-        angle = min(10000, angle + 500)
+        angle = min(11500, angle + degree_to_pulse * 15)
         self.set_angle(angle)
         print(f"{Fore.BLUE}Angle increased to {angle}{Fore.RESET}")
 
     def decrease_angle(self):
         angle = self.read_angle()
-        angle = max(0, angle - 500)
+        angle = max(3500, angle - degree_to_pulse * 15)
         self.set_angle(angle)
         print(f"{Fore.RED}Angle decreased to {angle}{Fore.RESET}")
 
@@ -447,7 +457,8 @@ class ICSServoController:
                         print(
                             "Press 'r' to toggle rotation mode (enables continuous wheel-like rotation)"
                         )
-                        print("Press 'f' to set free mode\n")
+                        print("Press 'f' to set free mode")
+                        print(f"Press 'd' to set default EEPROM parameters {Fore.RED}(WARNING: This action will overwrite the servo's EEPROM).{Style.RESET_ALL}\n")
                         print("'q' to quit.")
 
                     key = key_listener.get_key()
@@ -463,6 +474,20 @@ class ICSServoController:
                     elif key == "q":
                         print("Exiting...")
                         break
+                    elif key == "d":
+                        print(
+                            f"{Fore.RED}WARNING: This will overwrite the servo's EEPROM with default values.{Style.RESET_ALL}"
+                        )
+                        print("Press 'y' to proceed or any other key to cancel.")
+                        while key_listener.running:
+                            confirm_key = key_listener.get_key()
+                            if confirm_key == "y":
+                                print(f"{Fore.RED}Setting default EEPROM parameters...{Style.RESET_ALL}")
+                                self.set_default_eeprom_param()
+                                break
+                            elif confirm_key is not None:
+                                print(f"{Fore.YELLOW}Action canceled.{Style.RESET_ALL}")
+                                break
                     elif key == readchar.key.UP:
                         self.selected_index = (self.selected_index - 1) % len(
                             selectable_options
@@ -547,7 +572,9 @@ class ICSServoController:
                 s += f' -> Next Servo ID: {str}'
             return s
         elif option == "Angle":
-            return f"{self.read_angle()}"
+            angle = self.read_angle()
+            angle = int((angle - 7500) / degree_to_pulse)
+            return f"{angle}"
         elif option == "Baud Rate":
             if param is not None:
                 baudrate = param["baud"]
@@ -595,6 +622,7 @@ class ICSServoController:
         return angle
 
     def set_angle(self, v=7500, servo_id=None):
+        v = int(v)
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.ics.write(bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]))

@@ -15,6 +15,10 @@
   <arg name="temperature_limit" default="80" doc="Temperature limit in celsius" />
   <arg name="read_current" default="false" />
   <arg name="read_temperature" default="false" />
+  <arg name="use_fullbody_controller" default="true"
+       doc="Specifies whether to use the fullbody_controller as the default controller. If set to true,
+            the fullbody_controller will be used.
+            If set to false, the controller list will be retrieved from the parameter server /default_controller." />
 
   <include file="$(find kxr_controller)/launch/kxr_controller.launch" >
     <arg name="urdf_path" value="$(arg urdf_path)" />
@@ -32,6 +36,7 @@
     <arg name="temperature_limit" value="$(arg temperature_limit)" />
     <arg name="read_current" value="$(arg read_current)" />
     <arg name="read_temperature" value="$(arg read_temperature)" />
+    <arg name="use_fullbody_controller" value="$(arg use_fullbody_controller)" />
   </include>
 
   <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >

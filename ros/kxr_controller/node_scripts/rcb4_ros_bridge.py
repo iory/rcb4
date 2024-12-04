@@ -181,6 +181,11 @@ class RCB4ROSBridge:
         self.read_temperature = rospy.get_param("~read_temperature", False) and not self.use_rcb4
         self.read_current = rospy.get_param("~read_current", False) and not self.use_rcb4
         self.base_namespace = self.get_base_namespace()
+        self.use_fullbody_controller = rospy.get_param("~use_fullbody_controller", True)
+        if self.use_fullbody_controller is False:
+            self.default_controller = rospy.get_param(self.base_namespace + "/default_controller", [])
+        else:
+            self.default_controller = ['fullbody_controller']
 
     def setup_urdf_and_model(self):
         robot_model = RobotModel()
@@ -277,11 +282,19 @@ class RCB4ROSBridge:
         rospy.sleep(0.1)
         self.servo_on_off_server.start()
 
-        self.traj_action_client = actionlib.SimpleActionClient(
-            self.base_namespace + "/fullbody_controller/follow_joint_trajectory",
-            FollowJointTrajectoryAction,
-        )
-        self.traj_action_client.wait_for_server()
+        self.traj_action_clients = []
+        self.traj_action_joint_names = []
+        for controller in self.default_controller:
+            controller_name = self.base_namespace + f"/{controller}/follow_joint_trajectory"
+            traj_action_client = actionlib.SimpleActionClient(
+                controller_name,
+                FollowJointTrajectoryAction,
+            )
+            self.traj_action_joint_names.append(
+                rospy.get_param(self.base_namespace + f"/{controller}/joints", []))
+            rospy.loginfo(f'Waiting {controller_name}')
+            traj_action_client.wait_for_server()
+            self.traj_action_clients.append(traj_action_client)
 
         # Adjust angle vector action server
         self.adjust_angle_vector_server = actionlib.SimpleActionServer(
@@ -419,13 +432,18 @@ class RCB4ROSBridge:
         return True
 
     def run_ros_robot_controllers(self):
+        controllers = ["joint_state_controller"]
+        if self.use_fullbody_controller:
+            controllers.append('fullbody_controller')
+        else:
+            controllers.extend(self.default_controller)
         self.proc_controller_spawner = subprocess.Popen(
             [
                 f'/opt/ros/{os.environ["ROS_DISTRO"]}/bin/rosrun',
                 "controller_manager",
                 "spawner",
             ]
-            + ["joint_state_controller", "fullbody_controller"]
+            + controllers,
         )
         self.proc_robot_state_publisher = run_robot_state_publisher(self.base_namespace)
         self.proc_kxr_controller = run_kxr_controller(namespace=self.base_namespace)
@@ -644,29 +662,31 @@ class RCB4ROSBridge:
                 text="Failed to call servo on off. "
                 + "Control board is switch off or cable is disconnected?"
             )
-        joint_names = []
-        positions = []
-        for joint_name in self.fullbody_jointnames:
-            angle = 0
-            if joint_name in self.joint_name_to_id:
-                servo_id = self.joint_name_to_id[joint_name]
-                idx = self.interface.servo_id_to_index(servo_id)
-                if idx is not None:
-                    angle = np.deg2rad(av[idx])
-            joint_names.append(joint_name)
-            positions.append(angle)
-        # Create JointTrajectoryGoal to set current position on follow_joint_trajectory
-        trajectory_goal = FollowJointTrajectoryGoal()
-        trajectory_goal.trajectory.joint_names = joint_names
-        point = JointTrajectoryPoint()
-        point.positions = positions
-        point.time_from_start = rospy.Duration(
-            0.5
-        )  # Short duration for immediate application
-        trajectory_goal.trajectory.points = [point]
-        # Initialize action client and wait for server
-        self.traj_action_client.send_goal(trajectory_goal)
-        self.traj_action_client.wait_for_result()  # Wait for trajectory to complete
+        for client, joint_name_list in zip(self.traj_action_clients, self.traj_action_joint_names):
+            joint_names = []
+            positions = []
+            for joint_name in joint_name_list:
+                angle = 0
+                if joint_name in self.joint_name_to_id:
+                    servo_id = self.joint_name_to_id[joint_name]
+                    idx = self.interface.servo_id_to_index(servo_id)
+                    if idx is not None:
+                        angle = np.deg2rad(av[idx])
+                joint_names.append(joint_name)
+                positions.append(angle)
+            # Create JointTrajectoryGoal to set current position on follow_joint_trajectory
+            trajectory_goal = FollowJointTrajectoryGoal()
+            trajectory_goal.trajectory.joint_names = joint_names
+            point = JointTrajectoryPoint()
+            point.positions = positions
+            point.time_from_start = rospy.Duration(
+                0.5
+            )  # Short duration for immediate application
+            trajectory_goal.trajectory.points = [point]
+            # Initialize action client and wait for server
+            client.send_goal(trajectory_goal)
+        for client in self.traj_action_clients:
+            client.wait_for_result()  # Wait for trajectory to complete
         self._during_servo_off = False
         return self.servo_on_off_server.set_succeeded(ServoOnOffResult())
 

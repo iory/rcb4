@@ -18,6 +18,10 @@
   <arg name="temperature_limit" default="80" doc="Temperature limit in celsius" />
   <arg name="read_current" default="false" />
   <arg name="read_temperature" default="false" />
+  <arg name="use_fullbody_controller" default="true"
+       doc="Specifies whether to use the fullbody_controller as the default controller. If set to true,
+            the fullbody_controller will be used.
+            If set to false, the controller list will be retrieved from the parameter server /default_controller." />
 
   <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >
     <param name="control_loop_rate" value="$(arg control_loop_rate)" />
@@ -52,6 +56,7 @@
         temperature_limit: $(arg temperature_limit)
         read_current: $(arg read_current)
         read_temperature: $(arg read_temperature)
+        use_fullbody_controller: $(arg use_fullbody_controller)
       </rosparam>
     </node>
     <node name="urdf_model_server"
@@ -92,6 +97,7 @@
         temperature_limit: $(arg temperature_limit)
         read_current: $(arg read_current)
         read_temperature: $(arg read_temperature)
+        use_fullbody_controller: $(arg use_fullbody_controller)
       </rosparam>
     </node>
 

@@ -15,6 +15,7 @@
   <arg name="temperature_limit" default="80" doc="Temperature limit in celsius" />
   <arg name="read_current" default="false" />
   <arg name="read_temperature" default="false" />
+  <arg name="spawn_fullbody_controller" default="true" doc="Internally spawn fullbody_controller" />
 
   <include file="$(find kxr_controller)/launch/kxr_controller.launch" >
     <arg name="urdf_path" value="$(arg urdf_path)" />
@@ -32,6 +33,7 @@
     <arg name="temperature_limit" value="$(arg temperature_limit)" />
     <arg name="read_current" value="$(arg read_current)" />
     <arg name="read_temperature" value="$(arg read_temperature)" />
+    <arg name="spawn_fullbody_controller" value="$(arg spawn_fullbody_controller)" />
   </include>
 
   <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >

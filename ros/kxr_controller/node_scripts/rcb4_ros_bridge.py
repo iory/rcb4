@@ -177,6 +177,8 @@ class RCB4ROSBridge:
         self.joint_name_to_id, self.servo_infos = load_yaml(servo_config_path)
         self.urdf_path = rospy.get_param("~urdf_path", None)
         self.use_rcb4 = rospy.get_param("~use_rcb4", False)
+        self.spawn_fullbody_controller = rospy.get_param(
+            "~spawn_fullbody_controller", True)
         self.control_pressure = rospy.get_param("~control_pressure", False)
         self.read_temperature = rospy.get_param("~read_temperature", False) and not self.use_rcb4
         self.read_current = rospy.get_param("~read_current", False) and not self.use_rcb4
@@ -419,14 +421,15 @@ class RCB4ROSBridge:
         return True
 
     def run_ros_robot_controllers(self):
-        self.proc_controller_spawner = subprocess.Popen(
-            [
-                f'/opt/ros/{os.environ["ROS_DISTRO"]}/bin/rosrun',
-                "controller_manager",
-                "spawner",
-            ]
-            + ["joint_state_controller", "fullbody_controller"]
-        )
+        if self.spawn_fullbody_controller:
+            self.proc_controller_spawner = subprocess.Popen(
+                [
+                    f'/opt/ros/{os.environ["ROS_DISTRO"]}/bin/rosrun',
+                    "controller_manager",
+                    "spawner",
+                ]
+                + ["joint_state_controller", "fullbody_controller"]
+            )
         self.proc_robot_state_publisher = run_robot_state_publisher(self.base_namespace)
         self.proc_kxr_controller = run_kxr_controller(namespace=self.base_namespace)
 

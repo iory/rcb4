@@ -18,6 +18,7 @@
   <arg name="temperature_limit" default="80" doc="Temperature limit in celsius" />
   <arg name="read_current" default="false" />
   <arg name="read_temperature" default="false" />
+  <arg name="spawn_fullbody_controller" default="true" doc="Internally spawn fullbody_controller" />
 
   <group if="$(eval len(arg('namespace')) > 0)" ns="$(arg namespace)" >
     <param name="control_loop_rate" value="$(arg control_loop_rate)" />
@@ -52,6 +53,7 @@
         temperature_limit: $(arg temperature_limit)
         read_current: $(arg read_current)
         read_temperature: $(arg read_temperature)
+        spawn_fullbody_controller: $(arg spawn_fullbody_controller)
       </rosparam>
     </node>
     <node name="urdf_model_server"
@@ -92,6 +94,7 @@
         temperature_limit: $(arg temperature_limit)
         read_current: $(arg read_current)
         read_temperature: $(arg read_temperature)
+        spawn_fullbody_controller: $(arg spawn_fullbody_controller)
       </rosparam>
     </node>
 

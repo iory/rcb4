@@ -210,4 +210,18 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         }
 
     def default_controller(self):
-        return [self.fullbody_controller]
+        controller_names = rospy.get_param(
+            self.namespace + 'default_controller', None)
+        if controller_names is None:
+            return [self.fullbody_controller]
+        controllers = []
+        for cont_name in controller_names:
+            controllers.append({
+                "controller_type": cont_name,
+                "controller_action": cont_name + "/follow_joint_trajectory",
+                "controller_state": cont_name + "/state",
+                "action_type": control_msgs.msg.FollowJointTrajectoryAction,
+                "joint_names": rospy.get_param(
+                    self.namespace + cont_name + '/joints'),
+            })
+        return controllers

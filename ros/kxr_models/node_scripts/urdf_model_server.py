@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 from filelock import FileLock
 from kxr_models.md5sum_utils import checksum_md5
 from kxr_models.urdf import aggregate_urdf_mesh_files
+from kxr_models.urdf import replace_urdf_path
 import rospkg
 import rospy
 
@@ -19,8 +20,9 @@ class URDFModelServer:
             full_namespace[:last_slash_pos] if last_slash_pos != 0 else ""
         )
 
-    def set_urdf_hash(self, md5sum, urdf_data):
-        rospy.set_param(self.clean_namespace + "/urdf_hash", md5sum)
+    def set_urdf_hash(self, urdf_md5sum, compressed_md5sum, urdf_data):
+        rospy.set_param(self.clean_namespace + "/urdf_hash", urdf_md5sum)
+        rospy.set_param(self.clean_namespace + "/compressed_urdf_hash", compressed_md5sum)
         rospy.set_param(self.clean_namespace + "/robot_description_viz", urdf_data)
 
     def run(self):
@@ -43,13 +45,14 @@ class URDFModelServer:
                 temp_file.write(urdf)
                 urdf_path = temp_file.name
 
-            md5sum = checksum_md5(urdf_path)
+            urdf_md5sum = checksum_md5(urdf_path)
             compressed_urdf_path = os.path.join(
-                kxr_models_path, "models", "urdf", f"{md5sum}.tar.gz"
+                kxr_models_path, "models", "urdf", f"{urdf_md5sum}.tar.gz"
             )
 
             if os.path.exists(compressed_urdf_path):
-                self._update_robot_description(urdf_path, md5sum, kxr_models_path)
+                compressed_md5sum = checksum_md5(compressed_urdf_path)
+                self._update_robot_description(urdf_path, urdf_md5sum, compressed_md5sum)
                 continue
 
             lock_path = compressed_urdf_path + ".lock"
@@ -60,18 +63,22 @@ class URDFModelServer:
                     compress=True,
                 )
                 rospy.loginfo(f"Compressed URDF model saved to {compressed_urdf_path}")
-                self._update_robot_description(urdf_path, md5sum, kxr_models_path)
+                compressed_md5sum = checksum_md5(compressed_urdf_path)
+                self._update_robot_description(urdf_path, urdf_md5sum, compressed_md5sum)
 
             os.remove(urdf_path)
 
-    def _update_robot_description(self, urdf_path, md5sum, kxr_models_path):
+    def _update_robot_description(self, urdf_path, md5sum, compressed_md5sum):
         parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
         tree = ET.parse(urdf_path, parser)
         root = tree.getroot()
         robot_name = root.get("name", "default_robot")
-        with open(urdf_path) as urdf_file:
-            urdf_data = urdf_file.read()
-        self.set_urdf_hash(md5sum, urdf_data)
+        with tempfile.NamedTemporaryFile(
+                "w", suffix=".urdf", delete=True) as temp_file:
+            replace_urdf_path(urdf_path, temp_file.name)
+            with open(temp_file.name) as urdf_file:
+                urdf_data = urdf_file.read()
+        self.set_urdf_hash(md5sum, compressed_md5sum, urdf_data)
         rospy.loginfo(f"Updated robot description for {robot_name}")
 
 

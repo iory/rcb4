@@ -600,7 +600,9 @@ class RCB4ROSBridge:
             self._prev_velocity_command, av
         ):
             return
-        ret = self.interface.angle_vector(av, servo_ids, velocity=self.wheel_frame_count)
+        ret = serial_call_with_retry(
+            self.interface.angle_vector, av, servo_ids,
+            velocity=self.wheel_frame_count)
         if ret is None:
             return
         self._prev_velocity_command = av

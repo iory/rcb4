@@ -1,3 +1,5 @@
+import traceback
+
 import rospy
 import serial
 
@@ -33,6 +35,9 @@ def serial_call_with_retry(func, *args, max_retries=1, retry_interval=0.1, **kwa
     while attempts < max_retries:
         try:
             return func(*args, **kwargs)
+        except (KeyboardInterrupt, SystemExit):
+            # Re-raise these exceptions to allow program termination
+            raise
         except (
             serial.SerialException,
             OSError,
@@ -41,6 +46,12 @@ def serial_call_with_retry(func, *args, max_retries=1, retry_interval=0.1, **kwa
             RuntimeError,
         ) as e:
             rospy.logerr(f"[{func.__name__}] Error: {e}")
+            attempts += 1
+            rospy.sleep(retry_interval)
+        except Exception as e:
+            # Catch all other exceptions and log them
+            rospy.logerr(f"[{func.__name__}] Exception occurred: {e}")
+            rospy.logerr(f"Stack trace:\n{traceback.format_exc()}")
             attempts += 1
             rospy.sleep(retry_interval)
     rospy.logerr(f"[{func.__name__}] Failed after {max_retries} attempts.")

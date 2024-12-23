@@ -202,10 +202,10 @@ class ICSServoController:
         ret = self.ics.read(5)
         return 0x1F & ret[4]
 
-    def get_current(self, sid=None, interpolate=True):
-        if sid is None:
-            sid = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (sid & 0x1F), 0x03]))
+    def get_current(self, servo_id=None, interpolate=True):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x03]))
         time.sleep(0.05)
         v = self.ics.read(5)
         current = v[4]
@@ -217,10 +217,10 @@ class ICSServoController:
             return sign * interpolate_currents(current)
         return sign * current
 
-    def get_temperature(self, sid=None, interpolate=True):
-        if sid is None:
-            sid = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (sid & 0x1F), 0x04]))
+    def get_temperature(self, servo_id=None, interpolate=True):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x04]))
         time.sleep(0.05)
         v = self.ics.read(5)
         if interpolate:
@@ -640,10 +640,10 @@ class ICSServoController:
                 free = self.read_free()
             return f"{Fore.GREEN if free else Fore.RED}{'Enabled' if free else 'Disabled'}{Style.RESET_ALL}"
 
-    def read_angle(self, sid=None):
-        if sid is None:
-            sid = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (sid & 0x1F), 5]))
+    def read_angle(self, servo_id=None):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 5]))
         time.sleep(0.1)
         v = self.ics.read(6)
         angle = ((v[4] & 0x7F) << 7) | (v[5] & 0x7F)

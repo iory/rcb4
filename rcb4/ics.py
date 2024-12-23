@@ -202,6 +202,23 @@ class ICSServoController:
         ret = self.ics.read(5)
         return 0x1F & ret[4]
 
+    def set_speed(self, speed, servo_id=None):
+        speed = max(1, min(127, speed))
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xC0 | (servo_id & 0x1F), 0x02, speed]))
+        time.sleep(0.05)
+        v = self.ics.read(6)
+        return v[5]
+
+    def get_speed(self, servo_id=None):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x02]))
+        time.sleep(0.05)
+        v = self.ics.read(5)
+        return v[4]
+
     def get_current(self, servo_id=None, interpolate=True):
         if servo_id is None:
             servo_id = self.get_servo_id()

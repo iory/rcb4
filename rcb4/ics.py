@@ -392,7 +392,12 @@ class ICSServoController:
     def set_free(self, free, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-
+        if free:
+            self.ics.write(bytes([
+                0x80 | (0x1F & servo_id), 0, 0]))
+            time.sleep(0.01)
+            v = self.ics.read(6)
+            return ((v[3 + 1] << 7) & 0x3F80) | (v[3 + 2] & 0x007F)
         ics_param64, _ = self.read_param()
         if free is None or free == 0:
             ics_param64[15] = ics_param64[15] & 0xD
@@ -661,7 +666,7 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 5]))
-        time.sleep(0.1)
+        time.sleep(0.01)
         v = self.ics.read(6)
         angle = ((v[4] & 0x7F) << 7) | (v[5] & 0x7F)
         return angle

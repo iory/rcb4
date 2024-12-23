@@ -208,9 +208,14 @@ class ICSServoController:
         self.ics.write(bytes([0xA0 | (sid & 0x1F), 0x03]))
         time.sleep(0.05)
         v = self.ics.read(5)
+        current = v[4]
+        sign = 1
+        if current >= 64:
+            current -= 64
+            sign = -1
         if interpolate:
-            return interpolate_currents(v[4])
-        return v[4]
+            return sign * interpolate_currents(current)
+        return sign * current
 
     def get_temperature(self, sid=None, interpolate=True):
         if sid is None:

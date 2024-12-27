@@ -52,7 +52,8 @@ def main():
     else:
         elf_path = kondoh7_elf('latest')
     if not elf_path or not Path(elf_path).is_file():
-        print("Error: ELF file not found. Please check the path or filename.")
+        print(f"Error: ELF file not found: {elf_path}")
+        print("Please check the path or filename.")
         sys.exit(5)
     print(f"ELF file found: {elf_path}")
 

@@ -46,7 +46,11 @@ def main():
     print(f"ST-Link path found: {st_flash_path}")
 
     print("Retrieving latest ELF file...")
-    elf_path = kondoh7_elf('latest')
+    args = sys.argv
+    if len(args) == 2:
+        elf_path = args[1]
+    else:
+        elf_path = kondoh7_elf('latest')
     if not elf_path or not Path(elf_path).is_file():
         print("Error: ELF file not found. Please check the path or filename.")
         sys.exit(5)

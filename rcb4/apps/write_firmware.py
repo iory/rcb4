@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 from pathlib import Path
 import shutil
 import subprocess
@@ -34,6 +35,15 @@ def flash_bin_to_device(st_flash_path, bin_path):
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Flash firmware to a device.")
+    parser.add_argument(
+        "--firmware",
+        type=str,
+        help="Path to the firmware ELF file. If not provided, the latest kondoh7 ELF file will be used.",
+        default=None
+    )
+    args = parser.parse_args()
+
     print("Checking dependencies...")
     check_dependencies()
     print("Dependencies are satisfied.")
@@ -45,12 +55,8 @@ def main():
         sys.exit(4)
     print(f"ST-Link path found: {st_flash_path}")
 
-    print("Retrieving latest ELF file...")
-    args = sys.argv
-    if len(args) == 2:
-        elf_path = args[1]
-    else:
-        elf_path = kondoh7_elf('latest')
+    print("Retrieving ELF file...")
+    elf_path = args.firmware if args.firmware else kondoh7_elf('latest')
     if not elf_path or not Path(elf_path).is_file():
         print(f"Error: ELF file not found: {elf_path}")
         print("Please check the path or filename.")

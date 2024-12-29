@@ -819,27 +819,28 @@ class RCB4ROSBridge:
         if self.pressure_control_running[idx] is False:
             return
         if release is True:
+
             self.air_disconnect_lock.release(idx)
             self.pump_on_lock.release(idx)
-            rospy.loginfo(f"[Release vacuum] id: {idx}")
-            self.release_vacuum(idx)
+            rospy.loginfo(f"[Release air work] id: {idx}")
+            self.release_air_work(idx)
             self.pressure_control_running[idx] = False
             return
-        vacuum_on = False
+        air_work_on = False
         while self.pressure_control_running[idx]:
             pressure = self.average_pressure(idx)
             if pressure is None:
                 rospy.sleep()
-            if vacuum_on is False and pressure > start_pressure:
+            if air_work_on is False and pressure > start_pressure:
                 self.air_disconnect_lock.acquire(idx)
                 self.pump_on_lock.acquire(idx)
-                rospy.loginfo(f"[Start vacuum] id: {idx}")
-                vacuum_on = self.start_vacuum(idx)
-            if vacuum_on and pressure <= stop_pressure:
+                rospy.loginfo(f"[Start air work] id: {idx}")
+                air_work_on = self.start_air_work(idx)
+            if air_work_on and pressure <= stop_pressure:
                 self.air_disconnect_lock.release(idx)
                 self.pump_on_lock.release(idx)
-                rospy.loginfo(f"[Stop vacuum] id: {idx}")
-                vacuum_on = not self.stop_vacuum(idx)
+                rospy.loginfo(f"[Stop air work] id: {idx}")
+                air_work_on = not self.stop_air_work(idx)
             rospy.sleep(0.1)
 
     def average_pressure(self, idx):
@@ -876,7 +877,7 @@ class RCB4ROSBridge:
         self.air_connect_lock.wait_for_all_released()
         return self.interface.close_air_connect_valve()
 
-    def release_vacuum(self, idx):
+    def release_air_work(self, idx):
         """Connect work to air.
 
         After 1s, all valves are closed and pump is stopped.
@@ -906,8 +907,8 @@ class RCB4ROSBridge:
             return False
         return True
 
-    def start_vacuum(self, idx):
-        """Vacuum air in work"""
+    def start_air_work(self, idx):
+        """Start air work"""
         if not self.interface.is_opened():
             return False
 
@@ -922,8 +923,8 @@ class RCB4ROSBridge:
             return False
         return True
 
-    def stop_vacuum(self, idx):
-        """Seal air in work"""
+    def stop_air_work(self, idx):
+        """Stop air work"""
         if not self.interface.is_opened():
             return False
 

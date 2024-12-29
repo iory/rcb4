@@ -365,9 +365,10 @@ class RCB4ROSBridge:
             self.pressure_control_state = {}
             for idx in self.air_board_ids:
                 self.pressure_control_state[f"{idx}"] = {}
-                self.pressure_control_state[f"{idx}"]["start_pressure"] = 0
-                self.pressure_control_state[f"{idx}"]["stop_pressure"] = 0
-                self.pressure_control_state[f"{idx}"]["release"] = True
+                self.pressure_control_state[f"{idx}"]["trigger_pressure"] = 0
+                self.pressure_control_state[f"{idx}"]["target_pressure"] = 0
+                # At first, air is assumed to be released
+                self.pressure_control_state[f"{idx}"]["release_duration"] = 1
             self._pressure_publisher_dict = {}
             self._avg_pressure_publisher_dict = {}
             # Record 1 seconds pressure data.
@@ -807,23 +808,22 @@ class RCB4ROSBridge:
             idx = int(idx)
             msg = PressureControl()
             msg.board_idx = idx
-            msg.start_pressure = self.pressure_control_state[f"{idx}"]["start_pressure"]
-            msg.stop_pressure = self.pressure_control_state[f"{idx}"]["stop_pressure"]
-            msg.release = self.pressure_control_state[f"{idx}"]["release"]
+            msg.trigger_pressure = self.pressure_control_state[f"{idx}"]["trigger_pressure"]
+            msg.target_pressure = self.pressure_control_state[f"{idx}"]["target_pressure"]
+            msg.release_duration = self.pressure_control_state[f"{idx}"]["release_duration"]
             self.pressure_control_pub.publish(msg)
 
-    def pressure_control_loop(self, idx, start_pressure, stop_pressure, release):
-        self.pressure_control_state[f"{idx}"]["start_pressure"] = start_pressure
-        self.pressure_control_state[f"{idx}"]["stop_pressure"] = stop_pressure
-        self.pressure_control_state[f"{idx}"]["release"] = release
+    def pressure_control_loop(self, idx, trigger_pressure, target_pressure, release_duration):
+        self.pressure_control_state[f"{idx}"]["trigger_pressure"] = trigger_pressure
+        self.pressure_control_state[f"{idx}"]["target_pressure"] = target_pressure
+        self.pressure_control_state[f"{idx}"]["release_duration"] = release_duration
         if self.pressure_control_running[idx] is False:
             return
-        if release is True:
-
+        if release_duration > 0:
             self.air_disconnect_lock.release(idx)
             self.pump_on_lock.release(idx)
             rospy.loginfo(f"[Release air work] id: {idx}")
-            self.release_air_work(idx)
+            self.release_air_work(idx, release_duration)
             self.pressure_control_running[idx] = False
             return
         air_work_on = False
@@ -831,12 +831,12 @@ class RCB4ROSBridge:
             pressure = self.average_pressure(idx)
             if pressure is None:
                 rospy.sleep()
-            if air_work_on is False and pressure > start_pressure:
+            if air_work_on is False and pressure > trigger_pressure:
                 self.air_disconnect_lock.acquire(idx)
                 self.pump_on_lock.acquire(idx)
                 rospy.loginfo(f"[Start air work] id: {idx}")
                 air_work_on = self.start_air_work(idx)
-            if air_work_on and pressure <= stop_pressure:
+            if air_work_on and pressure <= target_pressure:
                 self.air_disconnect_lock.release(idx)
                 self.pump_on_lock.release(idx)
                 rospy.loginfo(f"[Stop air work] id: {idx}")
@@ -877,10 +877,10 @@ class RCB4ROSBridge:
         self.air_connect_lock.wait_for_all_released()
         return self.interface.close_air_connect_valve()
 
-    def release_air_work(self, idx):
+    def release_air_work(self, idx, release_duration):
         """Connect work to air.
 
-        After 1s, all valves are closed and pump is stopped.
+        After release_duration[s], all valves are closed and pump is stopped.
         """
         if not self.interface.is_opened():
             return False
@@ -895,7 +895,7 @@ class RCB4ROSBridge:
                                      max_retries=3)
         if ret is None:
             return False
-        rospy.sleep(1)  # Wait until air is completely released
+        rospy.sleep(release_duration)  # Wait until air is completely released
         self.air_connect_lock.release(idx)
         ret = serial_call_with_retry(self.close_air_connect_valve,
                                      max_retries=3)
@@ -951,17 +951,17 @@ class RCB4ROSBridge:
             while self.pressure_control_thread[idx].is_alive() is True:
                 rospy.sleep(0.1)
         # Set new thread
-        start_pressure = goal.start_pressure
-        stop_pressure = goal.stop_pressure
-        release = goal.release
+        trigger_pressure = goal.trigger_pressure
+        target_pressure = goal.target_pressure
+        release_duration = goal.release_duration
         self.pressure_control_running[idx] = True
         self.pressure_control_thread[idx] = threading.Thread(
             target=self.pressure_control_loop,
             args=(
                 idx,
-                start_pressure,
-                stop_pressure,
-                release,
+                trigger_pressure,
+                target_pressure,
+                release_duration,
             ),
             daemon=True,
         )

@@ -1,6 +1,14 @@
-uint16 board_idx  # Do not use board id? (Currently, bus-connected air board is not supported)
-float32 start_pressure  # Threshold [kPa] to start pump (Currently, pressurization is not supported)
-float32 stop_pressure  # Threshold [kPa] to stop pump (Currently, pressurization is not supported)
-bool release  # Set true to release air by opening valve.
+uint16 board_idx # ICS controller ID (2n or 2n+1)
+
+# Pressure control parameters
+# If trigger_pressure < target_pressure: pressurization mode
+# If trigger_pressure > target_pressure: depressurization mode
+float32 trigger_pressure # Pressure threshold to start valve operation [kPa]
+float32 target_pressure # Desired pressure level for optimal operation [kPa]
+
+# Air release parameters
+# If the value is zero, pressure control is performed based on trigger_pressure and target_pressure
+# If the value is greater than zero, solenoid valves opens for release_duration[s] and the work conducts to the atmosphere
+float32 release_duration # Duration for atmospheric venting [s]
 ---
 ---

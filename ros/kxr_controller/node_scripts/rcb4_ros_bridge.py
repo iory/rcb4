@@ -830,7 +830,8 @@ class RCB4ROSBridge:
         while self.pressure_control_running[idx]:
             pressure = self.average_pressure(idx)
             if pressure is None:
-                rospy.sleep()
+                rospy.sleep(0.1)
+                continue
             if air_work_on is False and pressure > trigger_pressure:
                 self.air_disconnect_lock.acquire(idx)
                 self.pump_on_lock.acquire(idx)

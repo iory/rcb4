@@ -350,7 +350,7 @@ class RCB4ROSBridge:
             self.pump_on_lock = MultiLock(lock_name="Pump ON")
             self.pump_off_lock = MultiLock(lock_name="Pump OFF")
             self.air_connect_lock = MultiLock(lock_name="Air Connect")
-            self.air_disconnect_lock = MultiLock(lock_name="Air Disocnnect")
+            self.air_disconnect_lock = MultiLock(lock_name="Air Disconnect")
             self.pressure_control_server.start()
 
             self.pressure_control_pub = rospy.Publisher(

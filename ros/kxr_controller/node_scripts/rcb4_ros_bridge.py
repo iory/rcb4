@@ -30,6 +30,7 @@ from kxr_controller.msg import ServoStateArray
 from kxr_controller.msg import Stretch
 from kxr_controller.msg import StretchAction
 from kxr_controller.msg import StretchResult
+from kxr_controller.multi_lock import MultiLock
 from kxr_controller.serial import serial_call_with_retry
 import numpy as np
 import rospy
@@ -344,6 +345,12 @@ class RCB4ROSBridge:
                 auto_start=False,
             )
             rospy.sleep(0.1)
+            self.pressure_control_thread = {}
+            self.pressure_control_running = {}
+            self.pump_on_lock = MultiLock(lock_name="Pump ON")
+            self.pump_off_lock = MultiLock(lock_name="Pump OFF")
+            self.air_connect_lock = MultiLock(lock_name="Air Connect")
+            self.air_disconnect_lock = MultiLock(lock_name="Air Disocnnect")
             self.pressure_control_server.start()
 
             self.pressure_control_pub = rospy.Publisher(
@@ -364,8 +371,8 @@ class RCB4ROSBridge:
             self._pressure_publisher_dict = {}
             self._avg_pressure_publisher_dict = {}
             # Record 1 seconds pressure data.
-            hz = rospy.get_param(self.base_namespace + "/control_loop_rate", 20)
-            self.recent_pressures = deque([], maxlen=1 * int(hz))
+            self.hz = rospy.get_param(self.base_namespace + "/control_loop_rate", 20)
+            self.recent_pressures = {}
 
     def setup_interface_and_servo_parameters(self):
         self.interface = self.setup_interface()
@@ -784,13 +791,15 @@ class RCB4ROSBridge:
             pressure = serial_call_with_retry(self.interface.read_pressure_sensor, idx)
             if pressure is None:
                 continue
-            self.recent_pressures.append(pressure)
+            if idx not in self.recent_pressures:
+                self.recent_pressures[idx] = deque([], maxlen=1 * int(self.hz))
+            self.recent_pressures[idx].append(pressure)
             self._pressure_publisher_dict[key].publish(
                 std_msgs.msg.Float32(data=pressure)
             )
             # Publish average pressure (noise removed pressure)
             self._avg_pressure_publisher_dict[key].publish(
-                std_msgs.msg.Float32(data=self.average_pressure)
+                std_msgs.msg.Float32(data=self.average_pressure(idx))
             )
 
     def publish_pressure_control(self):
@@ -807,49 +816,88 @@ class RCB4ROSBridge:
         self.pressure_control_state[f"{idx}"]["start_pressure"] = start_pressure
         self.pressure_control_state[f"{idx}"]["stop_pressure"] = stop_pressure
         self.pressure_control_state[f"{idx}"]["release"] = release
-        if self.pressure_control_running is False:
+        if self.pressure_control_running[idx] is False:
             return
         if release is True:
-            self.release_vacuum(idx)
-            self.pressure_control_running = False
+
+            self.air_disconnect_lock.release(idx)
+            self.pump_on_lock.release(idx)
+            rospy.loginfo(f"[Release air work] id: {idx}")
+            self.release_air_work(idx)
+            self.pressure_control_running[idx] = False
             return
-        vacuum_on = False
-        while self.pressure_control_running:
-            pressure = self.average_pressure
+        air_work_on = False
+        while self.pressure_control_running[idx]:
+            pressure = self.average_pressure(idx)
             if pressure is None:
                 rospy.sleep()
-            if vacuum_on is False and pressure > start_pressure:
-                vacuum_on = self.start_vacuum(idx)
-            if vacuum_on and pressure <= stop_pressure:
-                vacuum_on = not self.stop_vacuum(idx)
+            if air_work_on is False and pressure > start_pressure:
+                self.air_disconnect_lock.acquire(idx)
+                self.pump_on_lock.acquire(idx)
+                rospy.loginfo(f"[Start air work] id: {idx}")
+                air_work_on = self.start_air_work(idx)
+            if air_work_on and pressure <= stop_pressure:
+                self.air_disconnect_lock.release(idx)
+                self.pump_on_lock.release(idx)
+                rospy.loginfo(f"[Stop air work] id: {idx}")
+                air_work_on = not self.stop_air_work(idx)
             rospy.sleep(0.1)
 
-    @property
-    def average_pressure(self):
-        n = len(self.recent_pressures)
+    def average_pressure(self, idx):
+        n = len(self.recent_pressures[idx])
         if n == 0:
             return None
-        return sum(self.recent_pressures) / n
+        return sum(self.recent_pressures[idx]) / n
 
-    def release_vacuum(self, idx):
+    def stop_pump(self):
+        """Stop pump when all threads do not need pump-on
+
+        """
+        self.pump_on_lock.wait_for_all_released()
+        return self.interface.stop_pump()
+
+    def start_pump(self):
+        """Start pump when all threads do not need pump-off
+
+        """
+        self.pump_off_lock.wait_for_all_released()
+        return self.interface.start_pump()
+
+    def open_air_connect_valve(self):
+        """Open air connect valve when all threads do not need valve-close
+
+        """
+        self.air_disconnect_lock.wait_for_all_released()
+        return self.interface.open_air_connect_valve()
+
+    def close_air_connect_valve(self):
+        """Close air connect valve when all threads do not need valve-open
+
+        """
+        self.air_connect_lock.wait_for_all_released()
+        return self.interface.close_air_connect_valve()
+
+    def release_air_work(self, idx):
         """Connect work to air.
 
         After 1s, all valves are closed and pump is stopped.
         """
         if not self.interface.is_opened():
             return False
-        ret = serial_call_with_retry(self.interface.stop_pump, max_retries=3)
+        ret = serial_call_with_retry(self.stop_pump, max_retries=3)
         if ret is None:
             return False
         ret = serial_call_with_retry(self.interface.open_work_valve, idx, max_retries=3)
         if ret is None:
             return False
-        ret = serial_call_with_retry(self.interface.open_air_connect_valve,
+        self.air_connect_lock.acquire(idx)
+        ret = serial_call_with_retry(self.open_air_connect_valve,
                                      max_retries=3)
         if ret is None:
             return False
         rospy.sleep(1)  # Wait until air is completely released
-        ret = serial_call_with_retry(self.interface.close_air_connect_valve,
+        self.air_connect_lock.release(idx)
+        ret = serial_call_with_retry(self.close_air_connect_valve,
                                      max_retries=3)
         if ret is None:
             return False
@@ -859,35 +907,35 @@ class RCB4ROSBridge:
             return False
         return True
 
-    def start_vacuum(self, idx):
-        """Vacuum air in work"""
+    def start_air_work(self, idx):
+        """Start air work"""
         if not self.interface.is_opened():
             return False
 
-        ret = serial_call_with_retry(self.interface.start_pump, max_retries=3)
+        ret = serial_call_with_retry(self.start_pump, max_retries=3)
         if ret is None:
             return False
         ret = serial_call_with_retry(self.interface.open_work_valve, idx, max_retries=3)
         if ret is None:
             return False
-        ret = serial_call_with_retry(self.interface.close_air_connect_valve, max_retries=3)
+        ret = serial_call_with_retry(self.close_air_connect_valve, max_retries=3)
         if ret is None:
             return False
         return True
 
-    def stop_vacuum(self, idx):
-        """Seal air in work"""
+    def stop_air_work(self, idx):
+        """Stop air work"""
         if not self.interface.is_opened():
             return False
 
         ret = serial_call_with_retry(self.interface.close_work_valve, idx, max_retries=3)
         if ret is None:
             return False
-        ret = serial_call_with_retry(self.interface.close_air_connect_valve, max_retries=3)
+        ret = serial_call_with_retry(self.close_air_connect_valve, max_retries=3)
         if ret is None:
             return False
         rospy.sleep(0.3)  # Wait for valve to close completely
-        ret = serial_call_with_retry(self.interface.stop_pump, max_retries=3)
+        ret = serial_call_with_retry(self.stop_pump, max_retries=3)
         if ret is None:
             return False
         return True
@@ -895,19 +943,19 @@ class RCB4ROSBridge:
     def pressure_control_callback(self, goal):
         if not self.interface.is_opened():
             return
-        if hasattr(self, 'pressure_control_thread') and self.pressure_control_thread is not None:
+        idx = goal.board_idx
+        if idx in self.pressure_control_thread:
             # Finish existing thread
-            self.pressure_control_running = False
+            self.pressure_control_running[idx] = False
             # Wait for the finishing process complete
-            while self.pressure_control_thread.is_alive() is True:
+            while self.pressure_control_thread[idx].is_alive() is True:
                 rospy.sleep(0.1)
         # Set new thread
-        idx = goal.board_idx
         start_pressure = goal.start_pressure
         stop_pressure = goal.stop_pressure
         release = goal.release
-        self.pressure_control_running = True
-        self.pressure_control_thread = threading.Thread(
+        self.pressure_control_running[idx] = True
+        self.pressure_control_thread[idx] = threading.Thread(
             target=self.pressure_control_loop,
             args=(
                 idx,
@@ -917,7 +965,7 @@ class RCB4ROSBridge:
             ),
             daemon=True,
         )
-        self.pressure_control_thread.start()
+        self.pressure_control_thread[idx].start()
         return self.pressure_control_server.set_succeeded(PressureControlResult())
 
     def publish_imu_message(self):

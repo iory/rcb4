@@ -223,6 +223,14 @@ class ICSServoController:
         v = self.ics.read(5)
         return v[4]
 
+    def get_stretch(self, servo_id=None):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x01]))
+        time.sleep(0.05)
+        v = self.ics.read(5)
+        return v[4]
+
     def get_current(self, servo_id=None, interpolate=True):
         if servo_id is None:
             servo_id = self.get_servo_id()
@@ -326,6 +334,18 @@ class ICSServoController:
         self.set_speed(speed)
         print(f"{Fore.BLUE}Speed decreased to {speed}{Fore.RESET}")
 
+    def increase_stretch(self):
+        stretch = self.get_stretch()
+        stretch = min(stretch + 10, 127)
+        self.set_stretch(stretch)
+        print(f"{Fore.BLUE}Stretch increased to {stretch}{Fore.RESET}")
+
+    def decrease_stretch(self):
+        stretch = self.get_stretch()
+        stretch = max(1, stretch - 10)
+        self.set_stretch(stretch)
+        print(f"{Fore.BLUE}Stretch decreased to {stretch}{Fore.RESET}")
+
     def parse_param64_key_value(self, v):
         alist = {}
         for param in self.servo_eeprom_params64:
@@ -385,7 +405,16 @@ class ICSServoController:
             self.send_angle_pulse = 7500
         return self.set_flag("rotation", rotation, servo_id=servo_id)
 
-    def set_stretch(self, stretch_values, servo_id=None):
+    def set_stretch(self, value, servo_id=None):
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        value = max(1, min(value, 127))
+        self.ics.write(bytes([0xC0 | servo_id, 0x01, value]))
+        time.sleep(0.1)
+        v = self.ics.read(6)
+        return v[2]
+
+    def set_stretch_values(self, stretch_values, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
 
@@ -468,6 +497,7 @@ class ICSServoController:
             "Current Servo ID",
             "Angle",
             "Speed",
+            "Stretch",
             "Baud Rate",
             "Rotation Mode",
             "Slave Mode",
@@ -475,7 +505,7 @@ class ICSServoController:
             "Serial Mode",
             "Free",
         ]
-        selectable_options = ["Current Servo ID", "Angle", "Speed"]
+        selectable_options = ["Current Servo ID", "Angle", "Speed", "Stretch"]
 
         key_listener = KeyListener()
         key_listener.daemon = True
@@ -628,6 +658,16 @@ class ICSServoController:
                         and selectable_options[self.selected_index] == "Speed"
                     ):
                         self.increase_speed()
+                    elif (
+                        key == readchar.key.LEFT
+                        and selectable_options[self.selected_index] == "Stretch"
+                    ):
+                        self.decrease_stretch()
+                    elif (
+                        key == readchar.key.RIGHT
+                        and selectable_options[self.selected_index] == "Stretch"
+                    ):
+                        self.increase_stretch()
                     else:
                         use_previous_result = True
                 except Exception as e:
@@ -674,6 +714,12 @@ class ICSServoController:
                     return 'No Data'
             angle = int((angle - 7500) / degree_to_pulse)
             return f"{angle}"
+        elif option == "Stretch":
+            if param is not None:
+                stretch = param["stretch-gain"] // 2
+            else:
+                stretch = self.get_stretch()
+            return f"{stretch}"
         elif option == "Speed":
             if param is not None:
                 speed = param["speed"]

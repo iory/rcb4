@@ -149,8 +149,11 @@ class ICSServoController:
                         current_baudrate = self.baud()
                         if current_baudrate != self.baudrate:
                             self.baud(self.baudrate)
-                        self.setup_rotation_mode()
-                        self.set_speed(127)
+                        try:
+                            self.setup_rotation_mode()
+                            self.set_speed(127)
+                        except Exception as _:
+                            pass
                         return True
                     except IndexError:
                         continue
@@ -554,12 +557,16 @@ class ICSServoController:
                         sys.stdout.flush()
                         print("--- Servo Status ---")
                         for i, option in enumerate(options):
-                            if i == self.selected_index:
-                                print(
-                                    f">> {option}: {self.get_status(option, result, selected=True)}"
-                                )
+                            selected = i == self.selected_index
+                            if selected:
+                                prefix_str = ">> "
                             else:
-                                print(f"   {option}: {self.get_status(option, result, selected=False)}")
+                                prefix_str = "   "
+                            try:
+                                print_str = self.get_status(option, result, selected=selected)
+                            except Exception as _:
+                                print_str = 'No Data'
+                            print(f"{prefix_str} {option}: {print_str}")
 
                         print("----------------------\n")
                         print(
@@ -708,10 +715,7 @@ class ICSServoController:
             if self.is_continuous_rotation_mode:
                 angle = self.send_angle_pulse
             else:
-                try:
-                    angle = self.read_angle()
-                except Exception as _:
-                    return 'No Data'
+                angle = self.read_angle()
             angle = int((angle - 7500) / degree_to_pulse)
             return f"{angle}"
         elif option == "Stretch":

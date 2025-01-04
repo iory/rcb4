@@ -622,7 +622,10 @@ class ICSServoController:
                 s += f' -> Next Servo ID: {str}'
             return s
         elif option == "Angle":
-            angle = self.read_angle()
+            try:
+                angle = self.read_angle()
+            except Exception as _:
+                return 'No Data'
             angle = int((angle - 7500) / degree_to_pulse)
             return f"{angle}"
         elif option == "Baud Rate":

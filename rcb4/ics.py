@@ -150,6 +150,7 @@ class ICSServoController:
                         if current_baudrate != self.baudrate:
                             self.baud(self.baudrate)
                         self.setup_rotation_mode()
+                        self.set_speed(127)
                         return True
                     except IndexError:
                         continue
@@ -313,6 +314,18 @@ class ICSServoController:
         self.set_angle(angle_pulse)
         print(f"{Fore.RED}Angle decreased to {angle_pulse}{Fore.RESET}")
 
+    def increase_speed(self):
+        speed = self.get_speed()
+        speed = min(speed + 10, 127)
+        self.set_speed(speed)
+        print(f"{Fore.BLUE}Speed increased to {speed}{Fore.RESET}")
+
+    def decrease_speed(self):
+        speed = self.get_speed()
+        speed = max(1, speed - 10)
+        self.set_speed(speed)
+        print(f"{Fore.BLUE}Speed decreased to {speed}{Fore.RESET}")
+
     def parse_param64_key_value(self, v):
         alist = {}
         for param in self.servo_eeprom_params64:
@@ -454,6 +467,7 @@ class ICSServoController:
         options = [
             "Current Servo ID",
             "Angle",
+            "Speed",
             "Baud Rate",
             "Rotation Mode",
             "Slave Mode",
@@ -461,7 +475,7 @@ class ICSServoController:
             "Serial Mode",
             "Free",
         ]
-        selectable_options = ["Current Servo ID", "Angle"]
+        selectable_options = ["Current Servo ID", "Angle", "Speed"]
 
         key_listener = KeyListener()
         key_listener.daemon = True
@@ -604,6 +618,16 @@ class ICSServoController:
                         and selectable_options[self.selected_index] == "Angle"
                     ):
                         self.increase_angle()
+                    elif (
+                        key == readchar.key.LEFT
+                        and selectable_options[self.selected_index] == "Speed"
+                    ):
+                        self.decrease_speed()
+                    elif (
+                        key == readchar.key.RIGHT
+                        and selectable_options[self.selected_index] == "Speed"
+                    ):
+                        self.increase_speed()
                     else:
                         use_previous_result = True
                 except Exception as e:
@@ -650,6 +674,12 @@ class ICSServoController:
                     return 'No Data'
             angle = int((angle - 7500) / degree_to_pulse)
             return f"{angle}"
+        elif option == "Speed":
+            if param is not None:
+                speed = param["speed"]
+            else:
+                speed = self.get_speed()
+            return f"{speed}"
         elif option == "Baud Rate":
             if param is not None:
                 baudrate = param["baud"]

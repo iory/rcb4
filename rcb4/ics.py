@@ -92,10 +92,12 @@ class ICSServoController:
             self.servo_candidates = list(range(18))
         self.servo_id_index = 0
         self.servo_id = 0
+        self.send_angle_pulse = None
         self.selected_index = 0
         self.baudrate = baudrate
         self.timeout = 0.1
         self.ics = None
+        self.is_continuous_rotation_mode = None
         self.servo_eeprom_params64 = [
             ("fix-header", [1, 2]),
             ("stretch-gain", [3, 4]),
@@ -147,6 +149,7 @@ class ICSServoController:
                         current_baudrate = self.baud()
                         if current_baudrate != self.baudrate:
                             self.baud(self.baudrate)
+                        self.setup_rotation_mode()
                         return True
                     except IndexError:
                         continue
@@ -270,6 +273,11 @@ class ICSServoController:
         self.set_angle(7500)
         print(f"{Fore.YELLOW}Servo reset to zero position.{Fore.RESET}")
 
+    def setup_rotation_mode(self):
+        self.is_continuous_rotation_mode = self.read_rotation()
+        if self.is_continuous_rotation_mode:
+            self.send_angle_pulse = 7500
+
     def toggle_rotation_mode(self):
         rotation_mode = self.read_rotation()
         self.set_rotation(not rotation_mode)
@@ -286,16 +294,24 @@ class ICSServoController:
         print(f"{Fore.MAGENTA}Free mode set to {mode_text}{Fore.RESET}")
 
     def increase_angle(self):
-        angle = self.read_angle()
-        angle = min(11500, angle + degree_to_pulse * 15)
-        self.set_angle(angle)
-        print(f"{Fore.BLUE}Angle increased to {angle}{Fore.RESET}")
+        if self.is_continuous_rotation_mode:
+            angle_pulse = self.send_angle_pulse
+            angle_pulse = min(11500, angle_pulse + int(degree_to_pulse * 1))
+        else:
+            angle = self.read_angle()
+            angle_pulse = min(11500, angle + degree_to_pulse * 15)
+        self.set_angle(angle_pulse)
+        print(f"{Fore.BLUE}Angle increased to {angle_pulse}{Fore.RESET}")
 
     def decrease_angle(self):
-        angle = self.read_angle()
-        angle = max(3500, angle - degree_to_pulse * 15)
-        self.set_angle(angle)
-        print(f"{Fore.RED}Angle decreased to {angle}{Fore.RESET}")
+        if self.is_continuous_rotation_mode:
+            angle_pulse = self.send_angle_pulse
+            angle_pulse = max(3500, angle_pulse - int(degree_to_pulse * 1))
+        else:
+            angle = self.read_angle()
+            angle_pulse = max(3500, angle - degree_to_pulse * 15)
+        self.set_angle(angle_pulse)
+        print(f"{Fore.RED}Angle decreased to {angle_pulse}{Fore.RESET}")
 
     def parse_param64_key_value(self, v):
         alist = {}
@@ -352,6 +368,8 @@ class ICSServoController:
         return self.set_flag("slave", slave, servo_id=servo_id)
 
     def set_rotation(self, rotation=None, servo_id=None):
+        if rotation:
+            self.send_angle_pulse = 7500
         return self.set_flag("rotation", rotation, servo_id=servo_id)
 
     def set_stretch(self, stretch_values, servo_id=None):
@@ -415,6 +433,7 @@ class ICSServoController:
 
     def read_rotation(self, servo_id=None):
         _, result = self.read_param(servo_id=servo_id)
+        self.is_continuous_rotation_mode = result["rotation"]
         return result["rotation"]
 
     def set_param(self, ics_param64, servo_id=None):
@@ -622,10 +641,13 @@ class ICSServoController:
                 s += f' -> Next Servo ID: {str}'
             return s
         elif option == "Angle":
-            try:
-                angle = self.read_angle()
-            except Exception as _:
-                return 'No Data'
+            if self.is_continuous_rotation_mode:
+                angle = self.send_angle_pulse
+            else:
+                try:
+                    angle = self.read_angle()
+                except Exception as _:
+                    return 'No Data'
             angle = int((angle - 7500) / degree_to_pulse)
             return f"{angle}"
         elif option == "Baud Rate":
@@ -678,6 +700,7 @@ class ICSServoController:
         v = int(v)
         if servo_id is None:
             servo_id = self.get_servo_id()
+        self.send_angle_pulse = v
         self.ics.write(bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]))
         time.sleep(0.1)
         v = self.ics.read(6)

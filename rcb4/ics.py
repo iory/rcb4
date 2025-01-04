@@ -406,6 +406,7 @@ class ICSServoController:
     def set_rotation(self, rotation=None, servo_id=None):
         if rotation:
             self.send_angle_pulse = 7500
+        self.set_free(True, servo_id=servo_id)  # free for before mode change.
         return self.set_flag("rotation", rotation, servo_id=servo_id)
 
     def set_stretch(self, value, servo_id=None):

@@ -26,10 +26,6 @@ from rcb4.ctype_utils import c_type_to_size
 from rcb4.data import kondoh7_elf
 from rcb4.rcb4interface import CommandTypes
 from rcb4.rcb4interface import deg_to_servovector
-from rcb4.rcb4interface import interpolate_currents
-from rcb4.rcb4interface import interpolate_or_extrapolate_current_settings
-from rcb4.rcb4interface import interpolate_or_extrapolate_temperature_settings
-from rcb4.rcb4interface import interpolate_or_extrapolate_temperatures
 from rcb4.rcb4interface import rcb4_dof
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
@@ -44,6 +40,8 @@ from rcb4.struct_header import SensorbaseStruct
 from rcb4.struct_header import ServoStruct
 from rcb4.struct_header import SystemStruct
 from rcb4.struct_header import WormmoduleStruct
+from rcb4.temperature import get_setting_value_from_temperatures
+from rcb4.temperature import setting_value_to_temperature
 from rcb4.units import convert_data
 from rcb4.usb_utils import reset_serial_port
 
@@ -927,7 +925,7 @@ class ARMH7Interface:
     def send_current_limit(self, current_limit_a=4.0, servo_ids=None):
         if servo_ids is None:
             servo_ids = self.servo_sorted_ids
-        current_setting = interpolate_or_extrapolate_current_settings(current_limit_a)
+        current_setting = int(current_limit_a * 10)
         if not isinstance(current_setting, (list, tuple)):
             current_setting = [current_setting] * len(servo_ids)
         byte_list = (
@@ -943,7 +941,7 @@ class ARMH7Interface:
     def send_temperature_limit(self, temperature_limit_c=80, servo_ids=None):
         if servo_ids is None:
             servo_ids = self.servo_sorted_ids
-        temperature_setting = interpolate_or_extrapolate_temperature_settings(temperature_limit_c)
+        temperature_setting = get_setting_value_from_temperatures(temperature_limit_c)
         if not isinstance(temperature_setting, (list, tuple)):
             temperature_setting = [temperature_setting] * len(servo_ids)
         byte_list = (
@@ -1475,7 +1473,7 @@ class ARMH7Interface:
         servo_current_vector[inverted_servo_mask] -= 64
 
         # Apply calculations only on non-zero values
-        estimated_current_vector = interpolate_currents(servo_current_vector)
+        estimated_current_vector = servo_current_vector / 10.0
         estimated_current_vector[inverted_servo_mask] *= -1.0
         return estimated_current_vector
 
@@ -1486,7 +1484,7 @@ class ARMH7Interface:
             self.servo_param64(sid, ["current_limit"])["current_limit"]
             for sid in servo_ids
         ]
-        return interpolate_currents(current_vector)
+        return current_vector / 10.0
 
     def switch_reading_servo_temperature(self, enable=True):
         if enable:
@@ -1511,7 +1509,7 @@ class ARMH7Interface:
         # Apply calculations only on non-zero values
         estimated_temperatures = np.zeros_like(servo_temperatures, dtype=np.float32)
         if np.any(non_zero_mask):
-            estimated_temperatures[non_zero_mask] = interpolate_or_extrapolate_temperatures(
+            estimated_temperatures[non_zero_mask] = setting_value_to_temperature(
                 servo_temperatures[non_zero_mask]
             )
         return estimated_temperatures
@@ -1523,7 +1521,7 @@ class ARMH7Interface:
             self.servo_param64(sid, ["temperature_limit"])["temperature_limit"]
             for sid in servo_ids
         ]
-        return interpolate_or_extrapolate_temperatures(temperature_vector)
+        return setting_value_to_temperature(temperature_vector)
 
 
 if __name__ == "__main__":

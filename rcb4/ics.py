@@ -215,7 +215,7 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.ics.write(bytes([0xC0 | (servo_id & 0x1F), 0x02, speed]))
-        time.sleep(0.05)
+        time.sleep(0.01)
         v = self.ics.read(6)
         return v[5]
 

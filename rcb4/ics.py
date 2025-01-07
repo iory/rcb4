@@ -356,13 +356,17 @@ class ICSServoController:
             param_name, indices = param[0], param[1]
             alist[param_name] = self._4bit2num(indices, v)
 
-        baud_value = alist.get("ics-baud-rate-10-115200-00-1250000", 0)
+        baud_value = alist.get("ics-baud-rate-10-115200-00-1250000", 0) & 0x0F
+        servo_type = alist.get("ics-baud-rate-10-115200-00-1250000", 0) & 0xF0
         baud_rate = {10: 115200, 1: 625000, 0: 1250000}.get(baud_value, None)
         mode_flag_value = alist.get(
             "mode-flag-b7slave-b4rotation-b3pwm-b1free-b0reverse", 0
         )
         alist.update(self.ics_flag_dict(mode_flag_value))
-        alist.update({"servo-id": alist.get("servo-id", 0), "baud": baud_rate})
+        alist.update({"servo-id": alist.get("servo-id", 0), "baud": baud_rate,
+                      "ics-baud-rate-10-115200-00-1250000": baud_value,
+                      "custom-servo-type": servo_type})
+        # custom-servo-type is original parameter.
         return alist
 
     def _4bit2num(self, lst, v):

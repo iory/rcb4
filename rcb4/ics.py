@@ -161,14 +161,16 @@ class ICSServoController:
 
     def set_default_eeprom_param(self):
         self.set_param(
-            [5, 10, 11, 4, 7, 15, 0, 0, 0, 2, 1, 14,
-             15, 10, 0, 6, 2, 12, 14, 12, 0, 13, 10,
-             12, 0, 0, 0, 0, 0, 10, 1, 14, 1, 2, 9, 8,
-             14, 13, 9, 13, 6, 14, 9, 11, 10, 12, 9, 5,
-             0, 14, 0, 1, 0, 0, 13, 2, 0, 0, 3, 12, 7, 8, 15, 14],)
+            [5, 10, 11, 4, 7, 15, 0, 0, 0, 2,  # 0-9
+             1, 14, 15, 10, 0, 6, 2, 12, 14, 12,  # 10-19
+             0, 13, 10, 12, 0, 0, 0, 0, 0, 10,  # 20-29
+             1, 14, 1, 2, 9, 8, 14, 13, 9, 13,  # 30-39
+             6, 14, 9, 11, 10, 12, 9, 5, 0, 14,   # 40-49
+             0, 1, 0, 0, 13, 2, 0, 0, 3, 12,  # 50-59
+             7, 8, 15, 14],)  # 60-63
 
-    def read_baud(self):
-        _, result = self.read_param()
+    def read_baud(self, servo_id=None):
+        _, result = self.read_param(servo_id=servo_id)
         return result["baud"]
 
     def baud(self, baud=None, servo_id=None):
@@ -182,7 +184,7 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
 
-        ics_param64, _ = self.read_param()
+        ics_param64, _ = self.read_param(servo_id=servo_id)
         if baud == 1250000:
             ics_param64[27] = 0
         elif baud == 625000:
@@ -194,7 +196,7 @@ class ICSServoController:
         self.set_param(ics_param64, servo_id)
         # Re-open the connection with the updated baud rate
         self.open_connection()
-        return self.read_baud()
+        return self.read_baud(servo_id=servo_id)
 
     def get_servo_id(self):
         self.ics.write(bytes([0xFF, 0x00, 0x00, 0x00]))

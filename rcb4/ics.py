@@ -9,8 +9,7 @@ import serial
 import serial.tools.list_ports
 import yaml
 
-from rcb4.rcb4interface import interpolate_currents
-from rcb4.rcb4interface import interpolate_or_extrapolate_temperatures
+from rcb4.temperature import get_setting_value_from_temperatures
 
 degree_to_pulse = 29.633
 
@@ -248,7 +247,7 @@ class ICSServoController:
             current -= 64
             sign = -1
         if interpolate:
-            return sign * interpolate_currents(current)
+            return sign * current / 10.0
         return sign * current
 
     def get_temperature(self, servo_id=None, interpolate=True):
@@ -258,7 +257,7 @@ class ICSServoController:
         time.sleep(0.05)
         v = self.ics.read(5)
         if interpolate:
-            return interpolate_or_extrapolate_temperatures(v[4])
+            return get_setting_value_from_temperatures(v[4])
         return v[4]
 
     def set_response(self, value, servo_id=None):

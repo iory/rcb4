@@ -1509,9 +1509,7 @@ class ARMH7Interface:
         # Apply calculations only on non-zero values
         estimated_temperatures = np.zeros_like(servo_temperatures, dtype=np.float32)
         if np.any(non_zero_mask):
-            estimated_temperatures[non_zero_mask] = setting_value_to_temperature(
-                servo_temperatures[non_zero_mask]
-            )
+            estimated_temperatures[non_zero_mask] = setting_value_to_temperature[servo_temperatures[non_zero_mask]]
         return estimated_temperatures
 
     def read_temperature_limit(self, servo_ids=None):
@@ -1521,7 +1519,7 @@ class ARMH7Interface:
             self.servo_param64(sid, ["temperature_limit"])["temperature_limit"]
             for sid in servo_ids
         ]
-        return setting_value_to_temperature(temperature_vector)
+        return setting_value_to_temperature[temperature_vector]
 
 
 if __name__ == "__main__":

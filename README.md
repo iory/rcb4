@@ -59,6 +59,19 @@ ruff format
 ruff check --fix .
 ```
 
+### Clang-Format
+To install `clang-format`, you can use the following command:
+```
+pip install clang-format
+```
+
+Once installed, you can format your files using a `.clang-format` configuration file. To format a file, run:
+```
+clang-format -i <filename>
+```
+
+Replace `<filename>` with the name of the file you want to format. The `-i` option tells `clang-format` to edit the file in place.
+
 ## For JSK Users
 
 ### Worm Gear Module Calibration Tool

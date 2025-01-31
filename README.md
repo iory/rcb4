@@ -1,5 +1,7 @@
 # rcb4
 
+## Prerequisite
+
 Linux users have to install `udev <https://en.wikipedia.org/wiki/Udev>`_ rules for rcb4 supported boards/devices. The latest version of the rules may be found at
 https://github.com/iory/rcb4/tree/master/rcb4/assets/system/99-rcb4-udev.rules
 

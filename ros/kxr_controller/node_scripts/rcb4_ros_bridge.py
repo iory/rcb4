@@ -832,12 +832,18 @@ class RCB4ROSBridge:
             if pressure is None:
                 rospy.sleep(0.1)
                 continue
-            if air_work_on is False and pressure > trigger_pressure:
+            is_depressurizing = trigger_pressure > target_pressure
+            is_pressurizing = trigger_pressure < target_pressure
+            depressure_check_start = is_depressurizing and (pressure > trigger_pressure)
+            depressure_check_stop = is_depressurizing and (pressure <= target_pressure)
+            pressure_check_start = is_pressurizing and (pressure < trigger_pressure)
+            pressure_check_stop = is_pressurizing and (pressure >= target_pressure)
+            if air_work_on is False and (depressure_check_start or pressure_check_start):
                 self.air_disconnect_lock.acquire(idx)
                 self.pump_on_lock.acquire(idx)
                 rospy.loginfo(f"[Start air work] id: {idx}")
                 air_work_on = self.start_air_work(idx)
-            if air_work_on and pressure <= target_pressure:
+            if air_work_on and (depressure_check_stop or pressure_check_stop):
                 self.air_disconnect_lock.release(idx)
                 self.pump_on_lock.release(idx)
                 rospy.loginfo(f"[Stop air work] id: {idx}")

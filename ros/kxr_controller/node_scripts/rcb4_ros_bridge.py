@@ -374,6 +374,7 @@ class RCB4ROSBridge:
             # Record 1 seconds pressure data.
             self.hz = rospy.get_param(self.base_namespace + "/control_loop_rate", 20)
             self.recent_pressures = {}
+            self.history_pressures = {}
 
     def setup_interface_and_servo_parameters(self):
         self.interface = self.setup_interface()
@@ -792,12 +793,14 @@ class RCB4ROSBridge:
             pressure = serial_call_with_retry(self.interface.read_pressure_sensor, idx)
             if pressure is None:
                 continue
-            if idx not in self.recent_pressures:
-                self.recent_pressures[idx] = deque([], maxlen=1 * int(self.hz))
-            self.recent_pressures[idx].append(pressure)
             self._pressure_publisher_dict[key].publish(
                 std_msgs.msg.Float32(data=pressure)
             )
+            if idx not in self.recent_pressures:
+                self.recent_pressures[idx] = deque([], maxlen=1 * int(self.hz))
+            if self.is_outlier_pressure(idx, pressure):
+                return
+            self.recent_pressures[idx].append(pressure)
             # Publish average pressure (noise removed pressure)
             self._avg_pressure_publisher_dict[key].publish(
                 std_msgs.msg.Float32(data=self.average_pressure(idx))
@@ -849,6 +852,35 @@ class RCB4ROSBridge:
         if n == 0:
             return None
         return sum(self.recent_pressures[idx]) / n
+
+    def is_outlier_pressure(self, idx, pressure):
+        """Detects outliers by comparing input pressure to the history_pressures.
+        Example
+        ------
+        >>> history_pressures[idx] = [7.61, 7.91, 6.57, 7.61, 7.24, 7.03, 6.86,
+                                      6.86, 7.28, 5.81, 6.52, 7.53, 6.94, 7.19,
+                                      6.94, 7.28, 7.53, 6.69, 6.94, 3.68]
+        >>> pressure = -48.2
+        """
+        if idx not in self.history_pressures:
+            self.history_pressures[idx] = deque([], maxlen=20)
+        if len(self.history_pressures[idx]) < 20:
+            self.history_pressures[idx].append(pressure)
+            return False
+        median = np.median(self.history_pressures[idx])
+        std_dev = np.std(self.history_pressures[idx])
+        # Detect outlier
+        if abs(pressure - median) <= 16 * std_dev:
+            self.history_pressures[idx].append(pressure)
+            return False
+        # Consider consecutive outliers as valid data"
+        if np.all(np.abs(np.array(self.history_pressures[idx])[-3:] - pressure) < std_dev * 4):
+            self.history_pressures[idx].append(pressure)
+            return False
+        else:
+            rospy.loginfo(f"[Outlier pressure] {idx}: {pressure}kPa")
+            self.history_pressures[idx].append(pressure)
+            return True
 
     def stop_pump(self):
         """Stop pump when all threads do not need pump-on

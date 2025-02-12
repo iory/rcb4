@@ -28,14 +28,6 @@ jobs:
         os: [self-hosted]
         python-version: [3.8]
     steps:
-    - name: Check if PR is from owner's repository
-      id: check-owner
-      run: |
-        if [[ "${{ github.actor }}" == "owner_username" ]]; then
-          echo "::set-output name=is_owner::true"
-        else
-          echo "::set-output name=is_owner::false"
-        fi
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64
       uses: iory/action@v3.1.2
@@ -46,25 +38,11 @@ jobs:
     - name: Install Pytest
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install pytest hacking pytest-cov
+        pip install pytest hacking
     - name: Install python package
       run: pip install .
     - name: Run Pytest
-      run: |
-        set -o pipefail
-        coverage erase
-        coverage run -m pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered tests
-        coverage xml
-    - name: Step for Owner's PR Only
-      if: steps.check-owner.outputs.is_owner == 'true'
-      run: |
-        echo "This step runs only for PRs from the owner's PR"
-    - name: Pytest coverage comment
-      if: steps.check-owner.outputs.is_owner == 'true'
-      uses: MishaKav/pytest-coverage-comment@main
-      with:
-        pytest-xml-coverage-path: ./coverage.xml
-        junitxml-path: ./pytest.xml
+      run: pytest -v tests
 
   pypi:
     name: Release To PyPi

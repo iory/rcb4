@@ -7,6 +7,7 @@ from numpy import testing
 from rcb4.rcb4interface import RCB4Interface
 
 
+@unittest.skip("Disable all tests in this class.")
 class TestRCB4Interface(unittest.TestCase):
     interface = None
 

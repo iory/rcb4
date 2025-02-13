@@ -1,5 +1,8 @@
 # rcb4
 
+![PyPI](https://img.shields.io/pypi/v/rcb4.svg)
+[![Build Status](https://github.com/iory/rcb4/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/iory/rcb4/actions)
+
 ## Prerequisite
 
 Linux users have to install `udev <https://en.wikipedia.org/wiki/Udev>`_ rules for rcb4 supported boards/devices. The latest version of the rules may be found at

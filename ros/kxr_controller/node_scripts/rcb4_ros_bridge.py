@@ -314,6 +314,9 @@ class RCB4ROSBridge:
 
     def setup_stretch_and_pressure_control_servers(self):
         """Configure stretch and pressure control action servers if enabled."""
+        default_stretch = 30
+        rospy.logwarn(f"Set default stretch values {default_stretch} for all servos")
+        serial_call_with_retry(self.interface.send_stretch, value=default_stretch)
         self.stretch_server = actionlib.SimpleActionServer(
             self.base_namespace + "/fullbody_controller/stretch_interface",
             StretchAction,

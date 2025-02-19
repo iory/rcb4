@@ -5,6 +5,12 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  pull_request_target:
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,6 +37,8 @@ jobs:
       matrix:
         os: [self-hosted]
         python-version: [3.8]
+    if: ( github.event.pull_request.head.repo.fork == false ) ||
+        ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64
@@ -75,9 +83,9 @@ jobs:
       id: upload
       uses: iory/github-action-upload-google-drive@v0.0.3
       with:
-        service_account_json: ${{ secrets.credentials }}
+        service_account_json: ${{ secrets.CREDENTIALS }}
         file_path: "${{ env.VIDEO_FILE_NAME }}"
-        folder_id: ${{ secrets.folderId }}
+        folder_id: ${{ secrets.FOLDERID }}
         input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
 
     - name: PR comment

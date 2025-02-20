@@ -59,7 +59,7 @@ jobs:
         pip install pytest hacking
 
     - name: Install packages for video
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
       run: |
         pip install deface
 
@@ -67,25 +67,25 @@ jobs:
       run: pip install .
 
     - name: Set Timestamp and PR Number
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
       run: echo "VIDEO_FILE_NAME=$(date +'%Y-%m-%d-%H%M')-PR${{ github.event.pull_request.number }}.mp4" >> $GITHUB_ENV
 
     - name: Record Video in Background
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
       run: |
         ffmpeg -f v4l2 -i /dev/video0 -t 600 -vcodec libx264 -an "$VIDEO_FILE_NAME" &
         echo $! > ffmpeg_pid.txt
     - name: Run Pytest
       run: pytest -v tests
     - name: Stop Recording
-      if: always() && github.event_name == 'pull_request'
+      if: always() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
       run: |
         kill $(cat ffmpeg_pid.txt) || echo "Recording already stopped"
         sleep 5  # Wait for ffmpeg to stop
         deface --replacewith mosaic --mosaicsize 20 "$VIDEO_FILE_NAME" -o tmp.mp4
         mv tmp.mp4 "$VIDEO_FILE_NAME"
     - name: Upload to gdrive
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
       id: upload
       uses: iory/github-action-upload-google-drive@v0.0.3
       with:
@@ -95,7 +95,7 @@ jobs:
         input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
 
     - name: PR comment
-      if: always() && github.event_name == 'pull_request'
+      if: always() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
       uses: thollander/actions-comment-pull-request@v3
       with:
         comment-tag: hardware_ci_video

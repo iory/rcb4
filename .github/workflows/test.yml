@@ -35,8 +35,10 @@ jobs:
       matrix:
         os: [self-hosted]
         python-version: [3.8]
-    if: ( github.event.pull_request.head.repo.fork == false ) ||
-        ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+    if: >
+        (github.event.pull_request.head.repo.fork == false ||
+        contains(github.event.pull_request.labels.*.name, 'safe to test')) &&
+        github.ref != 'refs/heads/master'
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64

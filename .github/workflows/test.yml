@@ -35,11 +35,17 @@ jobs:
       matrix:
         os: [self-hosted]
         python-version: [3.8]
-    if: >
-        (github.event.pull_request.head.repo.fork == false ||
-        contains(github.event.pull_request.labels.*.name, 'safe to test')) &&
-        github.ref != 'refs/heads/master'
     steps:
+    - name: Check access
+      if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' && github.event.pull_request.author_association != 'OWNER' && !contains(github.event.*.labels.*.name, 'safe to test') }}
+      run: |
+        echo "Event not triggered by a collaborator. Please add the 'safe to test' label to trigger this workflow with the correct permissions"
+        exit 1
+    - name: Skip access check on master push
+      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
+      run: |
+        echo "Pushed to master, skipping access check."
+        exit 0
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64
       uses: iory/action@v3.1.2

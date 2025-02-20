@@ -35,12 +35,8 @@ jobs:
       matrix:
         os: [self-hosted]
         python-version: [3.8]
+    if: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/master') }}
     steps:
-    - name: Skip access check on master push
-      if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' }}
-      run: |
-        echo "Pushed to master, skipping access check."
-        exit 0
     - name: Check access
       if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' && github.event.pull_request.author_association != 'OWNER' && !contains(github.event.*.labels.*.name, 'safe to test') }}
       run: |

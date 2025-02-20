@@ -1,5 +1,38 @@
 # rcb4
 
+![PyPI](https://img.shields.io/pypi/v/rcb4.svg)
+[![Build Status](https://github.com/iory/rcb4/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/iory/rcb4/actions)
+
+## Prerequisite
+
+Linux users have to install `udev <https://en.wikipedia.org/wiki/Udev>`_ rules for rcb4 supported boards/devices. The latest version of the rules may be found at
+https://github.com/iory/rcb4/tree/master/rcb4/assets/system/99-rcb4-udev.rules
+
+This file must be placed at ``/etc/udev/rules.d/99-rcb4-udev.rules`` (preferred location) or ``/lib/udev/rules.d/99-rcb4-udev.rules`` (required on some broken systems).
+
+Please open the system Terminal and type
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/iory/rcb4/master/rcb4/assets/system/99-rcb4-udev.rules | sudo tee /etc/udev/rules.d/99-rcb4-udev.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Or you can manually download and copy the file to a destination folder
+
+```bash
+sudo cp 99-rcb4-udev.rules /etc/udev/rules.d/99-rcb4-udev.rules
+sudo udevadm control --reload-rules
+sudo udevadm trigger
+```
+
+Ubuntu/Debian users may need to add own “username” to the “dialout” group if they are not “root”, doing this issuing
+
+```
+sudo usermod -a -G dialout $USER
+sudo usermod -a -G plugdev $USER
+```
+
 ## Install
 
 ```bash
@@ -30,6 +63,19 @@ pip install ruff
 ruff format
 ruff check --fix .
 ```
+
+### Clang-Format
+To install `clang-format`, you can use the following command:
+```
+pip install clang-format
+```
+
+Once installed, you can format your files using a `.clang-format` configuration file. To format a file, run:
+```
+clang-format -i <filename>
+```
+
+Replace `<filename>` with the name of the file you want to format. The `-i` option tells `clang-format` to edit the file in place.
 
 ## For JSK Users
 

@@ -3,8 +3,12 @@ name: Run Tests
 on:
   push:
     branches: [ master ]
-  pull_request:
-    branches: [ master ]
+  pull_request_target:
+    types:
+      - labeled
+      - opened
+      - reopened
+      - synchronize
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -31,15 +35,11 @@ jobs:
       matrix:
         os: [self-hosted]
         python-version: [3.8]
+    if: >
+        (github.event.pull_request.head.repo.fork == false ||
+        contains(github.event.pull_request.labels.*.name, 'safe to test')) &&
+        github.ref != 'refs/heads/master'
     steps:
-    - name: Check if PR is from owner's repository
-      id: check-owner
-      run: |
-        if [[ "${{ github.actor }}" == "owner_username" ]]; then
-          echo "::set-output name=is_owner::true"
-        else
-          echo "::set-output name=is_owner::false"
-        fi
     - uses: actions/checkout@v3
     - name: Set up Python for Self-Hosted Linux arm64
       uses: iory/action@v3.1.2
@@ -50,25 +50,56 @@ jobs:
     - name: Install Pytest
       run: |
         python -m pip install --upgrade pip setuptools wheel
-        pip install pytest hacking pytest-cov
+        pip install pytest hacking
+
+    - name: Install packages for video
+      if: ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+      run: |
+        pip install deface
+
     - name: Install python package
       run: pip install .
+
+    - name: Set Timestamp and PR Number
+      if: ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+      run: echo "VIDEO_FILE_NAME=$(date +'%Y-%m-%d-%H%M')-PR${{ github.event.pull_request.number }}.mp4" >> $GITHUB_ENV
+
+    - name: Record Video in Background
+      if: ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+      run: |
+        ffmpeg -f v4l2 -i /dev/video0 -t 600 -vcodec libx264 -an "$VIDEO_FILE_NAME" &
+        echo $! > ffmpeg_pid.txt
     - name: Run Pytest
+      run: pytest -v tests
+    - name: Stop Recording
+      if: always() && ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
       run: |
-        set -o pipefail
-        coverage erase
-        coverage run -m pytest --junitxml=pytest.xml --cov-report=term-missing:skip-covered tests
-        coverage xml
-    - name: Step for Owner's PR Only
-      if: steps.check-owner.outputs.is_owner == 'true'
-      run: |
-        echo "This step runs only for PRs from the owner's PR"
-    - name: Pytest coverage comment
-      if: steps.check-owner.outputs.is_owner == 'true'
-      uses: MishaKav/pytest-coverage-comment@main
+        kill $(cat ffmpeg_pid.txt) || echo "Recording already stopped"
+        sleep 5  # Wait for ffmpeg to stop
+        deface --replacewith mosaic --mosaicsize 20 "$VIDEO_FILE_NAME" -o tmp.mp4
+        mv tmp.mp4 "$VIDEO_FILE_NAME"
+    - name: Upload to gdrive
+      if: ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+      id: upload
+      uses: iory/github-action-upload-google-drive@v0.0.3
       with:
-        pytest-xml-coverage-path: ./coverage.xml
-        junitxml-path: ./pytest.xml
+        service_account_json: ${{ secrets.CREDENTIALS }}
+        file_path: "${{ env.VIDEO_FILE_NAME }}"
+        folder_id: ${{ secrets.FOLDERID }}
+        input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
+
+    - name: PR comment
+      if: always() && ( github.event.pull_request.head.repo.fork == false ) ||
+          ( contains(github.event.pull_request.labels.*.name, 'safe to test') )
+      uses: thollander/actions-comment-pull-request@v3
+      with:
+        comment-tag: hardware_ci_video
+        message: "🎬️ [Watch Hardware CI Test Video](https://drive.google.com/file/d/${{ steps.upload.outputs.file_id }}/view)"
 
   industrial_ci:
     name: Run ROS Tests
@@ -83,3 +114,17 @@ jobs:
       - uses: actions/checkout@v3
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
+
+  clang_format:
+    name: Check Clang Format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install clang-format
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install clang-format
+      - name: Run clang-format
+        run: |
+          find . \( -iname '*.c' -o -iname '*.h' -o -iname '*.cpp' -o -iname '*.hpp' -o -iname '*.ino' \) ! -path '*/.*/*' -print0 | xargs -0 clang-format -i
+          git diff --exit-code

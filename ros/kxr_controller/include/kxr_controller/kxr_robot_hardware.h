@@ -1,31 +1,27 @@
-#include <ros/ros.h>
-#include <hardware_interface/robot_hw.h>
-#include <sensor_msgs/JointState.h>
-#include <hardware_interface/joint_command_interface.h>
-#include <hardware_interface/joint_state_interface.h>
-#include <controller_manager/controller_manager.h>
 #include <actionlib/client/simple_action_client.h>
 #include <actionlib/server/simple_action_server.h>
-
+#include <controller_manager/controller_manager.h>
+#include <hardware_interface/joint_command_interface.h>
+#include <hardware_interface/joint_state_interface.h>
+#include <hardware_interface/robot_hw.h>
+#include <ros/ros.h>
+#include <sensor_msgs/JointState.h>
 
 namespace kxr_controller {
 
-  class KXRRobotHW : public hardware_interface::RobotHW
-  {
-  public:
+class KXRRobotHW : public hardware_interface::RobotHW {
+public:
     KXRRobotHW() : joint_state_received_(false) {};
     void read(const ros::Time& time, const ros::Duration& period);
     void write(const ros::Time& time, const ros::Duration& period);
     virtual bool init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh);
 
-    ros::Duration getPeriod() const {
-      return control_loop_period_;
-    }
+    ros::Duration getPeriod() const { return control_loop_period_; }
     ros::Time getTime() const { return ros::Time::now(); }
 
     ros::NodeHandle nh_;
 
-  private:
+private:
     hardware_interface::JointStateInterface joint_state_interface;
     hardware_interface::PositionJointInterface joint_position_interface;
     hardware_interface::VelocityJointInterface joint_velocity_interface;
@@ -49,5 +45,5 @@ namespace kxr_controller {
     std::vector<double> joint_state_effort_;
     void jointStateCallback(const sensor_msgs::JointState::ConstPtr& msg);
     boost::mutex mutex_;
-  };
+};
 }  // end of namespace kxr_controller

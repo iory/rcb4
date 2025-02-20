@@ -188,12 +188,12 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
             return
         return rospy.wait_for_message(self.stretch_topic_name, Stretch)
 
-    def send_pressure_control(self, board_idx, start_pressure, stop_pressure, release):
+    def send_pressure_control(self, board_idx, trigger_pressure, target_pressure, release_duration):
         goal = PressureControlGoal(
             board_idx=board_idx,
-            start_pressure=start_pressure,
-            stop_pressure=stop_pressure,
-            release=release,
+            trigger_pressure=trigger_pressure,
+            target_pressure=target_pressure,
+            release_duration=release_duration,
         )
         client = self.pressure_control_client
         if client.get_state() == actionlib_msgs.msg.GoalStatus.ACTIVE:
@@ -236,8 +236,9 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         }
 
     def default_controller(self):
+        namespace = self.namespace or ""
         controller_names = rospy.get_param(
-            self.namespace + 'default_controller', None)
+            namespace + 'default_controller', None)
         if controller_names is None:
             return [self.fullbody_controller]
         controllers = []
@@ -248,6 +249,6 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
                 "controller_state": cont_name + "/state",
                 "action_type": control_msgs.msg.FollowJointTrajectoryAction,
                 "joint_names": rospy.get_param(
-                    self.namespace + cont_name + '/joints'),
+                    namespace + cont_name + '/joints'),
             })
         return controllers

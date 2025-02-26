@@ -52,7 +52,9 @@ except Exception:
     print('\x1b[31m'
           + "The imported configuration is outdated. Please run 'catkin build kxr_controller'."
           + '\x1b[39m')
-    from kxr_controller.cfg import KXRParameteresConfig as Config
+    from kxr_controller.cfg import (
+        KXRParameteresConfig as Config,  # spellchecker:disable-line
+    )
 
 np.set_printoptions(precision=0, suppress=True)
 

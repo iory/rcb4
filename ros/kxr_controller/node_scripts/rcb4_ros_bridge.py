@@ -16,7 +16,7 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from control_msgs.msg import FollowJointTrajectoryGoal
 from dynamic_reconfigure.server import Server
 import geometry_msgs.msg
-from kxr_controller.cfg import KXRParameteresConfig as Config
+from kxr_controller.cfg import KXRParametersConfig as Config
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorResult
 from kxr_controller.msg import PressureControl
@@ -132,7 +132,7 @@ def set_fullbody_controller(joint_names):
     rospy.set_param("fullbody_controller", controller_yaml_dict)
 
 
-def set_joint_state_controler():
+def set_joint_state_controller():
     rospy.set_param(
         "joint_state_controller",
         {"type": "joint_state_controller/JointStateController", "publish_rate": 10},
@@ -210,7 +210,7 @@ class RCB4ROSBridge:
 
     def setup_ros_parameters(self):
         """Configure joint state and full body controllers."""
-        set_joint_state_controler()
+        set_joint_state_controller()
         self.set_fullbody_controller()
 
     def setup_publishers_and_servers(self):

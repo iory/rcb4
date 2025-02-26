@@ -16,7 +16,6 @@ from control_msgs.msg import FollowJointTrajectoryAction
 from control_msgs.msg import FollowJointTrajectoryGoal
 from dynamic_reconfigure.server import Server
 import geometry_msgs.msg
-from kxr_controller.cfg import KXRParametersConfig as Config
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorResult
 from kxr_controller.msg import PressureControl
@@ -46,6 +45,14 @@ import yaml
 from rcb4.armh7interface import ARMH7Interface
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
+
+try:
+    from kxr_controller.cfg import KXRParametersConfig as Config
+except Exception:
+    print('\x1b[31m'
+          + "The imported configuration is outdated. Please run 'catkin build kxr_controller'."
+          + '\x1b[39m')
+    from kxr_controller.cfg import KXRParameteresConfig as Config
 
 np.set_printoptions(precision=0, suppress=True)
 

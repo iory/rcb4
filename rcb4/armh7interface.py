@@ -115,12 +115,12 @@ servo_eeprom_params64 = {
 }
 
 
-def padding_bytearray(ba, n):
-    padding_length = n - len(ba)
+def padding_bytearray(byte_array, n):
+    padding_length = n - len(byte_array)
     if padding_length > 0:
-        return bytearray(padding_length) + ba
+        return bytearray(padding_length) + byte_array
     else:
-        return ba
+        return byte_array
 
 
 class ARMH7Interface:

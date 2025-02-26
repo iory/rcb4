@@ -28,6 +28,17 @@ jobs:
     - name: Run Ruff
       run: ruff check .
 
+  typos:
+    name: Typos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: typos-action
+        uses: crate-ci/typos@v1.29.10
+
   tests:
     name: Run Unit Tests
     runs-on: ${{ matrix.os }}
@@ -99,7 +110,7 @@ jobs:
 
   industrial_ci:
     name: Run ROS Tests
-    needs: [formatting, tests]
+    needs: [formatting, tests, typos]
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:

@@ -123,7 +123,7 @@ def padding_bytearray(byte_array, n):
         return byte_array
 
 
-class ARMH7Interface:
+class ARMH7Interface(object):
     def __init__(self, timeout=0.1):
         self.lock = Lock()
         self.serial = None

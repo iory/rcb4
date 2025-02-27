@@ -1,4 +1,3 @@
-
 import shlex
 import subprocess
 import sys
@@ -13,7 +12,7 @@ if sys.argv[-1] == "release":
     # Release via github-actions.
     commands = [
         f"git tag v{version:s}",
-        "git push origin master --tag",
+        "git push origin main --tag",
     ]
     for cmd in commands:
         print(f"+ {cmd}")

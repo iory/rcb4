@@ -1,19 +1,19 @@
 # rcb4
 
 ![PyPI](https://img.shields.io/pypi/v/rcb4.svg)
-[![Build Status](https://github.com/iory/rcb4/actions/workflows/test.yml/badge.svg?branch=master)](https://github.com/iory/rcb4/actions)
+[![Build Status](https://github.com/iory/rcb4/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/iory/rcb4/actions)
 
 ## Prerequisite
 
 Linux users have to install `udev <https://en.wikipedia.org/wiki/Udev>`_ rules for rcb4 supported boards/devices. The latest version of the rules may be found at
-https://github.com/iory/rcb4/tree/master/rcb4/assets/system/99-rcb4-udev.rules
+https://github.com/iory/rcb4/tree/main/rcb4/assets/system/99-rcb4-udev.rules
 
 This file must be placed at ``/etc/udev/rules.d/99-rcb4-udev.rules`` (preferred location) or ``/lib/udev/rules.d/99-rcb4-udev.rules`` (required on some broken systems).
 
 Please open the system Terminal and type
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/iory/rcb4/master/rcb4/assets/system/99-rcb4-udev.rules | sudo tee /etc/udev/rules.d/99-rcb4-udev.rules
+curl -fsSL https://raw.githubusercontent.com/iory/rcb4/main/rcb4/assets/system/99-rcb4-udev.rules | sudo tee /etc/udev/rules.d/99-rcb4-udev.rules
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 ```

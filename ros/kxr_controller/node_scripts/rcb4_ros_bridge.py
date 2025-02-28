@@ -841,7 +841,8 @@ class RCB4ROSBridge:
             self.release_air_work(idx, release_duration)
             self.pressure_control_running[idx] = False
             return
-        air_work_on = False
+        air_work_on = idx in self.air_disconnect_lock.active_lock_idx()\
+            and idx in self.pump_on_lock.active_lock_idx()
         while self.pressure_control_running[idx]:
             pressure = self.average_pressure(idx)
             if pressure is None:

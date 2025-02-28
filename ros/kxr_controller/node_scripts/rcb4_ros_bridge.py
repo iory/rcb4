@@ -841,7 +841,7 @@ class RCB4ROSBridge:
             self.release_air_work(idx, release_duration)
             self.pressure_control_running[idx] = False
             return
-        air_work_on = False
+        air_work_on = self.air_work_status(idx)
         while self.pressure_control_running[idx]:
             pressure = self.average_pressure(idx)
             if pressure is None:
@@ -990,6 +990,15 @@ class RCB4ROSBridge:
         if ret is None:
             return False
         return True
+
+    def air_work_status(self, idx):
+        """Returns whether or not the pump is working on air work.
+
+        air_disconnect_lock and pump_on_lock are applied when start_air_work()
+        and are removed when stop_air_work().
+        """
+        return idx in self.air_disconnect_lock.active_lock_idx()\
+            and idx in self.pump_on_lock.active_lock_idx()
 
     def pressure_control_callback(self, goal):
         if not self.interface.is_opened():

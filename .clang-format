@@ -10,3 +10,4 @@ AccessModifierOffset: -4
 BinPackParameters: false
 SortIncludes: true
 IndentPPDirectives: BeforeHash
+InsertNewlineAtEOF: true

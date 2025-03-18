@@ -1166,29 +1166,33 @@ class RCB4ROSBridge:
 
     def check_success_rate(self):
         # Calculate success rate
-        if self.publish_joint_states_attempts > 0:
-            success_rate = (
-                self.publish_joint_states_successes / self.publish_joint_states_attempts
-            )
-
-            # Check if the success rate is below the threshold
-            if success_rate < self.success_rate_threshold:
-                rospy.logwarn(
-                    f"communication success rate ({success_rate:.2%}) below threshold; "
-                    + "reinitializing interface."
+        for topic_type in ["joint_states", "pressure"]:
+            if self.publish_attempts[topic_type] > 0:
+                success_rate = (
+                    self.publish_successes[topic_type] / self.publish_attempts[topic_type]
                 )
-                self.reinitialize_interface()
 
-        # Reset counters and timer
-        self.publish_joint_states_successes = 0
-        self.publish_joint_states_attempts = 0
+                # Check if the success rate is below the threshold
+                if success_rate < self.success_rate_threshold:
+                    rospy.logwarn(
+                        f"[{topic_type}] communication success rate ({success_rate:.2%}) below threshold; "
+                        + "reinitializing interface."
+                    )
+                    self.reinitialize_interface()
+
+            # Reset counters and timer
+            self.publish_successes[topic_type] = 0
+            self.publish_attempts[topic_type] = 0
         self.last_check_time = rospy.Time.now()
 
     def run(self):
         rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 20))
 
-        self.publish_joint_states_attempts = 0
-        self.publish_joint_states_successes = 0
+        self.publish_attempts = {}
+        self.publish_successes = {}
+        for topic_type in ["joint_states", "pressure"]:
+            self.publish_attempts[topic_type] = 0
+            self.publish_successes[topic_type] = 0
         self.last_check_time = rospy.Time.now()
         check_board_communication_interval = rospy.get_param(
             "~check_board_communication_interval", 2
@@ -1214,9 +1218,20 @@ class RCB4ROSBridge:
                     rospy.logwarn("Could not set temperature limit")
 
             success = self.publish_joint_states()
-            self.publish_joint_states_attempts += 1
+            self.publish_attempts["joint_states"] += 1
             if success:
-                self.publish_joint_states_successes += 1
+                self.publish_successes["joint_states"] += 1
+
+            self.publish_servo_on_off()
+            self.publish_imu_message()
+            self.publish_sensor_values()
+            self.publish_battery_voltage_value()
+            if rospy.get_param("~use_rcb4") is False and self.control_pressure:
+                self.publish_pressure_control()
+                success = self.publish_pressure()
+                self.publish_attempts["pressure"] += 1
+                if success:
+                    self.publish_successes["pressure"] += 1
 
             # Check success rate periodically
             current_time = rospy.Time.now()
@@ -1225,13 +1240,6 @@ class RCB4ROSBridge:
             ).to_sec() >= check_board_communication_interval:
                 self.check_success_rate()
 
-            self.publish_servo_on_off()
-            self.publish_imu_message()
-            self.publish_sensor_values()
-            self.publish_battery_voltage_value()
-            if rospy.get_param("~use_rcb4") is False and self.control_pressure:
-                self.publish_pressure()
-                self.publish_pressure_control()
             rate.sleep()
 
 

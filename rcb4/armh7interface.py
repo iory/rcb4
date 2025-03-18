@@ -1422,7 +1422,7 @@ class ARMH7Interface:
     def armh7_address(self):
         if self._armh7_address is not None:
             return self._armh7_address
-        self._armh7_address = {name: "" for name in armh7_variable_list}
+        self._armh7_address = dict.fromkeys(armh7_variable_list, "")
         version = self.get_version()
         with open(kondoh7_elf(version), "rb") as stream:
             elf = ELFFile(stream)

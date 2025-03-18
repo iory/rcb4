@@ -785,7 +785,8 @@ class RCB4ROSBridge:
 
     def publish_pressure(self):
         if not self.interface.is_opened():
-            return
+            return False
+        success = True
         for idx in self.air_board_ids:
             key = f"{idx}"
             if key not in self._pressure_publisher_dict:
@@ -804,6 +805,7 @@ class RCB4ROSBridge:
                 rospy.sleep(0.1)
             pressure = serial_call_with_retry(self.interface.read_pressure_sensor, idx)
             if pressure is None:
+                success = False
                 continue
             self._pressure_publisher_dict[key].publish(
                 std_msgs.msg.Float32(data=pressure)
@@ -817,6 +819,7 @@ class RCB4ROSBridge:
             self._avg_pressure_publisher_dict[key].publish(
                 std_msgs.msg.Float32(data=self.average_pressure(idx))
             )
+        return success
 
     def publish_pressure_control(self):
         for idx in list(self.pressure_control_state.keys()):

@@ -26,8 +26,19 @@ message(STATUS "RCB4 Directory: ${RCB4_DIR}")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/requirements.in ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 COPYONLY)
 file(APPEND ${CMAKE_CURRENT_SOURCE_DIR}/requirements.in.with_rcb4 "${RCB4_DIR}\n")
 
+set(USE_VIRTUALENV_DEFAULT ON)
+
+if(EXISTS "/proc/device-tree/model")
+  file(READ "/proc/device-tree/model" DEVICE_MODEL)
+  string(FIND "${DEVICE_MODEL}" "Radxa Zero" MODEL_FOUND)
+  if(NOT MODEL_FOUND EQUAL -1)
+    message(STATUS "Detected Radxa Zero. Setting USE_VIRTUALENV default to OFF.")
+    set(USE_VIRTUALENV_DEFAULT OFF)
+  endif()
+endif()
+
 # Add a CMake option for enabling/disabling virtualenv
-option(USE_VIRTUALENV "Use Python virtual environment" ON)
+option(USE_VIRTUALENV "Use Python virtual environment" ${USE_VIRTUALENV_DEFAULT})
 
 if(USE_VIRTUALENV)
   find_package(catkin REQUIRED COMPONENTS

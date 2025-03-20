@@ -1,29 +1,50 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(kxreus)
 
-find_package(catkin REQUIRED
-  catkin_virtualenv
-  kxr_models
-)
+set(USE_VIRTUALENV_DEFAULT ON)
+
+if(EXISTS "/proc/device-tree/model")
+  file(READ "/proc/device-tree/model" DEVICE_MODEL)
+  string(FIND "${DEVICE_MODEL}" "Radxa Zero" MODEL_FOUND)
+  if(NOT MODEL_FOUND EQUAL -1)
+    message(STATUS "Detected Radxa Zero. Setting USE_VIRTUALENV default to OFF.")
+    set(USE_VIRTUALENV_DEFAULT OFF)
+  endif()
+endif()
+
+option(USE_VIRTUALENV "Use Python virtual environment" ${USE_VIRTUALENV_DEFAULT})
+
+if(USE_VIRTUALENV)
+  find_package(catkin REQUIRED
+    catkin_virtualenv
+    kxr_models
+  )
+else()
+  find_package(catkin REQUIRED
+    kxr_models
+  )
+  message(STATUS "Not using catkin_virtualenv as USE_VIRTUALENV is OFF.")
+endif()
 
 catkin_package(
   DEPENDS
   LIBRARIES ${PROJECT_NAME}
 )
 
-catkin_generate_virtualenv(
-  INPUT_REQUIREMENTS requirements.in
-  PYTHON_INTERPRETER python3
-  USE_SYSTEM_PACKAGES TRUE
-  ISOLATE_REQUIREMENTS FALSE
-  CHECK_VENV FALSE
-)
+if(USE_VIRTUALENV)
+  catkin_generate_virtualenv(
+    INPUT_REQUIREMENTS requirements.in
+    PYTHON_INTERPRETER python3
+    USE_SYSTEM_PACKAGES TRUE
+    ISOLATE_REQUIREMENTS FALSE
+    CHECK_VENV FALSE
+  )
+endif()
 
 file(GLOB PYTHON_SCRIPT_FILES node_scripts/*)
 catkin_install_python(
   PROGRAMS ${PYTHON_SCRIPT_FILES}
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
-
 
 if(CATKIN_ENABLE_TESTING)
   find_package(rostest REQUIRED)

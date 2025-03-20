@@ -10,12 +10,12 @@ import tempfile
 import threading
 import xml.etree.ElementTree as ET
 
-import actionlib
 from actionlib_msgs.msg import GoalID
 from control_msgs.msg import FollowJointTrajectoryAction
 from control_msgs.msg import FollowJointTrajectoryGoal
-from dynamic_reconfigure.server import Server
 import geometry_msgs.msg
+from kxr_controller.module_loader import KXRConfigLoader
+from kxr_controller.module_loader import ModuleLoader
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorResult
 from kxr_controller.msg import PressureControl
@@ -46,15 +46,10 @@ from rcb4.armh7interface import ARMH7Interface
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
 
-try:
-    from kxr_controller.cfg import KXRParametersConfig as Config
-except Exception:
-    print('\x1b[31m'
-          + "The imported configuration is outdated. Please run 'catkin build kxr_controller'."
-          + '\x1b[39m')
-    from kxr_controller.cfg import (
-        KXRParameteresConfig as Config,  # spellchecker:disable-line
-    )
+# async load heavy modules
+server_loader = ModuleLoader('dynamic_reconfigure.server', 'Server')
+actionlib_loader = ModuleLoader('actionlib')
+kxr_config_loader = KXRConfigLoader()
 
 np.set_printoptions(precision=0, suppress=True)
 
@@ -276,12 +271,15 @@ class RCB4ROSBridge:
 
         # Action servers for servo control
         self.setup_action_servers_and_clients()
+        Server = server_loader.get_module()
+        Config = kxr_config_loader.get_module()
         self.srv = Server(Config, self.config_callback)
 
     def setup_action_servers_and_clients(self):
         """Set up action servers for controlling servos and pressure."""
 
         # Servo on/off action server
+        actionlib = actionlib_loader.get_module()
         self.servo_on_off_server = actionlib.SimpleActionServer(
             self.base_namespace + "/fullbody_controller/servo_on_off_real_interface",
             ServoOnOffAction,
@@ -326,6 +324,7 @@ class RCB4ROSBridge:
         default_stretch = 30
         rospy.logwarn(f"Set default stretch values {default_stretch} for all servos")
         serial_call_with_retry(self.interface.send_stretch, value=default_stretch)
+        actionlib = actionlib_loader.get_module()
         self.stretch_server = actionlib.SimpleActionServer(
             self.base_namespace + "/fullbody_controller/stretch_interface",
             StretchAction,

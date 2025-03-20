@@ -33,6 +33,35 @@ class ModuleLoader:
         return self._module
 
 
+class KXRConfigLoader:
+    def __init__(self):
+        self._load_complete = threading.Event()
+        self._module = None
+        self._thread = threading.Thread(target=self._load_module)
+        self._thread.daemon = True
+        self._thread.start()
+
+    def _load_module(self):
+        try:
+            from kxr_controller.cfg import KXRParametersConfig as Config
+        except Exception:
+            print('\x1b[31m'
+                + "The imported configuration is outdated. Please run 'catkin build kxr_controller'."
+                + '\x1b[39m')
+            from kxr_controller.cfg import (
+                KXRParameteresConfig as Config,  # spellchecker:disable-line
+            )
+        self._module = Config
+        self._load_complete.set()
+
+    def get_module(self, timeout=None):
+        if not self._load_complete.wait(timeout=timeout):
+            raise TimeoutError("Loading KXRParametersConfig timed out")
+        if self._module is None:
+            raise ValueError("Failed to load KXRParametersConfig")
+        return self._module
+
+
 if __name__ == '__main__':
     from datetime import datetime
     start = datetime.now()

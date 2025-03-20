@@ -14,6 +14,7 @@ from actionlib_msgs.msg import GoalID
 from control_msgs.msg import FollowJointTrajectoryAction
 from control_msgs.msg import FollowJointTrajectoryGoal
 import geometry_msgs.msg
+from kxr_controller.module_loader import KXRConfigLoader
 from kxr_controller.module_loader import ModuleLoader
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorResult
@@ -48,16 +49,7 @@ from rcb4.rcb4interface import ServoOnOffValues
 # async load heavy modules
 server_loader = ModuleLoader('dynamic_reconfigure.server', 'Server')
 actionlib_loader = ModuleLoader('actionlib')
-
-try:
-    from kxr_controller.cfg import KXRParametersConfig as Config
-except Exception:
-    print('\x1b[31m'
-          + "The imported configuration is outdated. Please run 'catkin build kxr_controller'."
-          + '\x1b[39m')
-    from kxr_controller.cfg import (
-        KXRParameteresConfig as Config,  # spellchecker:disable-line
-    )
+kxr_config_loader = KXRConfigLoader()
 
 np.set_printoptions(precision=0, suppress=True)
 
@@ -280,6 +272,7 @@ class RCB4ROSBridge:
         # Action servers for servo control
         self.setup_action_servers_and_clients()
         Server = server_loader.get_module()
+        Config = kxr_config_loader.get_module()
         self.srv = Server(Config, self.config_callback)
 
     def setup_action_servers_and_clients(self):

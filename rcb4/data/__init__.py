@@ -6,12 +6,12 @@ import subprocess
 
 from colorama import Fore
 from colorama import Style
-import gdown
-import pkg_resources
+
+from rcb4._lazy_imports import _lazy_gdown
+from rcb4._lazy_imports import _lazy_gdown_version
 
 data_dir = osp.abspath(osp.dirname(__file__))
 _default_cache_dir = osp.expanduser("~/.rcb4")
-gdown_version = pkg_resources.get_distribution("gdown").version
 
 
 ELFINFO = namedtuple("ELFINFO", ["url", "md5sum"])
@@ -54,6 +54,10 @@ def kondoh7_elf(version="latest"):
         )
     elf_info = elf_infos[version]
     target_path = osp.join(get_cache_dir(), "elf", version + ".elf")
+    if osp.exists(target_path):
+        return target_path
+    gdown_version = _lazy_gdown_version()
+    gdown = _lazy_gdown()
     try:
         if StrictVersion(gdown_version) < StrictVersion("5.1.0"):
             gdown.cached_download(
@@ -90,6 +94,8 @@ def stlink():
     md5sum = "583a506c8e5e65577d623b5ace992fe5"
     target_path = osp.join(get_cache_dir(), "stlink", "v1.7.0.tar.gz")
     target_dir = osp.join(get_cache_dir(), "stlink", "stlink-1.7.0")
+    gdown_version = _lazy_gdown_version()
+    gdown = _lazy_gdown()
     if StrictVersion(gdown_version) < StrictVersion("5.1.0"):
         gdown.cached_download(
             url=url,

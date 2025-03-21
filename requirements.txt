@@ -2,7 +2,7 @@ colorama
 cstruct
 gdown
 libusb1
-numpy
+numpy>=1.22.0
 pandas
 pyelftools
 pyserial

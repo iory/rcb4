@@ -1,6 +1,7 @@
 <launch>
 
   <arg name="namespace" default="" />
+  <arg name="publish_imu" default="true" />
   <arg name="use_rcb4" default="false" doc="Flag to use RCB4 mini board"/>
   <arg name="frame_count" default="50" />
 
@@ -8,6 +9,7 @@
     <arg name="urdf_path" value="$(find kxr_models)/urdf/kxr_test_head.urdf" />
     <arg name="servo_config_path" value="$(find kxr_models)/config/kxr_test_head_servo_config.yaml" />
     <arg name="namespace" value="$(arg namespace)" />
+    <arg name="publish_imu" value="$(arg publish_imu)" />
     <arg name="use_rcb4" value="$(arg use_rcb4)" />
     <arg name="frame_count" value="$(arg frame_count)" />
   </include>

@@ -1185,7 +1185,7 @@ class RCB4ROSBridge:
         self.last_check_time = rospy.Time.now()
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 20))
+        rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 30))
 
         self.publish_attempts = {}
         self.publish_successes = {}
@@ -1197,6 +1197,7 @@ class RCB4ROSBridge:
             "~check_board_communication_interval", 2
         )
         self.success_rate_threshold = 0.8  # Minimum success rate required
+        use_rcb4 = rospy.get_param("~use_rcb4")
 
         while not rospy.is_shutdown():
             if self._update_current_limit:
@@ -1225,7 +1226,7 @@ class RCB4ROSBridge:
             self.publish_imu_message()
             self.publish_sensor_values()
             self.publish_battery_voltage_value()
-            if rospy.get_param("~use_rcb4") is False and self.control_pressure:
+            if use_rcb4 is False and self.control_pressure:
                 self.publish_pressure_control()
                 success = self.publish_pressure()
                 self.publish_attempts["pressure"] += 1

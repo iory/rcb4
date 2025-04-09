@@ -40,7 +40,7 @@ bool KXRRobotHW::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh) {
     double control_loop_rate;
     if (!robot_hw_nh.getParam(clean_namespace + "/control_loop_rate", control_loop_rate) ||
         control_loop_rate <= 0.0) {
-        control_loop_rate = 20.0;
+        control_loop_rate = 30.0;
     }
     control_loop_period_ = ros::Duration(1.0 / control_loop_rate);
 

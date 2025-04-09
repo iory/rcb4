@@ -69,7 +69,7 @@
                 :groupname "kxr_interface"
                 :base-controller-action-name nil
                 :base-frame-id "base_link"
-                :cmd-vel-topic "/diff_drive_controller/cmd_vel"
+                :cmd-vel-topic "/ridgeback_control/cmd_vel"
                 args)
 
     (let (actions)

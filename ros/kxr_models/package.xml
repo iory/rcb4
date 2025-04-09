@@ -1,6 +1,6 @@
 <package format="2">
   <name>kxr_models</name>
-  <version>0.0.9</version>
+  <version>0.1.0</version>
   <description>
     <p>URDF Description package for kxr_models</p>
     <p>This package contains configuration data, 3D models and launch files for kxr robot</p>

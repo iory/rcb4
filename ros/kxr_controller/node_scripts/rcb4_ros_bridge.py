@@ -1185,7 +1185,7 @@ class RCB4ROSBridge:
         self.last_check_time = rospy.Time.now()
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 20))
+        rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 30))
 
         self.publish_attempts = {}
         self.publish_successes = {}

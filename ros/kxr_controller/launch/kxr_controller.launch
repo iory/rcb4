@@ -8,7 +8,7 @@
   <arg name="publish_battery_voltage" default="false" />
   <arg name="control_pressure" default="false" />
   <arg name="imu_frame_id" default="/bodyset94472077639384" />
-  <arg name="control_loop_rate" default="20" />
+  <arg name="control_loop_rate" default="30" />
   <arg name="use_rcb4" default="false" doc="Flag to use RCB4 mini board"/>
   <arg name="device" default="" doc="Device path"/>
   <arg name="model_server_port" default="8123" />

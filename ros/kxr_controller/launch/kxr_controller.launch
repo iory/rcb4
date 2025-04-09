@@ -3,7 +3,7 @@
   <arg name="urdf_path" default="$(find kxr_models)/urdf/kxrl2l2a6h2m.urdf" />
   <arg name="servo_config_path" default="$(find kxr_models)/config/kxrl2l2a6h2m_servo_config.yaml" />
   <arg name="namespace" default="" />
-  <arg name="publish_imu" default="true" />
+  <arg name="publish_imu" default="false" />
   <arg name="publish_sensor" default="false" />
   <arg name="publish_battery_voltage" default="false" />
   <arg name="control_pressure" default="false" />

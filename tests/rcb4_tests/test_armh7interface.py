@@ -99,3 +99,13 @@ class TestARMH7Interface(unittest.TestCase):
 
     def test_trim_vector(self):
         self.interface.trim_vector()
+
+    def test_scan_ics_channels(self):
+        channels_per_port = self.interface.scan_ics_channels_per_port()
+        flattened_ids = []
+        for channel in channels_per_port:
+            flattened_ids.extend(channel)
+        flattened_ids = list(set(flattened_ids))
+        testing.assert_array_almost_equal(
+            flattened_ids, [16, 17, 19]
+        )

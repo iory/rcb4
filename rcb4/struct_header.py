@@ -1,5 +1,6 @@
 import cstruct
 
+max_SIO_num = 2
 max_sensor_num = 24
 sensor_sidx = 38
 max_wormmodule_num = max_sensor_num
@@ -250,6 +251,43 @@ struct DataAddress
 DataAddress.__name__ = "data_address"
 
 
+ControlStruct = cstruct.parse("""
+#define RTOS_TASK_NUM 16
+#define MAX_SIO_NUM 2 // default of kondoh7(2023/08/25) refer to rcb4 controlboard uart port num
+#define MAX_DEVICE_NUM_PER_PORT 32
+struct ControlStruct {
+  uint32_t move_time;   // ms
+  uint32_t count_time;  // ms
+  uint32_t start_frame; // ns
+  uint32_t prev_frame;  // ns
+  uint8_t active;
+  uint8_t prev_active;
+  uint8_t servo_state; // 0:free 1:hold
+  uint8_t buffc;
+  int pc;
+  uint8_t counter;
+  uint8_t motion_flag;
+  uint8_t interpolation;
+  uint8_t len;
+  uint32_t call_stack[16];
+  uint8_t stack_index;
+  uint8_t state;
+  uint8_t prev_state;
+  uint8_t dummy_pad_short_boundary;
+  uint32_t rtos_maxstack[RTOS_TASK_NUM];
+  uint32_t pprev_frame[6];
+  uint32_t pcount_frame[6];
+  uint16_t comm_params[8];
+  float krs3304r2_kv; //[rpm/v]
+  uint32_t taskprev_frame[RTOS_TASK_NUM];
+  uint32_t taskcount_frame[RTOS_TASK_NUM];
+  uint8_t device_port[MAX_SIO_NUM * MAX_DEVICE_NUM_PER_PORT];
+  uint8_t device_timeout_th;
+  uint8_t dummy[3];
+};
+""")
+ControlStruct.__name__ = "Control"
+
 c_vector = {
     "servo_vector": 36,
     "Sensor_vector": max_sensor_num,
@@ -258,4 +296,5 @@ c_vector = {
     "Worm_vector": max_wormmodule_num,
     "SysB": 0,
     "data_address": 0,
+    "Control": 0,
 }

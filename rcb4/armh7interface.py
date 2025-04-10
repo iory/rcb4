@@ -31,10 +31,12 @@ from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
 from rcb4.rcb4interface import ServoParams
 from rcb4.struct_header import c_vector
+from rcb4.struct_header import ControlStruct
 from rcb4.struct_header import DataAddress
 from rcb4.struct_header import GPIOStruct
 from rcb4.struct_header import Madgwick
 from rcb4.struct_header import max_sensor_num
+from rcb4.struct_header import max_SIO_num
 from rcb4.struct_header import sensor_sidx
 from rcb4.struct_header import SensorbaseStruct
 from rcb4.struct_header import ServoStruct
@@ -58,6 +60,7 @@ armh7_variable_list = [
     "dataflash_to_dataram",
     "servo_vector",
     "dataram_to_dataflash",
+    "Control",
     "_sidata",
     "_sdata",
     "uwTickPrio",
@@ -1286,6 +1289,47 @@ class ARMH7Interface:
         s = self.serial_write(byte_list)
         s = padding_bytearray(s, tsize)
         return np.frombuffer(s, dtype=c_type_to_numpy_format(c_type))
+
+    def scan_ics_channels(self, timeout=False, raw_id=True):
+        """Return the ICS or SIO ID for devices on each ICS channel (J1..J6).
+
+        If `raw_id` is True, we return ICS ID (i.e., index // max_SIO_num).
+        If `raw_id` is False, we return the raw index from read_device_port().
+        If `timeout` is True and we see the 'timeout' bit, we set the ID to -1.
+
+        Returns
+        -------
+        list of list of int
+            A list with 6 elements (for J1..J6). Each element is a list of the
+            IDs found on that ICS channel.
+        """
+        # Store the final result for each ICS channel (6 total).
+        result = [[], [], [], [], [], []]
+        tmp_device_port = self.read_device_port()
+        ics_channel = [(None, 0), (None, 1), (None, 2), (None, 3), (None, 4), (None, 5)]
+
+        for j in range(6):
+            tmp_lst = []
+            tmp_port = ics_channel[j][1] + 1
+            for i, tmp_state in enumerate(tmp_device_port):
+                if tmp_state >= 128:
+                    tmp_state -= 128
+                    timeout_flag = False
+                    if tmp_state >= 64:
+                        tmp_state -= 64
+                        timeout_flag = True
+                    if tmp_state == (2 ** (tmp_port - 1)):
+                        tmp_id = i
+                        if raw_id:
+                            tmp_id = tmp_id // max_SIO_num
+                        if timeout and timeout_flag:
+                            tmp_id = -1
+                        tmp_lst.append(tmp_id)
+            result[j] = tmp_lst
+        return result
+
+    def read_device_port(self):
+        return self.read_cstruct_slot_vector(ControlStruct, "device_port")
 
     def read_jb_cstruct(self, idx):
         return self.memory_cstruct(SensorbaseStruct, idx - sensor_sidx)

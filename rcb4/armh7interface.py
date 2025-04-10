@@ -1296,7 +1296,7 @@ class ARMH7Interface:
         s = padding_bytearray(s, tsize)
         return np.frombuffer(s, dtype=c_type_to_numpy_format(c_type))
 
-    def scan_ics_channels(self, timeout=False, raw_id=True):
+    def scan_ics_channels_per_port(self, timeout=False, raw_id=True):
         """Return the ICS or SIO ID for devices on each ICS channel (J1..J6).
 
         If `raw_id` is True, we return ICS ID (i.e., index // max_SIO_num).

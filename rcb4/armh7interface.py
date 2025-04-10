@@ -429,9 +429,11 @@ class ARMH7Interface:
         vcnt = c_vector[cls.__name__] or 1
         addr = self.armh7_address[cls.__name__]
         cls_size = cls.size
-        slot_offset = cls.__fields_types__[slot_name].offset
-        c_type = cls.__fields_types__[slot_name].c_type
-        element_size = c_type_to_size(c_type)
+        field_type = cls.__fields_types__[slot_name]
+        slot_offset = field_type.offset
+        c_type = field_type.c_type
+        vlen = getattr(field_type, "vlen", 1)
+        element_size = c_type_to_size(c_type) * vlen
         n = 11
         byte_list = np.zeros(n, dtype=np.uint8)
         byte_list[0] = n
@@ -441,7 +443,11 @@ class ARMH7Interface:
         )
         byte_list[6] = vcnt
         byte_list[7] = element_size
-        byte_list[8] = cls_size
+        if cls_size > 0xFFFF:
+            raise ValueError(f"skip_size={cls_size} is too large for 2 bytes.")
+        byte_list[8] = cls_size & 0xFF
+        byte_list[9] = (cls_size >> 8) & 0xFF
+
         byte_list[n - 1] = rcb4_checksum(byte_list)
         b = self.serial_write(byte_list)
         return np.frombuffer(b, dtype=c_type_to_numpy_format(c_type))

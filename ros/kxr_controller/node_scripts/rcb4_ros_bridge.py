@@ -136,10 +136,10 @@ def set_fullbody_controller(joint_names):
     rospy.set_param("fullbody_controller", controller_yaml_dict)
 
 
-def set_joint_state_controller():
+def set_joint_state_controller(hz=10):
     rospy.set_param(
         "joint_state_controller",
-        {"type": "joint_state_controller/JointStateController", "publish_rate": 10},
+        {"type": "joint_state_controller/JointStateController", "publish_rate": hz},
     )
 
 
@@ -214,7 +214,8 @@ class RCB4ROSBridge:
 
     def setup_ros_parameters(self):
         """Configure joint state and full body controllers."""
-        set_joint_state_controller()
+        self.hz = rospy.get_param(self.base_namespace + "/control_loop_rate", 30)
+        set_joint_state_controller(self.hz)
         self.set_fullbody_controller()
 
     def setup_publishers_and_servers(self):
@@ -383,7 +384,6 @@ class RCB4ROSBridge:
             self._pressure_publisher_dict = {}
             self._avg_pressure_publisher_dict = {}
             # Record 1 seconds pressure data.
-            self.hz = rospy.get_param(self.base_namespace + "/control_loop_rate", 20)
             self.recent_pressures = {}
             self.history_pressures = {}
 
@@ -1185,7 +1185,7 @@ class RCB4ROSBridge:
         self.last_check_time = rospy.Time.now()
 
     def run(self):
-        rate = rospy.Rate(rospy.get_param(self.base_namespace + "/control_loop_rate", 30))
+        rate = rospy.Rate(self.hz)
 
         self.publish_attempts = {}
         self.publish_successes = {}

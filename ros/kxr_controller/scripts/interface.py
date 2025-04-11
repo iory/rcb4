@@ -31,7 +31,12 @@ def main():
         robot_description = args.namespace + "/robot_description_viz"
 
     robot_model = RobotModel()
-    robot_model.load_urdf_from_robot_description(robot_description)
+    if args.viewer is None:
+        from skrobot.utils.urdf import no_mesh_load_mode
+        with no_mesh_load_mode():
+            robot_model.load_urdf_from_robot_description(robot_description)
+    else:
+        robot_model.load_urdf_from_robot_description(robot_description)
     ri = KXRROSRobotInterface(  # NOQA
         robot_model, namespace=args.namespace, controller_timeout=60.0
     )

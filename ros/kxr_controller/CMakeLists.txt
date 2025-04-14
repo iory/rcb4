@@ -77,6 +77,7 @@ catkin_python_setup()
 add_action_files(
   DIRECTORY action
   FILES ServoOnOff.action AdjustAngleVector.action Stretch.action PressureControl.action
+  ControlAirBoard.action
 )
 
 add_message_files(

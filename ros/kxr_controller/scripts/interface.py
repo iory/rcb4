@@ -37,7 +37,7 @@ def main():
             robot_model.load_urdf_from_robot_description(robot_description)
     else:
         robot_model.load_urdf_from_robot_description(robot_description)
-    ri = KXRROSRobotInterface(  # NOQA
+    ri = KXRROSRobotInterface(
         robot_model, namespace=args.namespace, controller_timeout=60.0
     )
 

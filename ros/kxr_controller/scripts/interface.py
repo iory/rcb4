@@ -37,7 +37,7 @@ def main():
             robot_model.load_urdf_from_robot_description(robot_description)
     else:
         robot_model.load_urdf_from_robot_description(robot_description)
-    ri = KXRROSRobotInterface(  # NOQA
+    ri = KXRROSRobotInterface(
         robot_model, namespace=args.namespace, controller_timeout=60.0
     )
 
@@ -57,8 +57,8 @@ def main():
         else:
             raise NotImplementedError(f"Not supported viewer {args.viewer}")
 
-    # Drop into an IPython shell
-    IPython.embed()  # NOQA
+    # Drop into an IPython shell with both local & global vars
+    IPython.embed(global_ns=globals(), local_ns=locals())  # NOQA
 
 
 if __name__ == "__main__":

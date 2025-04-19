@@ -17,6 +17,7 @@ from kxr_controller.msg import ServoOnOffGoal
 from kxr_controller.msg import Stretch
 from kxr_controller.msg import StretchAction
 from kxr_controller.msg import StretchGoal
+from kxr_controller.reconfigure_utils import update_kxr_parameters
 
 
 class KXRROSRobotInterface(ROSRobotInterfaceBase):
@@ -197,6 +198,14 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         return rospy.wait_for_message(
             self.pressure_topic_name_base + f"{board_idx}", std_msgs.msg.Float32
         )
+
+    def update_kxr_parameters(self, frame_count=None, wheel_frame_count=None,
+                              temperature_limit=None, current_limit=None, **kwargs):
+        return update_kxr_parameters(
+            namespace=self.namespace,
+            server_name='rcb4_ros_bridge', frame_count=frame_count,
+            wheel_frame_count=current_limit, temperature_limit=temperature_limit,
+            current_limit=current_limit)
 
     def select_command_joint_state(self, source_topic):
         from topic_tools.srv import MuxSelect

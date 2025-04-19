@@ -17,6 +17,7 @@ from kxr_controller.msg import ServoOnOffGoal
 from kxr_controller.msg import Stretch
 from kxr_controller.msg import StretchAction
 from kxr_controller.msg import StretchGoal
+from kxr_controller.reconfigure_utils import update_kxr_parameters
 
 
 class KXRROSRobotInterface(ROSRobotInterfaceBase):
@@ -197,6 +198,80 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         return rospy.wait_for_message(
             self.pressure_topic_name_base + f"{board_idx}", std_msgs.msg.Float32
         )
+
+    def update_kxr_parameters(self, frame_count=None, wheel_frame_count=None,
+                              temperature_limit=None, current_limit=None, **kwargs):
+        return update_kxr_parameters(
+            namespace=self.namespace,
+            server_name='rcb4_ros_bridge', frame_count=frame_count,
+            wheel_frame_count=current_limit, temperature_limit=temperature_limit,
+            current_limit=current_limit)
+
+    def select_command_joint_state(self, source_topic):
+        from topic_tools.srv import MuxSelect
+
+        if source_topic not in [
+            'command_joint_state_from_robot_hardware',
+                                    'command_joint_state_from_joint_state',
+                                ]:
+            raise ValueError(
+                f"Invalid source_topic '{source_topic}'. "
+                + "Valid options are: ['command_joint_state_from_robot_hardware', "
+                + 'command_joint_state_from_joint_state]')
+        service_name = f'/{self.namespace}/command_joint_state_select'
+        rospy.wait_for_service(service_name)
+        try:
+            select_srv = rospy.ServiceProxy(service_name, MuxSelect)
+            resp = select_srv(source_topic)
+            rospy.loginfo(f"[{self.namespace}] switched to '{source_topic}', "
+                          + f"prev='{resp.prev_topic}'")
+            return resp.prev_topic
+        except rospy.ServiceException as e:
+            rospy.logerr(f"Failed to call {service_name}: {e}")
+            return None
+
+    def switch_fullbody_controller(self, start=True):
+        """ Start or stop the `fullbody_controller` in the given namespace.
+
+        Args:
+            start: True to start the controller, False to stop it.
+
+        Returns:
+            True if the switch succeeded; False otherwise.
+        """
+        from controller_manager_msgs.srv import SwitchController
+        from controller_manager_msgs.srv import SwitchControllerRequest
+
+        service_name = f"/{self.namespace}/controller_manager/switch_controller"
+        rospy.wait_for_service(service_name)
+
+        req = SwitchControllerRequest()
+        if start:
+            req.start_controllers = ["fullbody_controller"]
+            req.stop_controllers = []
+            action = "start"
+        else:
+            req.start_controllers = []
+            req.stop_controllers = ["fullbody_controller"]
+            action = "stop"
+
+        req.strictness = SwitchControllerRequest.BEST_EFFORT
+        req.start_asap   = False
+        req.timeout      = 0.0
+
+        try:
+            switch = rospy.ServiceProxy(service_name, SwitchController)
+            resp   = switch(req)
+        except rospy.ServiceException as e:
+            rospy.logerr(f"Service call failed: {e}")
+            return False
+
+        if resp.ok:
+            rospy.loginfo(f"{action.capitalize()} fullbody_controller")
+            return True
+        else:
+            rospy.logerr(f"Failed to {action} fullbody_controller")
+            return False
 
     @property
     def fullbody_controller(self):

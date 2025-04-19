@@ -90,10 +90,10 @@ bool KXRRobotHW::init(ros::NodeHandle& root_nh, ros::NodeHandle& robot_hw_nh) {
 
     joint_state_sub_ = nh_.subscribe<sensor_msgs::JointState>(
             clean_namespace + "/current_joint_states", 1, &KXRRobotHW::jointStateCallback, this);
-    joint_command_pub_ =
-            nh_.advertise<sensor_msgs::JointState>(clean_namespace + "/command_joint_state", 1);
+    joint_command_pub_ = nh_.advertise<sensor_msgs::JointState>(
+            clean_namespace + "/command_joint_state_from_robot_hardware", 1);
     joint_velocity_command_pub_ = nh_.advertise<sensor_msgs::JointState>(
-            clean_namespace + "/velocity_command_joint_state", 1);
+            clean_namespace + "/velocity_command_joint_state_from_robot_hardware", 1);
     return true;
 }
 

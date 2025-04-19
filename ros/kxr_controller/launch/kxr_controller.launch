@@ -62,6 +62,13 @@
     <node name="urdf_model_server"
           pkg="kxr_models" type="urdf_model_server.py" >
     </node>
+
+    <node name="command_joint_state_mux"
+          pkg="topic_tools" type="mux"
+          output="screen"
+          args="command_joint_state command_joint_state_from_robot_hardware command_joint_state_from_joint_state" >
+      <param name="initial_topic" value="command_joint_state_from_robot_hardware" />
+    </node>
   </group>
 
   <group unless="$(eval len(arg('namespace')) > 0)">
@@ -103,6 +110,13 @@
 
     <node name="urdf_model_server"
           pkg="kxr_models" type="urdf_model_server.py" >
+    </node>
+
+    <node name="command_joint_state_mux"
+          pkg="topic_tools" type="mux"
+          output="screen"
+          args="command_joint_state command_joint_state_from_robot_hardware command_joint_state_from_joint_state" >
+      <param name="initial_topic" value="command_joint_state_from_robot_hardware" />
     </node>
   </group>
 

@@ -23,7 +23,9 @@ from kxr_controller.reconfigure_utils import update_kxr_parameters
 class KXRROSRobotInterface(ROSRobotInterfaceBase):
     def __init__(self, *args, **kwargs):
         namespace = kwargs.get("namespace", "")
-        namespace = f"/{namespace}" if namespace else ""
+        if namespace and not namespace.startswith("/"):
+            namespace = "/" + namespace
+        kwargs['namespace'] = namespace
         joint_param = namespace + "/fullbody_controller/joints"
         rate = rospy.Rate(1)
         while not rospy.is_shutdown():

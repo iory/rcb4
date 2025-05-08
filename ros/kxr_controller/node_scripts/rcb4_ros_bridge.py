@@ -11,6 +11,7 @@ import threading
 from typing import Optional
 import xml.etree.ElementTree as ET
 import signal
+import shutil
 
 from actionlib_msgs.msg import GoalID
 from control_msgs.msg import FollowJointTrajectoryAction
@@ -760,7 +761,6 @@ class RCB4ROSBridge:
         return False
 
     def run_ros_robot_controllers(self):
-        import shutil
         self._managed_processes = []
         print("INFO: Starting ROS robot controllers and related processes...")
         controllers_to_spawn = ["joint_state_controller"]

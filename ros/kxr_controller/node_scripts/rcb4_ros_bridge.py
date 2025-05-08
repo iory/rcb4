@@ -472,7 +472,7 @@ class RCB4ROSBridge:
             if id == 10:
                 joint_name_to_id[f'module{cur_index - 1}_joint2'] = 12
                 self.joint_names.append(f'module{cur_index - 1}_joint2')
-                servo_id = 12
+                servo_id = 10
                 idx = self.interface.servo_id_to_index(servo_id)
                 direction = -1
                 if idx is None:

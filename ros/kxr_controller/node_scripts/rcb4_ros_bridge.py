@@ -1590,7 +1590,7 @@ class RCB4ROSBridge:
                 if idx is None:
                     continue
                 position = np.deg2rad(av[idx])
-                if name == 'module4_joint2':
+                if name == 'module4_joint1':
                     position = -position
                 effort = np.deg2rad(torque_vector[idx])
                 msg.position.append(position)

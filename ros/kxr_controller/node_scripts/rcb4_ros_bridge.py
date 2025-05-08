@@ -473,7 +473,7 @@ class RCB4ROSBridge:
                 default_end_link_suffix="dummy_link" # Assuming all modules use <prefix>dummy_link as their end effector
             )
             print("\n--- Generated URDF (string output, first 1000 chars) ---")
-            print(urdf_output_string[:1000] + ("..." if len(urdf_output_string) > 1000 else ""))
+            print(urdf_output_string)
             print("------------------------------------------------------")
 
             # Test 2: Generate URDF and save to a file

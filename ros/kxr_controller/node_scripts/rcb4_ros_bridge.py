@@ -452,6 +452,10 @@ class RCB4ROSBridge:
         cur_index = 1
         self.joint_names = []
         for id in module_ids_to_connect:
+            if id == 26:
+                joint_name_to_id[f'module{cur_index}_gripper_dummy_joint'] = 26
+                cur_index += 1
+                continue
             joint_name_to_id[f'module{cur_index}_joint1'] = id
             self.joint_names.append(f'module{cur_index}_joint1')
             cur_index += 1

@@ -459,7 +459,7 @@ class RCB4ROSBridge:
                 cur_index += 1
                 servo_id = 26
                 idx = self.interface.servo_id_to_index(servo_id)
-                direction = 1
+                direction = -1
                 if idx is None:
                     continue
                 self.interface._joint_to_actuator_matrix[idx, idx] = (

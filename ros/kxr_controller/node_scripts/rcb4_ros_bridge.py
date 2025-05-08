@@ -8,6 +8,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+from typing import Optional
 import xml.etree.ElementTree as ET
 
 from actionlib_msgs.msg import GoalID
@@ -52,6 +53,241 @@ actionlib_loader = ModuleLoader('actionlib')
 kxr_config_loader = KXRConfigLoader()
 
 np.set_printoptions(precision=0, suppress=True)
+
+
+def get_macro_name_from_filename(xacro_filename: str) -> str:
+    """
+    Derives the macro name from its xacro filename based on common conventions.
+    Example: 'my_module_definition.urdf.xacro' -> 'my_module_definition_macro'
+    """
+    if not isinstance(xacro_filename, str):
+        raise TypeError("xacro_filename must be a string.")
+
+    if xacro_filename.endswith(".urdf.xacro"):
+        base = xacro_filename[:-len(".urdf.xacro")]
+    elif xacro_filename.endswith(".xacro"):
+        base = xacro_filename[:-len(".xacro")]
+    else:
+        # Fallback or raise error if naming convention is strict
+        print(f"Warning: Filename '{xacro_filename}' does not follow expected '.urdf.xacro' or '.xacro' suffix. Macro name might be incorrect.")
+        base = xacro_filename
+
+    # Replace characters that are often problematic in names, if necessary.
+    # For example, if your macro names don't have hyphens but filenames do:
+    # base = base.replace('-', '_')
+    return base + "_macro"
+
+def generate_master_xacro_content(
+    module_id_list: list,
+    module_map: dict,
+    robot_name: str = "generated_robot",
+    ros_package_name: str = "reconfigurable_robot_descriptions",
+    xacro_subfolder: str = "xacro",
+    base_link_name: str = "world",
+    default_end_link_suffix: str = "dummy_link" # e.g., "dummy_link" for "module1_dummy_link"
+) -> str:
+    """Generates the content of the master xacro file as a string."""
+
+    xacro_lines = []
+    xacro_lines.append('<?xml version="1.0" encoding="utf-8"?>')
+    xacro_lines.append(f'<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="{robot_name}">\n')
+
+    # --- Include necessary xacro files (unique set) ---
+    included_files = set()
+    if not module_id_list:
+        xacro_lines.append('  ')
+    else:
+        for module_id in module_id_list:
+            if module_id not in module_map:
+                raise ValueError(f"Module ID {module_id} not found in module_map. Available IDs: {list(module_map.keys())}")
+            filename = module_map[module_id]
+            if filename not in included_files:
+                # Assuming xacro files are in a subfolder like 'xacro' within the package
+                include_path = f"$(find {ros_package_name})/"
+                if xacro_subfolder:
+                    include_path += f"{xacro_subfolder.strip('/')}/"
+                include_path += filename
+                xacro_lines.append(f'  <xacro:include filename="{include_path}" />')
+                included_files.add(filename)
+    xacro_lines.append("\n")
+
+    # --- Define the base link ---
+    xacro_lines.append(f'  <link name="{base_link_name}" />\n')
+
+    # --- Instantiate modules ---
+    parent_for_next_module = base_link_name
+
+    for i, module_id in enumerate(module_id_list):
+        module_index = i + 1 # 1-based index for prefix
+        current_module_prefix = f"module{module_index}_"
+
+        xacro_filename = module_map[module_id]
+        macro_name_to_call = get_macro_name_from_filename(xacro_filename)
+
+        xacro_lines.append('  ')
+        xacro_lines.append(f'  <xacro:{macro_name_to_call}')
+        xacro_lines.append(f'    prefix="{current_module_prefix}"')
+        xacro_lines.append(f'    parent_link="{parent_for_next_module}">')
+        # Default origin for simplicity; can be parameterized or adjusted based on module geometry
+        xacro_lines.append('    <origin xyz="0 0 0" rpy="0 0 0" />')
+        xacro_lines.append(f'  </xacro:{macro_name_to_call}>\n')
+
+        # Update parent_link for the *next* module.
+        # It should be the end link of the current module.
+        # Example: if prefix is "module1_" and suffix is "dummy_link", end link is "module1_dummy_link"
+        parent_for_next_module = f"{current_module_prefix}{default_end_link_suffix}"
+
+    xacro_lines.append('</robot>')
+    return "\n".join(xacro_lines)
+
+
+def convert_xacro_to_urdf(xacro_content: str, output_urdf_path: Optional[str] = None) -> str:
+    """
+    Converts xacro content string to URDF string using the 'xacro' command-line tool.
+
+    Args:
+        xacro_content: The master xacro file content as a string.
+        output_urdf_path: Optional path to save the generated URDF.
+
+    Returns:
+        The URDF content as a string if output_urdf_path is None,
+        otherwise the path to the saved URDF file.
+
+    Raises:
+        RuntimeError: If the xacro command fails.
+        FileNotFoundError: If the xacro command is not found.
+    """
+    tmp_xacro_file_path = None  # Initialize to ensure it's defined for finally block
+    try:
+        # Use a named temporary file to pass content to xacro command
+        with tempfile.NamedTemporaryFile(mode='w+', delete=False, suffix='.xacro', encoding='utf-8') as tmp_xacro_file:
+            tmp_xacro_file.write(xacro_content)
+            tmp_xacro_file_path = tmp_xacro_file.name
+
+        # print(f"DEBUG: Temporary xacro file created at: {tmp_xacro_file_path}")
+        # print("----- XACRO CONTENT TO BE PROCESSED -----")
+        # print(xacro_content)
+        # print("-----------------------------------------")
+
+        # Ensure xacro command is available
+        if shutil.which("xacro") is None:
+            raise FileNotFoundError("The 'xacro' command was not found. Please ensure ROS is sourced or xacro is installed and in PATH.")
+
+        result = subprocess.run(
+            ['xacro', tmp_xacro_file_path],
+            capture_output=True, text=True, check=False, encoding='utf-8'
+        )
+
+        if result.returncode != 0:
+            # Construct a detailed error message
+            error_lines = [
+                f"Xacro command failed with return code {result.returncode}.",
+                "--- XACRO Standard Output ---",
+                result.stdout if result.stdout.strip() else "(empty)",
+                "--- XACRO Standard Error ---",
+                result.stderr if result.stderr.strip() else "(empty)",
+                "--- Temporary XACRO file content was written to (and may still exist if deletion failed):",
+                tmp_xacro_file_path,
+                "--- Content of the problematic XACRO was: ---",
+                xacro_content[:2000] + ("..." if len(xacro_content) > 2000 else "") # Show partial content
+            ]
+            raise RuntimeError("\n".join(error_lines))
+
+        urdf_content = result.stdout
+
+        if output_urdf_path:
+            # Ensure output directory exists
+            output_dir = os.path.dirname(output_urdf_path)
+            if output_dir and not os.path.exists(output_dir):
+                os.makedirs(output_dir, exist_ok=True)
+            with open(output_urdf_path, 'w', encoding='utf-8') as f:
+                f.write(urdf_content)
+            return output_urdf_path
+        else:
+            return urdf_content
+
+    finally:
+        # Clean up the temporary file
+        if tmp_xacro_file_path and os.path.exists(tmp_xacro_file_path):
+            try:
+                os.remove(tmp_xacro_file_path)
+                # print(f"DEBUG: Temporary xacro file {tmp_xacro_file_path} deleted.")
+            except OSError as e:
+                print(f"Warning: Could not remove temporary file {tmp_xacro_file_path}: {e}")
+
+def generate_robot_urdf_from_module_ids(
+    module_id_list: list,
+    module_map: dict,
+    robot_name: str = "generated_robot",
+    ros_package_name: str = "reconfigurable_robot_descriptions",
+    xacro_subfolder: str = "xacro", # Subfolder within the package, e.g., "xacro", "urdf"
+    base_link_name: str = "world",
+    default_end_link_suffix: str = "dummy_link",
+    output_urdf_file: Optional[str] = None
+) -> str:
+    """
+    Generates a master xacro file by linking specified modules in order,
+    then converts this master xacro to a URDF file or string.
+
+    Args:
+        module_id_list: A list of integer IDs defining the sequence of modules.
+        module_map: A dictionary mapping module IDs (int) to their
+                    corresponding xacro filenames (str).
+        robot_name: The name for the root <robot> tag in the generated xacro.
+        ros_package_name: The ROS package where the module xacro files are located.
+        xacro_subfolder: The subfolder within the ROS package (e.g., 'xacro', 'urdf').
+                         Set to '' if files are at the package root.
+        base_link_name: The name of the link to which the first module will be attached.
+        default_end_link_suffix: The suffix appended to a module's prefix to form
+                                 the name of its end link (for connecting the next module).
+                                 Example: if prefix="m1_" and suffix="dummy_link", end link="m1_dummy_link".
+        output_urdf_file: If provided, the generated URDF will be saved to this path.
+                          Otherwise, the URDF content is returned as a string.
+
+    Returns:
+        If output_urdf_file is specified, returns the path to the saved URDF file.
+        Otherwise, returns the URDF content as a string.
+
+    Raises:
+        ValueError: If a module ID in the list is not found in the map.
+        RuntimeError: If the xacro to URDF conversion fails.
+        FileNotFoundError: If the 'xacro' command is not found.
+    """
+    print(f"INFO: Generating xacro for robot '{robot_name}' with module IDs: {module_id_list}")
+
+    master_xacro_content = generate_master_xacro_content(
+        module_id_list=module_id_list,
+        module_map=module_map,
+        robot_name=robot_name,
+        ros_package_name=ros_package_name,
+        xacro_subfolder=xacro_subfolder,
+        base_link_name=base_link_name,
+        default_end_link_suffix=default_end_link_suffix
+    )
+
+    # print("\n--- Generated Master XACRO Content ---")
+    # print(master_xacro_content)
+    # print("------------------------------------\n")
+
+    print("INFO: Converting generated xacro to URDF...")
+    try:
+        urdf_result = convert_xacro_to_urdf(master_xacro_content, output_urdf_path=output_urdf_file)
+        if output_urdf_file:
+            print(f"INFO: URDF successfully generated and saved to: {os.path.abspath(urdf_result)}")
+        else:
+            print("INFO: URDF successfully generated as a string.")
+        return urdf_result
+    except (RuntimeError, FileNotFoundError) as e:
+        print(f"ERROR: URDF generation failed: {e}")
+        # For debugging, save the problematic xacro content
+        error_xacro_filename = f"error_{robot_name}_{'_'.join(map(str, module_id_list))}.xacro"
+        try:
+            with open(error_xacro_filename, "w", encoding="utf-8") as f_err:
+                f_err.write(master_xacro_content)
+            print(f"INFO: Problematic xacro content saved to {os.path.abspath(error_xacro_filename)} for debugging.")
+        except Exception as e_save:
+            print(f"WARNING: Could not save problematic xacro content: {e_save}")
+        raise # Re-raise the original exception
 
 
 def load_yaml(file_path, Loader=yaml.SafeLoader):
@@ -178,8 +414,12 @@ class RCB4ROSBridge:
         self.proc_controller_spawner = None
         self.proc_robot_state_publisher = None
         self.proc_kxr_controller = None
-        self.servo_config_path = rospy.get_param("~servo_config_path")
-        self.joint_name_to_id, self.servo_infos = load_yaml(self.servo_config_path)
+        self.servo_config_path = rospy.get_param("~servo_config_path", None)
+        if self.servo_config_path is not None:
+            self.joint_name_to_id, self.servo_infos = load_yaml(self.servo_config_path)
+        else:
+            self.joint_name_to_id = {}
+            self.servo_infos = {}
         self.urdf_path = rospy.get_param("~urdf_path", None)
         self.use_rcb4 = rospy.get_param("~use_rcb4", False)
         self.control_pressure = rospy.get_param("~control_pressure", False)
@@ -191,6 +431,58 @@ class RCB4ROSBridge:
             self.default_controller = rospy.get_param(self.base_namespace + "/default_controller", [])
         else:
             self.default_controller = ['fullbody_controller']
+
+    def make_urdf(self, module_ids_to_connect):
+        MODULE_ID_TO_FILENAME_MAP = {
+            0: 'vacuum_base_color.urdf.xacro',
+            2: 'screw_100mmhinge_krs6104_module_color.urdf.xacro',
+            4: 'screw_100mmhinge_krs6104_module_color.urdf.xacro',
+            6: 'screw_100mmhinge_krs6104_module_color.urdf.xacro',
+            8: 'screw_yaw_module_color.urdf.xacro',
+            10: 'screw_crosscantileverright_module_color.urdf.xacro',
+            26: 'parallel_gripper_module_color.urdf.xacro',
+            # Example: Add a dummy module for testing if files don't exist
+            # 99: 'non_existent_module.urdf.xacro',
+        }
+        print("--- Running URDF Generation Example ---")
+        example_robot_name = "my_chained_robot_example"
+        try:
+            # Test 1: Generate URDF and print (first 1000 characters)
+            print("\n[Test 1: Generating URDF as string]")
+            urdf_output_string = generate_robot_urdf_from_module_ids(
+                module_id_list=module_ids_to_connect,
+                module_map=MODULE_ID_TO_FILENAME_MAP,
+                robot_name=example_robot_name,
+                ros_package_name="reconfigurable_robot_descriptions", # Adjust if your package name is different
+                xacro_subfolder="xacro", # Adjust if your xacro files are in a different subfolder
+                default_end_link_suffix="dummy_link" # Assuming all modules use <prefix>dummy_link as their end effector
+            )
+            print("\n--- Generated URDF (string output, first 1000 chars) ---")
+            print(urdf_output_string[:1000] + ("..." if len(urdf_output_string) > 1000 else ""))
+            print("------------------------------------------------------")
+
+            # Test 2: Generate URDF and save to a file
+            print("\n[Test 2: Generating URDF to file]")
+            output_filename = f"{example_robot_name}.urdf"
+            saved_file = generate_robot_urdf_from_module_ids(
+                module_id_list=module_ids_to_connect,
+                module_map=MODULE_ID_TO_FILENAME_MAP,
+                robot_name=example_robot_name + "_from_file",
+                output_urdf_file=output_filename
+            )
+            # If successful, `saved_file` contains the path to the output file.
+            # No need to print content here, just confirmation.
+            self.urdf_path = saved_file
+            self.setup_urdf_and_model()
+
+        except ValueError as ve:
+            print(f"Configuration ERROR: {ve}")
+        except FileNotFoundError as fnfe:
+            print(f"Setup ERROR: {fnfe}. Is 'xacro' installed and in PATH? Is ROS sourced?")
+        except RuntimeError as rte:
+            print(f"XACRO Processing ERROR: {rte}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
 
     def setup_urdf_and_model(self):
         robot_model = RobotModel()
@@ -441,6 +733,7 @@ class RCB4ROSBridge:
         servo_ids = self.get_ids(type="servo")
         if servo_ids is None:
             return log_error_and_close_interface("get initial servo ids")
+        print(self.ics_channels)
         rospy.set_param(self.base_namespace + "/servo_ids", servo_ids)
         ret = self.set_initial_positions()
         if ret is False:
@@ -450,6 +743,17 @@ class RCB4ROSBridge:
             if self.air_board_ids is None:
                 return log_error_and_close_interface("get air board ids")
         return True
+
+    def scan_ids(self):
+        if not hasattr(self, 'previous_ics_channels'):
+            self.previous_ics_channels = []
+        ics_channels = serial_call_with_retry(self.interface.scan_ics_channels_per_port, True, False,
+                                                   max_retries=3)
+        ics_channels = [id for id in ics_channels[-1] if id != -1 and id != 12]
+        if ics_channels != self.previous_ics_channels:
+            self.ics_channels = ics_channels
+            return True
+        return False
 
     def run_ros_robot_controllers(self):
         controllers = ["joint_state_controller"]
@@ -467,6 +771,98 @@ class RCB4ROSBridge:
         )
         self.proc_robot_state_publisher = run_robot_state_publisher(self.base_namespace)
         self.proc_kxr_controller = run_kxr_controller(namespace=self.base_namespace)
+
+    def _stop_single_process(self, proc_dict, sigint_timeout=5, term_timeout=2, kill_timeout=1):
+        if not proc_dict or not proc_dict.get("process"):
+            # print(f"INFO: Process '{proc_dict.get('name', 'Unknown')}' was not running or already cleaned.")
+            return None
+
+        name = proc_dict["name"]
+        proc = proc_dict["process"]
+
+        if proc.poll() is None: # プロセスが実行中の場合のみ停止を試みる
+            print(f"INFO: Attempting to stop process '{name}' (PID: {proc.pid})...")
+            # 1. SIGINT
+            print(f"  Sending SIGINT to '{name}'...")
+            proc.send_signal(signal.SIGINT)
+            try:
+                proc.wait(timeout=sigint_timeout)
+                print(f"  SUCCESS: Process '{name}' (PID: {proc.pid}) terminated gracefully after SIGINT (Return Code: {proc.returncode}).")
+                return None
+            except subprocess.TimeoutExpired:
+                print(f"  WARNING: Process '{name}' (PID: {proc.pid}) did not terminate via SIGINT within {sigint_timeout}s.")
+            except Exception as e: # wait中の他のエラー
+                print(f"  ERROR: An exception occurred waiting for '{name}' after SIGINT: {e}")
+
+            # 2. SIGTERM (if still running)
+            if proc.poll() is None:
+                print(f"  Sending SIGTERM to '{name}' (PID: {proc.pid})...")
+                proc.terminate() # SIGTERM
+                try:
+                    proc.wait(timeout=term_timeout)
+                    print(f"  SUCCESS: Process '{name}' (PID: {proc.pid}) terminated after SIGTERM (Return Code: {proc.returncode}).")
+                    return None
+                except subprocess.TimeoutExpired:
+                    print(f"  WARNING: Process '{name}' (PID: {proc.pid}) did not terminate via SIGTERM within {term_timeout}s.")
+                except Exception as e:
+                     print(f"  ERROR: An exception occurred waiting for '{name}' after SIGTERM: {e}")
+
+            # 3. SIGKILL (if still running)
+            if proc.poll() is None:
+                print(f"  Sending SIGKILL to '{name}' (PID: {proc.pid})...")
+                proc.kill() # SIGKILL
+                try:
+                    # SIGKILL後はすぐに終了するはずだが、念のため短いタイムアウトでwait
+                    proc.wait(timeout=kill_timeout)
+                    print(f"  SUCCESS: Process '{name}' (PID: {proc.pid}) killed (Return Code: {proc.returncode}).")
+                except subprocess.TimeoutExpired:
+                    print(f"  ERROR: Process '{name}' (PID: {proc.pid}) did not confirm termination after SIGKILL within {kill_timeout}s. State might be uncertain.")
+                except Exception as e:
+                    print(f"  ERROR: An exception occurred waiting for '{name}' after SIGKILL: {e}")
+                return None
+        else:
+            print(f"INFO: Process '{name}' (PID: {proc.pid if hasattr(proc, 'pid') else 'N/A'}) had already terminated (Return Code: {proc.returncode}).")
+            return None
+
+        # ここに到達した場合、何らかの理由でプロセスの状態が不明確
+        print(f"WARNING: Process '{name}' (PID: {proc.pid}) might still be running after all stop attempts.")
+        return proc # プロセスがまだ残っている可能性を示す
+
+    def stop_ros_robot_controllers(self):
+        """
+        run_ros_robot_controllers で起動されたすべてのプロセスを停止します。
+        """
+        print("INFO: Stopping all ROS robot controllers and related processes...")
+
+        # 停止順序: 通常、依存関係の末端から（例：カスタムコントローラー -> state_publisher -> spawner）
+        # `controller_manager spawner` は通常、起動後にすぐ終了しますが、
+        # もし長時間実行される場合は、最後に停止するのが適切かもしれません。
+
+        if self.proc_kxr_controller:
+            print("Stopping KXR Controller...")
+            self.proc_kxr_controller = self._stop_single_process(
+                {"name": "KXR Controller", "process": self.proc_kxr_controller}
+            )
+
+        if self.proc_robot_state_publisher:
+            print("Stopping Robot State Publisher...")
+            self.proc_robot_state_publisher = self._stop_single_process(
+                {"name": "Robot State Publisher", "process": self.proc_robot_state_publisher}
+            )
+
+        if self.proc_controller_spawner:
+            print("Stopping Controller Spawner (if still running)...")
+            self.proc_controller_spawner = self._stop_single_process(
+                {"name": "Controller Spawner", "process": self.proc_controller_spawner}
+            )
+
+        # 管理リストからもクリア (オプション)
+        self._managed_processes = [
+            p_info for p_info in self._managed_processes
+            if p_info["process"] is not None and p_info["process"].poll() is None
+        ]
+
+        print("INFO: Finished stop sequence for ROS robot controllers.")
 
     def setup_interface(self):
         rospy.loginfo("Try to connect servo control boards.")
@@ -1158,6 +1554,16 @@ class RCB4ROSBridge:
             servo_on_off_msg.servo_on_states.append(servo_state)
         self.servo_on_off_pub.publish(servo_on_off_msg)
 
+    def reinitialize_urdf(self):
+        rospy.loginfo("Reinitialize interface.")
+        self.stop_ros_robot_controllers()
+        self.unsubscribe()
+        self.make_urdf()
+        self.setup_ros_parameters()
+        self.run_ros_robot_controllers()
+        self.subscribe()
+        rospy.loginfo("Successfully reinitialized interface.")
+
     def reinitialize_interface(self):
         rospy.loginfo("Reinitialize interface.")
         self.unsubscribe()
@@ -1202,7 +1608,14 @@ class RCB4ROSBridge:
         self.success_rate_threshold = 0.8  # Minimum success rate required
         use_rcb4 = rospy.get_param("~use_rcb4")
 
+        previous_time = rospy.Time.now()
         while not rospy.is_shutdown():
+            if (rospy.Time.now() - previous_time).to_sec() > 1.0:
+                if self.scan_ids():
+                    rospy.loginfo("Found new servo ids.")
+                    self.reinitialize_urdf()
+                    previous_time = rospy.Time.now()
+
             if self._update_current_limit:
                 ret = serial_call_with_retry(self.interface.send_current_limit,
                                              self.current_limit, max_retries=3)

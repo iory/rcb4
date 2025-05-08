@@ -30,6 +30,7 @@ from rcb4.rcb4interface import rcb4_dof
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
 from rcb4.rcb4interface import ServoParams
+from rcb4.serial_utils import serial_call_with_retry
 from rcb4.struct_header import c_vector
 from rcb4.struct_header import ControlStruct
 from rcb4.struct_header import DataAddress
@@ -678,9 +679,12 @@ class ARMH7Interface:
         return self.set_cstruct_slot(SystemStruct, 0, "ics_comm_stop", [1, 1, 1, 1, 1, 1])
 
     def idmode_scan(self):
-        self.ics_stop()
-        self.cfunc_call("servo_idmode_scan")
-        self.ics_start()
+        serial_call_with_retry(self.ics_stop, max_retries=3)
+        current_timeout = self._default_timeout
+        self._default_timeout = 2.0
+        serial_call_with_retry(self.cfunc_call, "servo_idmode_scan", max_retries=3)
+        self._default_timeout = current_timeout
+        serial_call_with_retry(self.ics_start, max_retries=3)
 
         self.servo_sorted_ids = None
         self.worm_sorted_ids = None

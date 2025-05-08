@@ -388,6 +388,7 @@ def set_robot_description(urdf_path, param_name="robot_description"):
 
 class RCB4ROSBridge:
     def __init__(self):
+        self.target_names = None
         self._update_temperature_limit = False
         self._update_current_limit = False
 
@@ -470,6 +471,7 @@ class RCB4ROSBridge:
             self.joint_names.append(f'module{cur_index}_joint1')
             cur_index += 1
             if id == 10:
+                self.target_names = f'module{cur_index - 1}_joint1'
                 joint_name_to_id[f'module{cur_index - 1}_joint2'] = 12
                 self.joint_names.append(f'module{cur_index - 1}_joint2')
                 servo_id = 10
@@ -1590,8 +1592,8 @@ class RCB4ROSBridge:
                 if idx is None:
                     continue
                 position = np.deg2rad(av[idx])
-                if name == 'module4_joint1':
-                    position = -position
+                if name == self.target_names:
+                    position = - position
                 effort = np.deg2rad(torque_vector[idx])
                 msg.position.append(position)
                 msg.effort.append(effort)

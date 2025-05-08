@@ -450,11 +450,14 @@ class RCB4ROSBridge:
         example_robot_name = "my_chained_robot_example"
         joint_name_to_id = {}
         cur_index = 1
+        self.joint_names = []
         for id in module_ids_to_connect:
             joint_name_to_id[f'module{cur_index}_joint1'] = id
+            self.joint_names.append(f'module{cur_index}_joint1')
             cur_index += 1
             if id == 10:
                 joint_name_to_id[f'module{cur_index}_joint2'] = 12
+                self.joint_names.append(f'module{cur_index}_joint2')
                 cur_index += 1
         print('==============================')
         print(joint_name_to_id)

@@ -1593,11 +1593,11 @@ class RCB4ROSBridge:
             servo_on_off_msg.servo_on_states.append(servo_state)
         self.servo_on_off_pub.publish(servo_on_off_msg)
 
-    def reinitialize_urdf(self):
+    def reinitialize_urdf(self, module_ids_to_connect):
         rospy.loginfo("Reinitialize interface.")
         self.stop_ros_robot_controllers()
         self.unsubscribe()
-        self.make_urdf()
+        self.make_urdf(module_ids_to_connect)
         self.setup_ros_parameters()
         self.run_ros_robot_controllers()
         self.subscribe()
@@ -1652,7 +1652,7 @@ class RCB4ROSBridge:
             if (rospy.Time.now() - previous_time).to_sec() > 1.0:
                 if self.scan_ids():
                     rospy.loginfo("Found new servo ids.")
-                    self.reinitialize_urdf()
+                    self.reinitialize_urdf(self.ics_channels)
                     previous_time = rospy.Time.now()
 
             if self._update_current_limit:

@@ -748,8 +748,6 @@ class RCB4ROSBridge:
         servo_ids = self.get_ids(type="servo")
         if servo_ids is None:
             return log_error_and_close_interface("get initial servo ids")
-        self.scan_ids()
-        print(self.ics_channels)
         rospy.set_param(self.base_namespace + "/servo_ids", servo_ids)
         ret = self.set_initial_positions()
         if ret is False:

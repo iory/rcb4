@@ -1664,7 +1664,7 @@ class RCB4ROSBridge:
 
         previous_time = rospy.Time.now()
         while not rospy.is_shutdown():
-            if (rospy.Time.now() - previous_time).to_sec() > 1.0:
+            if (rospy.Time.now() - previous_time).to_sec() > 0.1:
                 if self.scan_ids():
                     rospy.loginfo("Found new servo ids.")
                     self.reinitialize_urdf(self.ics_channels)

@@ -448,6 +448,17 @@ class RCB4ROSBridge:
         }
         print("--- Running URDF Generation Example ---")
         example_robot_name = "my_chained_robot_example"
+        joint_name_to_id = {}
+        cur_index = 1
+        for id in module_ids_to_connect:
+            joint_name_to_id[f'module{cur_index}_joint1'] = id
+            cur_index += 1
+            if id == 10:
+                joint_name_to_id[f'module{cur_index}_joint2'] = 12
+                cur_index += 1
+        print('==============================')
+        print(joint_name_to_id)
+        self.joint_name_to_id = joint_name_to_id
         try:
             # Test 1: Generate URDF and print (first 1000 characters)
             print("\n[Test 1: Generating URDF as string]")

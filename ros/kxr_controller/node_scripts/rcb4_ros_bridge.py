@@ -733,6 +733,7 @@ class RCB4ROSBridge:
         servo_ids = self.get_ids(type="servo")
         if servo_ids is None:
             return log_error_and_close_interface("get initial servo ids")
+        self.scan_ids()
         print(self.ics_channels)
         rospy.set_param(self.base_namespace + "/servo_ids", servo_ids)
         ret = self.set_initial_positions()
@@ -747,10 +748,12 @@ class RCB4ROSBridge:
     def scan_ids(self):
         if not hasattr(self, 'previous_ics_channels'):
             self.previous_ics_channels = []
+            self.ics_channels = []
         ics_channels = serial_call_with_retry(self.interface.scan_ics_channels_per_port, True, False,
                                                    max_retries=3)
         ics_channels = [id for id in ics_channels[-1] if id != -1 and id != 12]
         if ics_channels != self.previous_ics_channels:
+            self.previous_ics_channels = ics_channels
             self.ics_channels = ics_channels
             return True
         return False

@@ -10,6 +10,7 @@ import tempfile
 import threading
 from typing import Optional
 import xml.etree.ElementTree as ET
+import signal
 
 from actionlib_msgs.msg import GoalID
 from control_msgs.msg import FollowJointTrajectoryAction

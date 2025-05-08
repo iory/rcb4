@@ -472,6 +472,14 @@ class RCB4ROSBridge:
             if id == 10:
                 joint_name_to_id[f'module{cur_index - 1}_joint2'] = 12
                 self.joint_names.append(f'module{cur_index - 1}_joint2')
+                servo_id = 12
+                idx = self.interface.servo_id_to_index(servo_id)
+                direction = -1
+                if idx is None:
+                    continue
+                self.interface._joint_to_actuator_matrix[idx, idx] = (
+                    direction * abs(self.interface._joint_to_actuator_matrix[idx, idx])
+                )
         print('==============================')
         print(joint_name_to_id)
         self.joint_name_to_id = joint_name_to_id

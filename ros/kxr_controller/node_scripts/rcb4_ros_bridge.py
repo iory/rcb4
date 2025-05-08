@@ -760,21 +760,56 @@ class RCB4ROSBridge:
         return False
 
     def run_ros_robot_controllers(self):
-        controllers = ["joint_state_controller"]
+        import shutil
+        self._managed_processes = []
+        print("INFO: Starting ROS robot controllers and related processes...")
+        controllers_to_spawn = ["joint_state_controller"]
         if self.use_fullbody_controller:
-            controllers.append('fullbody_controller')
+            controllers_to_spawn.append('fullbody_controller')
         else:
-            controllers.extend(self.default_controller)
-        self.proc_controller_spawner = subprocess.Popen(
-            [
-                f'/opt/ros/{os.environ["ROS_DISTRO"]}/bin/rosrun',
-                "controller_manager",
-                "spawner",
-            ]
-            + controllers,
-        )
+            controllers_to_spawn.extend(self.default_controller)
+
+        ros_distro = os.environ.get("ROS_DISTRO")
+        rosrun_executable_path = None
+
+        if ros_distro:
+            constructed_path = os.path.join(f'/opt/ros/{ros_distro}', "bin/rosrun")
+            if os.path.exists(constructed_path):
+                rosrun_executable_path = constructed_path
+
+        if not rosrun_executable_path:
+            rosrun_executable_path = shutil.which("rosrun") # PATHから探す
+
+        if not rosrun_executable_path:
+            print("ERROR: 'rosrun' executable not found. Please ensure ROS is sourced correctly or 'rosrun' is in your PATH.")
+            return False
+
+        cmd_spawner = [rosrun_executable_path, "controller_manager", "spawner"] + controllers_to_spawn
+
+        try:
+            print(f"INFO: Starting Controller Spawner with command: {' '.join(cmd_spawner)}")
+            # stdoutとstderrをキャプチャしない場合 (ターミナルに直接出力される)
+            self.proc_controller_spawner = subprocess.Popen(cmd_spawner)
+            if self.proc_controller_spawner:
+                self._managed_processes.append({"name": "Controller Spawner", "process": self.proc_controller_spawner})
+        except FileNotFoundError:
+            print(f"ERROR: Failed to start Controller Spawner. Command '{cmd_spawner[0]}' not found.")
+            self.proc_controller_spawner = None
+        except Exception as e:
+            print(f"ERROR: An unexpected error occurred while starting Controller Spawner: {e}")
+            self.proc_controller_spawner = None
+
         self.proc_robot_state_publisher = run_robot_state_publisher(self.base_namespace)
+        if self.proc_robot_state_publisher:
+            self._managed_processes.append({"name": "Robot State Publisher", "process": self.proc_robot_state_publisher})
+
         self.proc_kxr_controller = run_kxr_controller(namespace=self.base_namespace)
+        if self.proc_kxr_controller:
+            self._managed_processes.append({"name": "KXR Controller", "process": self.proc_kxr_controller})
+
+        print("INFO: Finished dispatching controller and related processes.")
+        # すべてのプロセスが正常に起動したかどうかのより詳細なチェックも可能
+        return True
 
     def _stop_single_process(self, proc_dict, sigint_timeout=5, term_timeout=2, kill_timeout=1):
         if not proc_dict or not proc_dict.get("process"):

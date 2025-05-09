@@ -178,8 +178,8 @@ class RCB4ROSBridge:
         self.proc_controller_spawner = None
         self.proc_robot_state_publisher = None
         self.proc_kxr_controller = None
-        servo_config_path = rospy.get_param("~servo_config_path")
-        self.joint_name_to_id, self.servo_infos = load_yaml(servo_config_path)
+        self.servo_config_path = rospy.get_param("~servo_config_path")
+        self.joint_name_to_id, self.servo_infos = load_yaml(self.servo_config_path)
         self.urdf_path = rospy.get_param("~urdf_path", None)
         self.use_rcb4 = rospy.get_param("~use_rcb4", False)
         self.control_pressure = rospy.get_param("~control_pressure", False)
@@ -555,6 +555,9 @@ class RCB4ROSBridge:
             if servo_id in self.interface.wheel_servo_sorted_ids:
                 continue
             self.fullbody_jointnames.append(jn)
+        if len(self.fullbody_jointnames) == 0:
+            rospy.logwarn("No joint names provided for fullbody controller.")
+            rospy.logwarn(f"You should check servo config file {self.servo_config_path} and URDF's joint names {self.joint_names}")
         set_fullbody_controller(self.fullbody_jointnames)
 
     def set_initial_positions(self):

@@ -126,12 +126,19 @@ def generate_master_xacro_content(
         xacro_filename = module_map[module_id]
         macro_name_to_call = get_macro_name_from_filename(xacro_filename)
 
+        rpy = '0 0 0'
+        if module_id == 2:
+            rpy = '0 0 -1.5707963267948966'
+        if module_id == 8:
+            rpy = '0 0 -1.5707963267948966'
+        if module_id == 26:
+            rpy = '0 0 -1.5707963267948966'
         xacro_lines.append('  ')
         xacro_lines.append(f'  <xacro:{macro_name_to_call}')
         xacro_lines.append(f'    prefix="{current_module_prefix}"')
         xacro_lines.append(f'    parent_link="{parent_for_next_module}">')
         # Default origin for simplicity; can be parameterized or adjusted based on module geometry
-        xacro_lines.append('    <origin xyz="0 0 0" rpy="0 0 0" />')
+        xacro_lines.append('    <origin xyz="0 0 0" rpy="{}" />'.format(rpy))
         xacro_lines.append(f'  </xacro:{macro_name_to_call}>\n')
 
         # Update parent_link for the *next* module.

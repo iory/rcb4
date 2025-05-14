@@ -775,10 +775,12 @@ class RCB4ROSBridge:
         # Send new stretch
         stretch = goal.stretch
         success = serial_call_with_retry(
-            self.interface.send_stretch, value=stretch, servo_ids=servo_ids
-        )
+            self.interface.send_stretch, value=stretch, servo_ids=servo_ids,
+            max_retries=3)
         if success is None:
-            return self.stretch_server.set_aborted(text="Failed to update stretch")
+            text = "Failed to update stretch"
+            rospy.logwarn(text)
+            return self.stretch_server.set_aborted(text=text)
         # need to wait for stretch value update.
         rospy.sleep(1.0)
         self.publish_stretch()

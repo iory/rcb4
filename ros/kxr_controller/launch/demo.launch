@@ -1,0 +1,9 @@
+<launch>
+
+  <include file="$(find kxr_controller)/launch/kxr_controller.launch" />
+
+  <node name="$(anon rviz)"
+	pkg="rviz" type="rviz"
+	args="-d $(find kxr_controller)/config/default.rviz" >
+  </node>
+</launch>

@@ -449,7 +449,7 @@ class ICSServoController:
         self.set_param(ics_param64, servo_id=servo_id)
 
         # Confirm the change
-        _, result = self.read_param(servo_id=servo_id)
+        _, _result = self.read_param(servo_id=servo_id)
         print(f"Stretch parameters set to: {stretch_values}")
 
     def set_serial(self, serial=None, servo_id=None):

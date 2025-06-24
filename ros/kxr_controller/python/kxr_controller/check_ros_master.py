@@ -15,8 +15,8 @@ def is_ros_master_local():
         return True
 
     local_hostname = socket.gethostname()
-    local_fqdn     = socket.getfqdn()
-    local_ips      = socket.gethostbyname_ex(local_hostname)[2]
+    local_fqdn = socket.getfqdn()
+    local_ips = socket.gethostbyname_ex(local_hostname)[2]
 
     if (master_host == local_hostname or
         master_host == local_fqdn or
@@ -24,6 +24,7 @@ def is_ros_master_local():
         return True
 
     return False
+
 
 if __name__ == '__main__':
     if is_ros_master_local():

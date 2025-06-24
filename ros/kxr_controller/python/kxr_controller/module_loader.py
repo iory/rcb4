@@ -3,7 +3,7 @@ import threading
 
 
 class ModuleLoader:
-    def __init__(self, module_path, attribute = None):
+    def __init__(self, module_path, attribute=None):
         self._module = None
         self._load_complete = threading.Event()
         self._module_path = module_path

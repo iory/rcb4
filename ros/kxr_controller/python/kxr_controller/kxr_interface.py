@@ -258,12 +258,12 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
             action = "stop"
 
         req.strictness = SwitchControllerRequest.BEST_EFFORT
-        req.start_asap   = False
-        req.timeout      = 0.0
+        req.start_asap = False
+        req.timeout = 0.0
 
         try:
             switch = rospy.ServiceProxy(service_name, SwitchController)
-            resp   = switch(req)
+            resp = switch(req)
         except rospy.ServiceException as e:
             rospy.logerr(f"Service call failed: {e}")
             return False

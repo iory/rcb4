@@ -68,5 +68,5 @@ class MultiLock:
         # print(f"[{self.lock_name}] All locks are released. Proceeding.")
 
     def active_lock_idx(self):
-        return  [key for key, value in self.lock_status.items()
+        return [key for key, value in self.lock_status.items()
                  if value is True]

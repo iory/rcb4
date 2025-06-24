@@ -815,7 +815,7 @@ class RCB4ROSBridge:
                 std_msgs.msg.Float32(data=pressure)
             )
             if idx not in self.recent_pressures:
-                self.recent_pressures[idx] = deque([], maxlen=1 * int(self.hz))
+                self.recent_pressures[idx] = deque(maxlen=1 * int(self.hz))
             if self.is_outlier_pressure(idx, pressure):
                 return
             self.recent_pressures[idx].append(pressure)
@@ -888,7 +888,7 @@ class RCB4ROSBridge:
         >>> pressure = -48.2
         """
         if idx not in self.history_pressures:
-            self.history_pressures[idx] = deque([], maxlen=20)
+            self.history_pressures[idx] = deque(maxlen=20)
         if len(self.history_pressures[idx]) < 20:
             self.history_pressures[idx].append(pressure)
             return False

@@ -4,6 +4,7 @@ from kxr_controller.module_loader import ModuleLoader
 
 _client_loader = ModuleLoader('dynamic_reconfigure.client', 'Client')
 
+
 def update_kxr_parameters(server_name='rcb4_ros_bridge', frame_count=None,
                           wheel_frame_count=None, temperature_limit=None,
                           current_limit=None,
@@ -19,7 +20,7 @@ def update_kxr_parameters(server_name='rcb4_ros_bridge', frame_count=None,
     if wheel_frame_count is not None:
         cfg['wheel_frame_count'] = wheel_frame_count
     if temperature_limit is not None:
-        cfg['temperature_limit']  = temperature_limit
+        cfg['temperature_limit'] = temperature_limit
     if current_limit is not None:
         cfg['current_limit'] = current_limit
 

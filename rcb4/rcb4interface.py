@@ -34,6 +34,7 @@ class ServoOnOffValues(Enum):
     ON = 32767
     OFF = 32768
 
+
 class ServoParams(Enum):
     Stretch = 0x01
     Speed = 0x02
@@ -804,7 +805,7 @@ class RCB4Interface:
         the specified motion.
         """
         if 0 < motion_num <= self.MaxMotionCount:
-            rx_size, buf = self.call_command(self.motion_number_to_address(motion_num))
+            _rx_size, buf = self.call_command(self.motion_number_to_address(motion_num))
             return self.serial_write(buf)
         else:
             return False

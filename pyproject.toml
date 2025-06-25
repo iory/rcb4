@@ -16,6 +16,7 @@ select = [
     "I", # import sorting
     "RUF", # ruff specific rules
     "UP", # upgrade
+    "G", # flake8-logging-format
     "W", # style warnings
     "YTT", # sys.version
     "ISC002",

@@ -179,6 +179,13 @@
 
 
 <li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-programming-basics.html">
+    ロボットプログラミングの基本：条件で動くロボット
+  </a>
+</li>
+
+
+<li class="nav-item ">
   <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
     🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
   </a>
@@ -198,13 +205,6 @@
   </a>
 </li>
 
-
-<li class="nav-item ">
-  <a class="nav-link nav-internal" href="../ros-basics/index.html">
-    セッション1: ロボットとの出会い - ROS入門
-  </a>
-</li>
-
             <li class="nav-item dropdown">
                 <button class="btn dropdown-toggle nav-item" type="button"
                 data-bs-toggle="dropdown" aria-expanded="false"
@@ -213,6 +213,13 @@
                 </button>
                 <ul id="pst-nav-more-links" class="dropdown-menu">
                     
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
 <li class=" ">
   <a class="nav-link dropdown-item nav-internal" href="../robot-control/index.html">
     🤖 セッション2: ロボット制御プログラミング
@@ -328,6 +335,13 @@
 <li class="nav-item current active">
   <a class="nav-link nav-internal" href="#">
     準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-programming-basics.html">
+    ロボットプログラミングの基本：条件で動くロボット
   </a>
 </li>
 
@@ -468,30 +482,48 @@
 <p>ロボットプログラミングの冒険を始める前に、必要な道具（ソフトウェア）を準備します。RPGゲームで最初に装備を整えるのと同じですね！</p>
 </section>
 <section id="id3">
-<h2>必要な環境<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
-<section id="id4">
-<h3>🖥️ パソコンの準備<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<h2>環境の準備<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<section id="pc">
+<h3>💻 あなたのPCはどれですか？<a class="headerlink" href="#pc" title="Permalink to this heading">#</a></h3>
+<section id="linux-ubuntu">
+<h4>🐧 <strong>Linuxユーザー（Ubuntu）</strong><a class="headerlink" href="#linux-ubuntu" title="Permalink to this heading">#</a></h4>
 <ul class="simple">
-<li><p><strong>OS</strong>: Ubuntu 20.04 LTS (Focal Fossa)</p></li>
+<li><p>Ubuntu 20.04 LTS がインストールされている</p></li>
+<li><p>→ <strong>このページの「ソフトウェアのインストール」に進む</strong></p></li>
+</ul>
+</section>
+<section id="windows">
+<h4>🪟 <strong>Windowsユーザー</strong><a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Windows 10 または Windows 11 を使用</p></li>
+<li><p>→ <strong>まず <a class="reference internal" href="wsl-setup.html"><span class="std std-doc">WSLでLinux環境を手に入れよう</span></a> を完了させる</strong></p></li>
+<li><p>→ その後、このページの「ソフトウェアのインストール」に進む</p></li>
+</ul>
+</section>
+<section id="mac">
+<h4>🍎 <strong>Macユーザー</strong><a class="headerlink" href="#mac" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>申し訳ありませんが、本演習はLinux環境が必要です</p></li>
+<li><p>→ <strong><a class="reference internal" href="wsl-setup.html"><span class="std std-doc">WSLでLinux環境を手に入れよう</span></a> を参考に、仮想環境を構築してください</strong></p></li>
+</ul>
+</section>
+</section>
+<section id="id4">
+<h3>📊 システム要件<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
 <li><p><strong>メモリ</strong>: 4GB以上推奨</p></li>
 <li><p><strong>ストレージ</strong>: 20GB以上の空き容量</p></li>
+<li><p><strong>ネットワーク</strong>: Wi-Fi接続とインターネット接続</p></li>
 </ul>
+</section>
 </section>
 <section id="id5">
-<h3>📡 ネットワーク環境<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
-<ul class="simple">
-<li><p>Wi-Fi接続が可能なこと</p></li>
-<li><p>インターネット接続（ソフトウェアのダウンロード用）</p></li>
-</ul>
-</section>
-</section>
+<h2>ソフトウェアのインストール<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h2>
 <section id="id6">
-<h2>ソフトウェアのインストール<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h2>
-<section id="id7">
-<h3>ステップ1: ターミナルを開く<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<h3>ステップ1: ターミナルを開く<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
 <p>まずは「ターミナル」というツールを開きます。</p>
-<section id="id8">
-<h4>ターミナルって何？🎬<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h4>
+<section id="id7">
+<h4>ターミナルって何？🎬<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h4>
 <p>映画でハッカーが使っている、あの黒い画面に緑の文字が流れるかっこいいやつです！実際は、マウスでクリックする代わりに、キーボードでコマンド（命令）を入力してコンピュータを操作するツールです。</p>
 <p>なぜターミナルを使うの？</p>
 <ul class="simple">
@@ -506,8 +538,8 @@
 <p>黒い画面（または紫の画面）が出てきたら成功です！君もこれでハッカー気分！</p>
 </section>
 </section>
-<section id="id9">
-<h3>ステップ2: システムを最新の状態にする<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<section id="id8">
+<h3>ステップ2: システムを最新の状態にする<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># パッケージリストを更新（最新の情報を取得）</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>update
 
@@ -517,8 +549,8 @@ sudo<span class="w"> </span>apt<span class="w"> </span>upgrade<span class="w"> <
 </div>
 <p>💡 <strong>豆知識</strong>: <code class="docutils literal notranslate"><span class="pre">sudo</span></code>は「スーパーユーザー権限で実行」という意味。管理者として命令を実行するときに使います。スマホでアプリをインストールする時に「許可しますか？」って聞かれるのと同じです！</p>
 </section>
-<section id="id10">
-<h3>ステップ3: 基本ツールのインストール<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<section id="id9">
+<h3>ステップ3: 基本ツールのインストール<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># プログラミングに必要な基本ツールをインストール</span>
 sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>-y<span class="w"> </span><span class="se">\</span>
 <span class="w">    </span>build-essential<span class="w"> </span><span class="se">\</span>
@@ -539,8 +571,8 @@ sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> <
 </div>
 </section>
 </section>
-<section id="id11">
-<h2>ワークスペースの作成<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h2>
+<section id="id10">
+<h2>ワークスペースの作成<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h2>
 <p>プログラムを整理して保存する場所（ワークスペース）を作ります。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ホームディレクトリに移動</span>
 <span class="nb">cd</span><span class="w"> </span>~
@@ -553,16 +585,16 @@ mkdir<span class="w"> </span>-p<span class="w"> </span>~/ros/enshu_ws/src
 </pre></div>
 </div>
 </section>
-<section id="id12">
-<h2>エディタの準備<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h2>
+<section id="id11">
+<h2>エディタの準備<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h2>
 <p>プログラムを書くためのエディタを準備します。初心者には<strong>Visual Studio Code</strong>がおすすめです。</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Visual Studio Codeのインストール</span>
 sudo<span class="w"> </span>snap<span class="w"> </span>install<span class="w"> </span>code<span class="w"> </span>--classic
 </pre></div>
 </div>
 </section>
-<section id="id13">
-<h2>確認クエスト 🎯<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<section id="id12">
+<h2>確認クエスト 🎯<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h2>
 <p>以下のコマンドを実行して、インストールが成功したか確認しましょう：</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Pythonのバージョン確認</span>
 python3<span class="w"> </span>--version
@@ -576,23 +608,23 @@ git<span class="w"> </span>--version
 </div>
 <p>すべてのコマンドでバージョン番号や現在地が表示されれば、準備完了です！</p>
 </section>
-<section id="id14">
-<h2>トラブルシューティング 🔧<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h2>
+<section id="id13">
+<h2>トラブルシューティング 🔧<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
 <section id="q">
 <h3>Q: 「コマンドが見つかりません」と表示される<a class="headerlink" href="#q" title="Permalink to this heading">#</a></h3>
 <p>A: スペルミスがないか確認し、<code class="docutils literal notranslate"><span class="pre">sudo</span> <span class="pre">apt</span> <span class="pre">update</span></code>を実行してから再度試してください。</p>
 </section>
-<section id="id15">
-<h3>Q: パスワードを入力しても画面に表示されない<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<section id="id14">
+<h3>Q: パスワードを入力しても画面に表示されない<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
 <p>A: これは正常な動作です。セキュリティのため、パスワードは画面に表示されません。正しく入力してEnterキーを押してください。</p>
 </section>
-<section id="id16">
-<h3>Q: エラーが出て進めない<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<section id="id15">
+<h3>Q: エラーが出て進めない<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
 <p>A: 慌てずに！エラーメッセージを読んで、先生やTAに相談しましょう。</p>
 </section>
 </section>
-<section id="id17">
-<h2>次のステップへ<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<section id="id16">
+<h2>次のステップへ<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h2>
 <p>準備ができたら、<a class="reference internal" href="../ros-basics/index.html"><span class="std std-doc">セッション1: ROS基礎</span></a>に進みましょう！</p>
 </section>
 </section>
@@ -645,31 +677,36 @@ git<span class="w"> </span>--version
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">このセクションで学ぶこと</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">必要な環境</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">🖥️ パソコンの準備</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">📡 ネットワーク環境</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">環境の準備</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pc">💻 あなたのPCはどれですか？</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#linux-ubuntu">🐧 <strong>Linuxユーザー（Ubuntu）</strong></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">🪟 <strong>Windowsユーザー</strong></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#mac">🍎 <strong>Macユーザー</strong></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">ソフトウェアのインストール</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ステップ1: ターミナルを開く</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">ターミナルって何？🎬</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">📊 システム要件</a></li>
 </ul>
 </li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">ステップ2: システムを最新の状態にする</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">ステップ3: 基本ツールのインストール</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">ソフトウェアのインストール</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">ステップ1: ターミナルを開く</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ターミナルって何？🎬</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">ステップ2: システムを最新の状態にする</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">ステップ3: 基本ツールのインストール</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ros">ステップ4: ROSのインストール準備</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">ワークスペースの作成</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">エディタの準備</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">確認クエスト 🎯</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">トラブルシューティング 🔧</a><ul class="nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">ワークスペースの作成</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">エディタの準備</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">確認クエスト 🎯</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">トラブルシューティング 🔧</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#q">Q: 「コマンドが見つかりません」と表示される</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Q: パスワードを入力しても画面に表示されない</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">Q: エラーが出て進めない</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">Q: パスワードを入力しても画面に表示されない</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">Q: エラーが出て進めない</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">次のステップへ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">次のステップへ</a></li>
 </ul>
   </nav></div>
 

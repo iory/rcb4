@@ -1,0 +1,1178 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦 &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'linux-tutorial/git-quest';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦" href="network-quest.html" />
+    <link rel="prev" title="🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦" href="quest.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="basics.html">🐧 Linux基礎講座 - ターミナルの世界へようこそ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git-basics.html">🔧 Git入門 - ロボットプログラミングのバージョン管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="network-basics.html">🌐 ネットワーク基礎 - ロボットとの通信術</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quest.html">🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</a></li>
+
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="network-quest.html">🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoreboard.html">🏆 Linux Command Quest スコアボード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bonus/easter_eggs.html">🥚 イースターエッグ &amp; ボーナスチャレンジ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🐧 Linuxチュートリアル - ロボットプログラミングの第一歩</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="git-command-quest">
+<h1>🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦<a class="headerlink" href="#git-command-quest" title="Permalink to this heading">#</a></h1>
+<section id="id1">
+<h2>ミッション概要<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p>君たちは、散らばったロボットプログラムの断片を集めて、完全なシステムを再構築する任務に就いた。しかし、これらのプログラムはGitリポジトリに分散して保存されており、バージョン管理の知識なしには取得できない。</p>
+<p>Gitコマンドを駆使して、すべてのプログラム断片を集め、ロボットシステムを復活させよう！</p>
+</section>
+<hr class="docutils" />
+<section id="clone-status">
+<h2>🚀 レベル1: 探索ミッション - Clone &amp; Status<a class="headerlink" href="#clone-status" title="Permalink to this heading">#</a></h2>
+<section id="id2">
+<h3>ミッション1-1: 失われたプロジェクトの発見<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 古い研究データベースから、重要なロボットプロジェクトの場所を示すURLが発見された。</p>
+<p><strong>クエスト</strong>: 以下の模擬リポジトリをクローンし、基本情報を収集せよ</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 練習用のリポジトリをクローン</span>
+mkdir<span class="w"> </span>~/git_missions<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>~/git_missions
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/octocat/Hello-World.git
+<span class="nb">cd</span><span class="w"> </span>Hello-World
+</pre></div>
+</div>
+<p><strong>調査項目</strong>:</p>
+<ol class="arabic simple">
+<li><p>リポジトリの現在の状態を確認</p></li>
+<li><p>コミット履歴の件数を数える</p></li>
+<li><p>最新のコミット作者を特定</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>status
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l
+git<span class="w"> </span>log<span class="w"> </span>-1<span class="w"> </span>--pretty<span class="o">=</span>format:<span class="s2">&quot;%an&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{repository_explorer}</strong></p>
+</section>
+<section id="id3">
+<h3>ミッション1-2: 隠されたファイルの追跡<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: リポジトリ内に隠されたロボット制御ファイルがあるという情報をキャッチした。</p>
+<p><strong>クエスト</strong>:</p>
+<ol class="arabic simple">
+<li><p>新しいファイル <code class="docutils literal notranslate"><span class="pre">robot_control.py</span></code> を作成</p></li>
+<li><p>初期バージョンの制御コードを記述</p></li>
+<li><p>Gitで変更を追跡可能な状態にする</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ロボット制御プログラムの基本コードを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_control.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/usr/bin/env python3</span>
+<span class="s">&quot;&quot;&quot;</span>
+<span class="s">ロボット制御プログラム v1.0</span>
+<span class="s">基本的な移動機能</span>
+<span class="s">&quot;&quot;&quot;</span>
+
+<span class="s">class RobotController:</span>
+<span class="s">    def __init__(self):</span>
+<span class="s">        self.speed = 0.5</span>
+<span class="s">        print(&quot;Robot Controller v1.0 初期化完了&quot;)</span>
+<span class="s">    </span>
+<span class="s">    def move_forward(self):</span>
+<span class="s">        print(f&quot;前進開始 - 速度: {self.speed}&quot;)</span>
+<span class="s">    </span>
+<span class="s">    def stop(self):</span>
+<span class="s">        print(&quot;停止&quot;)</span>
+
+<span class="s">if __name__ == &quot;__main__&quot;:</span>
+<span class="s">    robot = RobotController()</span>
+<span class="s">    robot.move_forward()</span>
+<span class="s">    robot.stop()</span>
+<span class="s">EOF</span>
+
+<span class="c1"># ファイルの状態を確認</span>
+git<span class="w"> </span>status
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{file_tracker}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="add-commit">
+<h2>📝 レベル2: 記録ミッション - Add &amp; Commit<a class="headerlink" href="#add-commit" title="Permalink to this heading">#</a></h2>
+<section id="id4">
+<h3>ミッション2-1: 初回コミットの儀式<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 新しく発見されたロボットプログラムを、正式にプロジェクトの一部として記録する必要がある。</p>
+<p><strong>クエスト</strong>: 作成したロボット制御プログラムを正式にコミットせよ</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ファイルをステージング</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_control.py
+
+<span class="c1"># 状態を確認</span>
+git<span class="w"> </span>status
+
+<span class="c1"># 記念すべき初回コミット</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: ロボット制御プログラムの初期実装</span>
+
+<span class="s2">- RobotControllerクラスの基本構造</span>
+<span class="s2">- 移動と停止の基本機能</span>
+<span class="s2">- 初期バージョン v1.0&quot;</span>
+
+<span class="c1"># コミット履歴を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{first_commit_master}</strong></p>
+</section>
+<section id="id5">
+<h3>ミッション2-2: 機能拡張と変更追跡<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: ロボットに新しい機能が必要になった。方向転換機能を追加し、変更履歴を正確に記録せよ。</p>
+<p><strong>クエスト</strong>: ロボット制御プログラムを拡張し、変更を追跡する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># プログラムに機能を追加</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>robot_control.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+
+<span class="s">    def turn_left(self):</span>
+<span class="s">        print(&quot;左回転&quot;)</span>
+<span class="s">    </span>
+<span class="s">    def turn_right(self):</span>
+<span class="s">        print(&quot;右回転&quot;)</span>
+<span class="s">    </span>
+<span class="s">    def set_speed(self, new_speed):</span>
+<span class="s">        self.speed = max(0.1, min(2.0, new_speed))</span>
+<span class="s">        print(f&quot;速度を {self.speed} に設定&quot;)</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 変更の詳細を確認</span>
+git<span class="w"> </span>diff<span class="w"> </span>robot_control.py
+
+<span class="c1"># 変更をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_control.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: 方向転換機能と速度制御を追加&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{enhancement_tracker}</strong></p>
+</section>
+<section id="id6">
+<h3>ミッション2-3: バグ修正の記録<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: テスト中にロボットの速度制限に問題が発見された。緊急修正が必要だ。</p>
+<p><strong>クエスト</strong>: バグを修正し、修正内容を明確に記録する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># バグのあるコードを修正</span>
+sed<span class="w"> </span>-i<span class="w"> </span><span class="s1">&#39;s/max(0.1, min(2.0, new_speed))/max(0.1, min(1.5, new_speed))/&#39;</span><span class="w"> </span>robot_control.py
+
+<span class="c1"># 修正内容を確認</span>
+git<span class="w"> </span>diff<span class="w"> </span>robot_control.py
+
+<span class="c1"># バグ修正をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_control.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: 最大速度を1.5に制限（安全性向上）</span>
+
+<span class="s2">- 以前の最大速度2.0は危険</span>
+<span class="s2">- 安全基準に従い1.5に変更</span>
+<span class="s2">- テスト済み&quot;</span>
+
+<span class="c1"># 変更履歴を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-3
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{bug_fix_specialist}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="branch-merge">
+<h2>🌿 レベル3: 分岐ミッション - Branch &amp; Merge<a class="headerlink" href="#branch-merge" title="Permalink to this heading">#</a></h2>
+<section id="id7">
+<h3>ミッション3-1: 実験的機能の開発<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 新しいセンサー機能を実験的に開発する必要がある。メインプログラムに影響を与えずに開発を進めよ。</p>
+<p><strong>クエスト</strong>: 新機能開発用のブランチを作成し、実験的な機能を実装する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 現在のブランチを確認</span>
+git<span class="w"> </span>branch
+
+<span class="c1"># 新機能開発用ブランチを作成</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/sensor-integration
+
+<span class="c1"># センサー機能を追加</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>robot_control.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+
+<span class="s">class SensorController:</span>
+<span class="s">    def __init__(self):</span>
+<span class="s">        self.sensors = {</span>
+<span class="s">            &#39;ultrasonic&#39;: True,</span>
+<span class="s">            &#39;camera&#39;: True,</span>
+<span class="s">            &#39;lidar&#39;: False</span>
+<span class="s">        }</span>
+<span class="s">    </span>
+<span class="s">    def read_distance(self):</span>
+<span class="s">        return &quot;距離: 1.5m&quot;</span>
+<span class="s">    </span>
+<span class="s">    def detect_obstacle(self):</span>
+<span class="s">        return &quot;障害物検出: なし&quot;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 変更をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_control.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: センサー統合機能を追加</span>
+
+<span class="s2">- SensorControllerクラス実装</span>
+<span class="s2">- 距離測定機能</span>
+<span class="s2">- 障害物検出機能&quot;</span>
+
+<span class="c1"># ブランチの状態を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>--graph
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{branch_creator}</strong></p>
+</section>
+<section id="id8">
+<h3>ミッション3-2: 統合作戦<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 実験的機能のテストが成功した。メインプログラムに統合する時が来た。</p>
+<p><strong>クエスト</strong>: 開発ブランチをメインブランチにマージする</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># メインブランチに切り替え</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+
+<span class="c1"># 開発ブランチをマージ</span>
+git<span class="w"> </span>merge<span class="w"> </span>feature/sensor-integration
+
+<span class="c1"># マージ結果を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>--graph<span class="w"> </span>-5
+
+<span class="c1"># 不要になったブランチを削除</span>
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>feature/sensor-integration
+
+<span class="c1"># 最終的なファイル内容を確認</span>
+cat<span class="w"> </span>robot_control.py
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{merge_master}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="pull-push">
+<h2>🌐 レベル4: 同期ミッション - Pull &amp; Push<a class="headerlink" href="#pull-push" title="Permalink to this heading">#</a></h2>
+<section id="id9">
+<h3>ミッション4-1: リモート情報収集<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: チームメンバーが他の場所でプログラムを更新している可能性がある。最新情報を入手せよ。</p>
+<p><strong>クエスト</strong>: リモートリポジトリの情報を調査する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># リモートリポジトリの情報を確認</span>
+git<span class="w"> </span>remote<span class="w"> </span>-v
+
+<span class="c1"># リモートの最新情報を取得（まだマージしない）</span>
+git<span class="w"> </span>fetch<span class="w"> </span>origin
+
+<span class="c1"># リモートとローカルの差分を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>origin/main..HEAD
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>HEAD..origin/main
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{remote_scout}</strong></p>
+</section>
+<section id="id10">
+<h3>ミッション4-2: 作業状況のバックアップ<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 重要な作業内容をチームと共有し、バックアップを作成する必要がある。</p>
+<p><strong>クエスト</strong>: 自分の作業をリモートリポジトリに保存する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 現在の作業をバックアップ用ブランチとしてプッシュ</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>backup/my-robot-work
+
+<span class="c1"># README.mdを作成してプロジェクトを説明</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>README.md<span class="w"> </span>&lt;&lt;<span class="w"> </span><span class="s1">&#39;EOF&#39;</span>
+<span class="c1"># Robot Control System</span>
+
+<span class="c1">## 概要</span>
+ロボット制御とセンサー統合システム
+
+<span class="c1">## 機能</span>
+-<span class="w"> </span>基本移動制御<span class="w"> </span><span class="o">(</span>前進、停止、回転<span class="o">)</span>
+-<span class="w"> </span>速度制御
+-<span class="w"> </span>センサー統合<span class="w"> </span><span class="o">(</span>超音波、カメラ、LiDAR<span class="o">)</span>
+-<span class="w"> </span>障害物検出
+
+<span class="c1">## 使用方法</span>
+<span class="sb">```</span>python
+from<span class="w"> </span>robot_control<span class="w"> </span>import<span class="w"> </span>RobotController,<span class="w"> </span>SensorController
+
+<span class="nv">robot</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>RobotController<span class="o">()</span>
+<span class="nv">sensors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span>SensorController<span class="o">()</span>
+
+robot.move_forward<span class="o">()</span>
+print<span class="o">(</span>sensors.read_distance<span class="o">())</span>
+robot.stop<span class="o">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id11">
+<h2>作成者<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h2>
+<p>Git Quest 参加者
+EOF</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id12">
+<h1>新しいファイルを追加<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h1>
+<p>git add README.md
+git commit -m “docs: プロジェクト説明のREADMEを追加”</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="push">
+<h1>リモートブランチ作成の準備（実際のpushは環境による）<a class="headerlink" href="#push" title="Permalink to this heading">#</a></h1>
+<p>echo “git push origin backup/my-robot-work”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+🏁 **FLAG{backup_specialist}**
+
+---
+
+## 🔄 レベル5: 高度な操作 - Stash &amp; Reset
+
+### ミッション5-1: 緊急作業の一時保存
+
+**背景**: 重要な開発作業中に、緊急のホットフィックスが必要になった。現在の作業を安全に保存して緊急対応せよ。
+
+**クエスト**: 作業中の変更を一時保存し、緊急対応を行う
+
+```bash
+# 新機能の開発を開始
+echo &quot;# 新機能: 自動運転モード&quot; &gt;&gt; robot_control.py
+echo &quot;def autonomous_mode(self):&quot; &gt;&gt; robot_control.py
+echo &quot;    print(&#39;自動運転開始&#39;)&quot; &gt;&gt; robot_control.py
+
+# 現在の状況を確認
+git status
+git diff
+
+# 作業を一時保存
+git stash save &quot;WIP: 自動運転モードの実装中&quot;
+
+# 緊急修正: エラーメッセージの改善
+sed -i &#39;s/print(&quot;停止&quot;)/print(&quot;緊急停止: ロボットが安全に停止しました&quot;)/&#39; robot_control.py
+
+# 緊急修正をコミット
+git add robot_control.py
+git commit -m &quot;fix: 停止メッセージを改善（緊急対応）&quot;
+
+# 一時保存した作業を復元
+git stash pop
+
+# 状況を確認
+git status
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{stash_ninja}</strong></p>
+<section id="id13">
+<h2>ミッション5-2: 時間を戻す魔法<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<p><strong>背景</strong>: 実験的なコードで問題が発生した。特定の時点まで戻って、やり直しが必要だ。</p>
+<p><strong>クエスト</strong>: 特定のコミットまで戻り、代替アプローチを試す</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 現在の履歴を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-5
+
+<span class="c1"># 問題のあるコミットの前まで戻る（HEADから2つ前）</span>
+git<span class="w"> </span>reset<span class="w"> </span>--soft<span class="w"> </span>HEAD~2
+
+<span class="c1"># 状況を確認</span>
+git<span class="w"> </span>status
+
+<span class="c1"># 代替実装を作成</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>robot_control.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+
+<span class="s">def emergency_stop(self):</span>
+<span class="s">    &quot;&quot;&quot;緊急停止機能&quot;&quot;&quot;</span>
+<span class="s">    self.speed = 0</span>
+<span class="s">    print(&quot;🚨 緊急停止が実行されました&quot;)</span>
+
+<span class="s">def status_check(self):</span>
+<span class="s">    &quot;&quot;&quot;システム状態チェック&quot;&quot;&quot;</span>
+<span class="s">    return {</span>
+<span class="s">        &#39;speed&#39;: self.speed,</span>
+<span class="s">        &#39;status&#39;: &#39;operational&#39;,</span>
+<span class="s">        &#39;sensors&#39;: &#39;active&#39;</span>
+<span class="s">    }</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 新しいアプローチをコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_control.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: 安全機能とステータス確認を実装</span>
+
+<span class="s2">- 緊急停止機能追加</span>
+<span class="s2">- システム状態チェック機能追加</span>
+<span class="s2">- より安全な設計に変更&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{time_traveler}</strong></p>
+</section>
+<hr class="docutils" />
+<section id="id14">
+<h2>🏆 最終ミッション: プロジェクト統合チャレンジ<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h2>
+<section id="id15">
+<h3>最終チャレンジ: 完全なロボットシステムの構築<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: すべてのミッションで得た知識を総動員し、完全なロボットプロジェクトを構築せよ。</p>
+<p><strong>クエスト</strong>: 以下の要件を満たすプロジェクトを作成する</p>
+<ol class="arabic simple">
+<li><p>適切なディレクトリ構造</p></li>
+<li><p>包括的なREADME</p></li>
+<li><p>.gitignoreファイル</p></li>
+<li><p>複数のモジュール</p></li>
+<li><p>テストファイル</p></li>
+<li><p>完全なGit履歴</p></li>
+</ol>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># プロジェクト構造を作成</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>robot_system/<span class="o">{</span>src,tests,config,docs<span class="o">}</span>
+
+<span class="c1"># メインプログラムを移動</span>
+mv<span class="w"> </span>robot_control.py<span class="w"> </span>robot_system/src/
+
+<span class="c1"># 設定ファイルを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_system/config/robot_config.yaml<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">robot:</span>
+<span class="s">  name: &quot;JEDY&quot;</span>
+<span class="s">  max_speed: 1.5</span>
+<span class="s">  sensors:</span>
+<span class="s">    - ultrasonic</span>
+<span class="s">    - camera</span>
+<span class="s">    - lidar</span>
+<span class="s">  </span>
+<span class="s">safety:</span>
+<span class="s">  emergency_stop_enabled: true</span>
+<span class="s">  max_temperature: 70</span>
+<span class="s">EOF</span>
+
+<span class="c1"># テストファイルを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_system/tests/test_robot.py<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/usr/bin/env python3</span>
+<span class="s">import sys</span>
+<span class="s">import os</span>
+<span class="s">sys.path.append(os.path.join(os.path.dirname(__file__), &#39;..&#39;, &#39;src&#39;))</span>
+
+<span class="s">from robot_control import RobotController</span>
+
+<span class="s">def test_robot_initialization():</span>
+<span class="s">    robot = RobotController()</span>
+<span class="s">    assert robot.speed == 0.5</span>
+<span class="s">    print(&quot;✅ ロボット初期化テスト成功&quot;)</span>
+
+<span class="s">def test_speed_control():</span>
+<span class="s">    robot = RobotController()</span>
+<span class="s">    robot.set_speed(1.0)</span>
+<span class="s">    assert robot.speed == 1.0</span>
+<span class="s">    print(&quot;✅ 速度制御テスト成功&quot;)</span>
+
+<span class="s">if __name__ == &quot;__main__&quot;:</span>
+<span class="s">    test_robot_initialization()</span>
+<span class="s">    test_speed_control()</span>
+<span class="s">    print(&quot;🎉 すべてのテストが成功しました！&quot;)</span>
+<span class="s">EOF</span>
+
+<span class="c1"># .gitignoreを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_system/.gitignore<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s"># Python</span>
+<span class="s">__pycache__/</span>
+<span class="s">*.pyc</span>
+<span class="s">*.pyo</span>
+<span class="s">*.egg-info/</span>
+
+<span class="s"># ログファイル</span>
+<span class="s">*.log</span>
+<span class="s">logs/</span>
+
+<span class="s"># 一時ファイル</span>
+<span class="s">*~</span>
+<span class="s">.DS_Store</span>
+
+<span class="s"># IDE設定</span>
+<span class="s">.vscode/</span>
+<span class="s">.idea/</span>
+
+<span class="s"># 実行ファイル</span>
+<span class="s">*.exe</span>
+<span class="s">*.out</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 包括的なREADMEを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_system/README.md<span class="w"> </span>&lt;&lt;<span class="w"> </span><span class="s1">&#39;EOF&#39;</span>
+<span class="c1"># 🤖 Robot Control System</span>
+
+最終ミッション完成版<span class="w"> </span>-<span class="w"> </span>統合ロボット制御システム
+
+<span class="c1">## 📁 プロジェクト構造</span>
+</pre></div>
+</div>
+<p>robot_system/
+├── src/
+│   └── robot_control.py    # メインロボット制御モジュール
+├── tests/
+│   └── test_robot.py       # テストスイート
+├── config/
+│   └── robot_config.yaml  # 設定ファイル
+├── docs/
+├── .gitignore
+└── README.md</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+## 🚀 クイックスタート
+
+```bash
+cd robot_system
+python3 src/robot_control.py
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id16">
+<h2>🧪 テスト実行<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3<span class="w"> </span>tests/test_robot.py
+</pre></div>
+</div>
+</section>
+<section id="git-quest">
+<h2>🎯 Git Quest 達成項目<a class="headerlink" href="#git-quest" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>[x] リポジトリクローン</p></li>
+<li><p>[x] ファイル追跡</p></li>
+<li><p>[x] コミット作成</p></li>
+<li><p>[x] ブランチ操作</p></li>
+<li><p>[x] マージ実行</p></li>
+<li><p>[x] 一時保存活用</p></li>
+<li><p>[x] 履歴操作</p></li>
+<li><p>[x] プロジェクト構築</p></li>
+</ul>
+</section>
+<section id="id17">
+<h2>🏆 取得フラグ<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<p>すべてのミッションクリアでGitマスターの称号獲得！
+EOF</p>
+</section>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="git">
+<h1>すべてをGitに追加<a class="headerlink" href="#git" title="Permalink to this heading">#</a></h1>
+<p>cd robot_system
+git init
+git add .
+git commit -m “feat: 統合ロボット制御システムの完成</p>
+<p>🎉 Git Quest 最終ミッション完了</p>
+<ul class="simple">
+<li><p>完全なプロジェクト構造</p></li>
+<li><p>テストスイート実装</p></li>
+<li><p>設定ファイル管理</p></li>
+<li><p>包括的なドキュメント</p></li>
+<li><p>適切な.gitignore設定</p></li>
+</ul>
+<p>取得スキル:
+✅ Git基本操作
+✅ ブランチ管理
+✅ コミット管理
+✅ プロジェクト構築
+✅ チーム開発準備”</p>
+</section>
+<section class="tex2jax_ignore mathjax_ignore" id="id18">
+<h1>最終確認<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h1>
+<p>git log –oneline –graph
+echo “🎊 Git Quest 完全制覇！君は真のGitマスターだ！”</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+🏁 **ULTIMATE_FLAG{git_grandmaster_2024}**
+
+---
+
+## 🎊 クエスト完了！
+
+### 🏅 獲得したスキル
+
+- ✅ **リポジトリ操作**: clone, status, log
+- ✅ **変更管理**: add, commit, diff
+- ✅ **ブランチ操作**: branch, checkout, merge
+- ✅ **同期操作**: pull, push, fetch
+- ✅ **高度な操作**: stash, reset, revert
+- ✅ **プロジェクト管理**: .gitignore, README作成
+
+### 🎯 次のステップ
+
+Git Questを制覇した君は、もうチーム開発の準備ができている！
+
+- **GitHub**でのプルリクエスト
+- **CI/CD**での自動テスト
+- **Issue**でのプロジェクト管理
+- **Wiki**でのドキュメント作成
+
+これで実際のロボットプログラミングプロジェクトでも、Gitを使って安全で効率的な開発ができるようになったぞ！
+</pre></div>
+</div>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="quest.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="network-quest.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ミッション概要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#clone-status">🚀 レベル1: 探索ミッション - Clone &amp; Status</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">ミッション1-1: 失われたプロジェクトの発見</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">ミッション1-2: 隠されたファイルの追跡</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#add-commit">📝 レベル2: 記録ミッション - Add &amp; Commit</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">ミッション2-1: 初回コミットの儀式</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">ミッション2-2: 機能拡張と変更追跡</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">ミッション2-3: バグ修正の記録</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#branch-merge">🌿 レベル3: 分岐ミッション - Branch &amp; Merge</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ミッション3-1: 実験的機能の開発</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">ミッション3-2: 統合作戦</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pull-push">🌐 レベル4: 同期ミッション - Pull &amp; Push</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">ミッション4-1: リモート情報収集</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">ミッション4-2: 作業状況のバックアップ</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">作成者</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">新しいファイルを追加</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#push">リモートブランチ作成の準備（実際のpushは環境による）</a><ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">ミッション5-2: 時間を戻す魔法</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">🏆 最終ミッション: プロジェクト統合チャレンジ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">最終チャレンジ: 完全なロボットシステムの構築</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">🧪 テスト実行</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#git-quest">🎯 Git Quest 達成項目</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">🏆 取得フラグ</a></li>
+</ul>
+</li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#git">すべてをGitに追加</a></li>
+<li class="toc-h1 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">最終確認</a></li>
+</ul>
+
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/linux-tutorial/git-quest.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/linux-tutorial/git-quest.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

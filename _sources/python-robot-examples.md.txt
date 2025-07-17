@@ -1,0 +1,486 @@
+# Python ロボット制御実践例
+
+## この章で学ぶこと
+
+基本的なPythonの文法を学んだあとは、実際のロボット制御に繋がる実践的なプログラムを作ってみましょう。この章では、ロボットプログラミングでよく使われるテクニックを、楽しい例題を通して学びます。
+
+## 1. 座標とベクトルの基礎
+
+### 1.1 2D座標での位置表現
+
+```python
+import math
+
+class Point2D:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def distance_to(self, other):
+        """2点間の距離を計算"""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        return math.sqrt(dx * dx + dy * dy)
+    
+    def __str__(self):
+        return f"({self.x}, {self.y})"
+
+# 使用例
+robot_pos = Point2D(0, 0)
+target_pos = Point2D(3, 4)
+
+distance = robot_pos.distance_to(target_pos)
+print(f"ロボットから目標までの距離: {distance:.2f}cm")
+```
+
+### 1.2 3D座標での位置表現
+
+```python
+import math
+
+class Point3D:
+    def __init__(self, x, y, z):
+        self.x = x
+        self.y = y
+        self.z = z
+    
+    def distance_to(self, other):
+        """3次元空間での距離計算"""
+        dx = self.x - other.x
+        dy = self.y - other.y
+        dz = self.z - other.z
+        return math.sqrt(dx * dx + dy * dy + dz * dz)
+    
+    def __str__(self):
+        return f"({self.x}, {self.y}, {self.z})"
+
+# ロボットアームの関節位置
+shoulder = Point3D(0, 0, 50)
+elbow = Point3D(30, 0, 80)
+wrist = Point3D(50, 0, 70)
+
+print(f"肩の位置: {shoulder}")
+print(f"肘の位置: {elbow}")
+print(f"手首の位置: {wrist}")
+```
+
+## 2. 行列を使った回転計算
+
+### 2.1 2D回転行列
+
+```python
+import math
+
+def rotate_point_2d(x, y, angle_degrees):
+    """2次元座標の回転"""
+    angle_rad = math.radians(angle_degrees)
+    cos_a = math.cos(angle_rad)
+    sin_a = math.sin(angle_rad)
+    
+    # 回転行列を適用
+    new_x = x * cos_a - y * sin_a
+    new_y = x * sin_a + y * cos_a
+    
+    return new_x, new_y
+
+# 使用例: 点(1, 0)を90度回転
+x, y = rotate_point_2d(1, 0, 90)
+print(f"回転後の座標: ({x:.2f}, {y:.2f})")
+```
+
+### 2.2 ロボットの向きを変える
+
+```python
+class Robot2D:
+    def __init__(self, x, y, angle):
+        self.x = x
+        self.y = y
+        self.angle = angle  # 度数法
+    
+    def turn(self, turn_angle):
+        """ロボットの向きを変更"""
+        self.angle += turn_angle
+        self.angle = self.angle % 360  # 0-359度の範囲に正規化
+    
+    def move_forward(self, distance):
+        """前進"""
+        angle_rad = math.radians(self.angle)
+        self.x += distance * math.cos(angle_rad)
+        self.y += distance * math.sin(angle_rad)
+    
+    def get_front_position(self, distance):
+        """前方の位置を取得"""
+        angle_rad = math.radians(self.angle)
+        front_x = self.x + distance * math.cos(angle_rad)
+        front_y = self.y + distance * math.sin(angle_rad)
+        return front_x, front_y
+    
+    def status(self):
+        return f"位置: ({self.x:.2f}, {self.y:.2f}), 向き: {self.angle}°"
+
+# 使用例
+robot = Robot2D(0, 0, 0)
+print(f"初期状態: {robot.status()}")
+
+robot.turn(90)  # 左に90度回転
+print(f"回転後: {robot.status()}")
+
+robot.move_forward(10)  # 10cm前進
+print(f"前進後: {robot.status()}")
+```
+
+## 3. センサーデータの処理
+
+### 3.1 距離センサーのデータ処理
+
+```python
+import random
+
+class DistanceSensor:
+    def __init__(self, max_range=100):
+        self.max_range = max_range
+    
+    def get_distance(self):
+        """距離センサーの値を取得（シミュレーション）"""
+        # 実際のロボットでは、センサーから実際の値を取得
+        return random.uniform(10, self.max_range)
+    
+    def is_obstacle_detected(self, threshold=30):
+        """障害物検出"""
+        distance = self.get_distance()
+        return distance < threshold, distance
+
+# 使用例
+sensor = DistanceSensor()
+
+for i in range(5):
+    is_obstacle, distance = sensor.is_obstacle_detected()
+    if is_obstacle:
+        print(f"警告: 障害物を検出！距離: {distance:.1f}cm")
+    else:
+        print(f"安全: 距離: {distance:.1f}cm")
+```
+
+### 3.2 複数センサーの統合
+
+```python
+class MultiSensor:
+    def __init__(self):
+        self.front_sensor = DistanceSensor()
+        self.left_sensor = DistanceSensor()
+        self.right_sensor = DistanceSensor()
+    
+    def get_all_distances(self):
+        """全センサーの値を取得"""
+        return {
+            'front': self.front_sensor.get_distance(),
+            'left': self.left_sensor.get_distance(),
+            'right': self.right_sensor.get_distance()
+        }
+    
+    def find_safest_direction(self):
+        """最も安全な方向を判定"""
+        distances = self.get_all_distances()
+        
+        # 最も遠い障害物がある方向を選択
+        safest_direction = max(distances, key=distances.get)
+        return safest_direction, distances[safest_direction]
+
+# 使用例
+multi_sensor = MultiSensor()
+direction, distance = multi_sensor.find_safest_direction()
+print(f"最も安全な方向: {direction}, 距離: {distance:.1f}cm")
+```
+
+## 4. 経路計画の基礎
+
+### 4.1 直線経路の計算
+
+```python
+def calculate_straight_path(start, goal, num_points=10):
+    """直線経路を計算"""
+    path = []
+    
+    for i in range(num_points + 1):
+        t = i / num_points
+        x = start.x + (goal.x - start.x) * t
+        y = start.y + (goal.y - start.y) * t
+        path.append(Point2D(x, y))
+    
+    return path
+
+# 使用例
+start = Point2D(0, 0)
+goal = Point2D(10, 5)
+
+path = calculate_straight_path(start, goal)
+print("経路:")
+for i, point in enumerate(path):
+    print(f"  {i}: {point}")
+```
+
+### 4.2 障害物回避の簡単なアルゴリズム
+
+```python
+class SimplePathPlanner:
+    def __init__(self, robot):
+        self.robot = robot
+        self.sensor = MultiSensor()
+    
+    def plan_next_move(self, target_x, target_y):
+        """次の移動を計画"""
+        # 目標への方向を計算
+        dx = target_x - self.robot.x
+        dy = target_y - self.robot.y
+        target_angle = math.degrees(math.atan2(dy, dx))
+        
+        # センサーで障害物をチェック
+        distances = self.sensor.get_all_distances()
+        
+        if distances['front'] > 40:  # 前方が安全
+            # 目標方向に向く
+            angle_diff = target_angle - self.robot.angle
+            if angle_diff > 180:
+                angle_diff -= 360
+            elif angle_diff < -180:
+                angle_diff += 360
+            
+            if abs(angle_diff) > 10:
+                turn_angle = 10 if angle_diff > 0 else -10
+                return 'turn', turn_angle
+            else:
+                return 'move', 20  # 20cm前進
+        else:
+            # 障害物があるので回避
+            if distances['left'] > distances['right']:
+                return 'turn', 45  # 左に45度回転
+            else:
+                return 'turn', -45  # 右に45度回転
+
+# 使用例
+robot = Robot2D(0, 0, 0)
+planner = SimplePathPlanner(robot)
+
+# 目標位置(50, 30)に向かう
+target_x, target_y = 50, 30
+
+for step in range(10):
+    action, value = planner.plan_next_move(target_x, target_y)
+    
+    if action == 'turn':
+        robot.turn(value)
+        print(f"ステップ {step+1}: {value}度回転")
+    elif action == 'move':
+        robot.move_forward(value)
+        print(f"ステップ {step+1}: {value}cm前進")
+    
+    print(f"  現在位置: {robot.status()}")
+    
+    # 目標に到達したかチェック
+    distance_to_goal = math.sqrt((target_x - robot.x)**2 + (target_y - robot.y)**2)
+    if distance_to_goal < 5:
+        print("目標に到達しました！")
+        break
+```
+
+## 5. PID制御の基礎
+
+### 5.1 PIDコントローラーの実装
+
+```python
+class PIDController:
+    def __init__(self, kp, ki, kd):
+        self.kp = kp  # 比例ゲイン
+        self.ki = ki  # 積分ゲイン
+        self.kd = kd  # 微分ゲイン
+        
+        self.previous_error = 0
+        self.integral = 0
+    
+    def calculate(self, error, dt):
+        """PID制御の計算"""
+        # 比例項
+        proportional = self.kp * error
+        
+        # 積分項
+        self.integral += error * dt
+        integral_term = self.ki * self.integral
+        
+        # 微分項
+        derivative = (error - self.previous_error) / dt
+        derivative_term = self.kd * derivative
+        
+        # 出力
+        output = proportional + integral_term + derivative_term
+        
+        self.previous_error = error
+        return output
+
+# 使用例: ロボットの位置制御
+def simulate_position_control():
+    # PIDコントローラーを作成
+    pid = PIDController(kp=1.0, ki=0.1, kd=0.05)
+    
+    target_position = 100  # 目標位置
+    current_position = 0   # 現在位置
+    dt = 0.1  # 時間間隔
+    
+    print("位置制御シミュレーション:")
+    print("時間\t現在位置\t誤差\t制御出力")
+    
+    for t in range(50):
+        time = t * dt
+        
+        # 誤差を計算
+        error = target_position - current_position
+        
+        # PID制御の計算
+        control_output = pid.calculate(error, dt)
+        
+        # ロボットの位置を更新（簡単なモデル）
+        current_position += control_output * dt
+        
+        if t % 10 == 0:  # 10ステップごとに表示
+            print(f"{time:.1f}\t{current_position:.2f}\t\t{error:.2f}\t{control_output:.2f}")
+        
+        # 目標に到達したら終了
+        if abs(error) < 0.1:
+            print(f"目標に到達しました！（時間: {time:.1f}秒）")
+            break
+
+simulate_position_control()
+```
+
+## 6. 実践プロジェクト：探索ロボット
+
+これまで学んだ技術を組み合わせて、自律的に動く探索ロボットを作ってみましょう。
+
+```python
+class ExplorationRobot:
+    def __init__(self, x=0, y=0, angle=0):
+        self.robot = Robot2D(x, y, angle)
+        self.sensor = MultiSensor()
+        self.visited_positions = []
+        self.exploration_map = {}
+    
+    def explore_step(self):
+        """1ステップの探索"""
+        # 現在位置を記録
+        current_pos = (round(self.robot.x), round(self.robot.y))
+        self.visited_positions.append(current_pos)
+        
+        # センサーでまわりを調査
+        distances = self.sensor.get_all_distances()
+        self.exploration_map[current_pos] = distances.copy()
+        
+        # 次の行動を決定
+        if distances['front'] > 50:
+            # 前方が安全なら前進
+            self.robot.move_forward(30)
+            return "前進"
+        elif distances['left'] > distances['right']:
+            # 左の方が安全なら左に回転
+            self.robot.turn(90)
+            return "左回転"
+        else:
+            # 右に回転
+            self.robot.turn(-90)
+            return "右回転"
+    
+    def get_exploration_summary(self):
+        """探索結果のまとめ"""
+        unique_positions = set(self.visited_positions)
+        total_distance = len(self.visited_positions) * 30  # 概算
+        
+        return {
+            'visited_positions': len(unique_positions),
+            'total_steps': len(self.visited_positions),
+            'estimated_distance': total_distance,
+            'current_position': (self.robot.x, self.robot.y),
+            'current_angle': self.robot.angle
+        }
+
+# 探索ロボットのシミュレーション
+def run_exploration_simulation():
+    explorer = ExplorationRobot()
+    
+    print("=== 探索ロボット シミュレーション ===")
+    print("ロボットが自律的に環境を探索します\n")
+    
+    for step in range(20):
+        action = explorer.explore_step()
+        
+        if step % 5 == 0:  # 5ステップごとに状況を報告
+            summary = explorer.get_exploration_summary()
+            print(f"ステップ {step+1}: {action}")
+            print(f"  位置: ({summary['current_position'][0]:.1f}, {summary['current_position'][1]:.1f})")
+            print(f"  向き: {summary['current_angle']}°")
+            print(f"  探索済み位置: {summary['visited_positions']}個所")
+            print()
+    
+    # 最終結果
+    final_summary = explorer.get_exploration_summary()
+    print("=== 探索完了 ===")
+    print(f"総ステップ数: {final_summary['total_steps']}")
+    print(f"探索済み位置: {final_summary['visited_positions']}個所")
+    print(f"推定移動距離: {final_summary['estimated_distance']}cm")
+    print(f"最終位置: ({final_summary['current_position'][0]:.1f}, {final_summary['current_position'][1]:.1f})")
+
+# シミュレーションを実行
+run_exploration_simulation()
+```
+
+## 7. 練習問題
+
+### 問題1: 円軌道の計算
+ロボットが半径50cmの円を描くような軌道を計算してください。
+
+```python
+def calculate_circle_path(center_x, center_y, radius, num_points=36):
+    """円軌道を計算する関数を完成させてください"""
+    path = []
+    # ここにコードを書いてください
+    return path
+
+# テスト
+circle_path = calculate_circle_path(0, 0, 50)
+print(f"円軌道の点数: {len(circle_path)}")
+```
+
+### 問題2: 衝突検出
+2つのロボット間の衝突を検出する関数を作ってください。
+
+```python
+def check_collision(robot1_pos, robot1_radius, robot2_pos, robot2_radius):
+    """2つのロボットの衝突を検出する関数を完成させてください"""
+    # ここにコードを書いてください
+    return False  # 衝突なしの場合False、衝突ありの場合True
+
+# テスト
+pos1 = Point2D(0, 0)
+pos2 = Point2D(3, 4)
+collision = check_collision(pos1, 2, pos2, 2)
+print(f"衝突: {collision}")
+```
+
+## 8. まとめ
+
+この章では、ロボットプログラミングでよく使われる実践的な技術を学びました：
+
+- **座標系**: 2D/3D空間でのロボットの位置表現
+- **回転行列**: ロボットの向きや関節の回転計算
+- **センサー処理**: 距離センサーなどのデータ処理
+- **経路計画**: 目標位置への移動計画
+- **PID制御**: 精密な位置制御
+- **自律探索**: センサー情報を使った自律的な行動
+
+これらの技術を組み合わせることで、より高度なロボットシステムを構築できます。
+
+## 9. 次のステップ
+
+- [scikit-robot入門](robot-control/index.md): 実際のロボットライブラリを使った制御
+- [ROSと連携](ros-basics/index.md): Robot Operating Systemとの連携
+
+---
+
+**💡 ヒント**: 実際のロボットでは、これらの計算をリアルタイムで実行する必要があります。効率的なアルゴリズムを選ぶことが重要です！

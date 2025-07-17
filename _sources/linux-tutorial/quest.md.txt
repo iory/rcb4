@@ -1,0 +1,359 @@
+# 🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦
+
+## ミッション概要
+
+君たちは、失われたロボットの制御コードを探す特殊チームの一員だ。このミッションを成功させるには、Linux の「ターミナル」という秘密の扉を開き、様々なコマンド（呪文）を駆使して謎を解き明かす必要がある。
+
+各ミッションをクリアすると「フラグ」と呼ばれる秘密のコードが手に入る。すべてのフラグを集めて、最終ミッションに挑戦しよう！
+
+### 前提条件
+
+**[📚 Linux基礎講座](basics.md)**を完了していることを前提とします。まだの方は先に基礎を学習してください。
+
+---
+
+## 🎮 レベル1: 偵察任務 - 基本コマンドの習得
+
+### ミッション1-1: 現在地の確認
+
+**背景**: 君は謎の仮想空間に転送された。まずは自分がどこにいるのか確認しよう。
+
+```bash
+# 現在地を表示するコマンドを実行せよ
+$ pwd
+```
+
+**クエスト**: ホームディレクトリで上記コマンドを実行し、表示されたパスの最後の部分（ユーザー名）を記録せよ。
+
+🏁 **FLAG{your_username_here}**
+
+### ミッション1-2: 隠しファイルの発見
+
+**背景**: このディレクトリには見えないファイルが隠されているという情報を入手した。
+
+```bash
+# すべてのファイルを表示する呪文
+$ ls -la
+```
+
+**クエスト**: 
+1. ホームディレクトリに `.secret_robot_code` という隠しファイルを作成せよ
+2. その中に「JEDY_ACTIVATED」という文字列を書き込め
+3. ファイルの存在を確認せよ
+
+```bash
+# ヒント: ファイル作成コマンド
+$ echo "JEDY_ACTIVATED" > .secret_robot_code
+```
+
+🏁 **FLAG{hidden_files_revealed}**
+
+### ミッション1-3: ディレクトリ迷宮
+
+**背景**: ロボットの設計図が複雑なディレクトリ構造の中に隠されている。
+
+**クエスト**: 以下の構造を作成し、最深部にたどり着け
+
+```bash
+robot_base/
+├── sensors/
+│   ├── camera/
+│   │   └── config.txt (内容: "resolution=1920x1080")
+│   └── lidar/
+│       └── range.txt (内容: "max_range=10m")
+└── actuators/
+    ├── arms/
+    │   └── joints.txt (内容: "dof=7")
+    └── wheels/
+        └── speed.txt (内容: "max_speed=2.0")
+```
+
+すべてのファイルを作成したら、`tree robot_base` コマンドで構造を確認せよ（treeがない場合は `sudo apt install tree` でインストール）。
+
+🏁 **FLAG{directory_architect}**
+
+---
+
+## 🔍 レベル2: 諜報活動 - ファイル操作と検索術
+
+### ミッション2-1: コードハンティング
+
+**背景**: 敵に奪われたロボットの制御コードの断片が、システムのどこかに散らばっている。
+
+**準備**: 以下のスクリプトを実行して、ミッション環境を構築せよ
+
+```bash
+#!/bin/bash
+# setup_mission2.sh として保存
+mkdir -p ~/mission2/{alpha,beta,gamma,delta,epsilon}
+echo "ROBOT_PART_A" > ~/mission2/alpha/control.log
+echo "This is a decoy file" > ~/mission2/beta/readme.txt
+echo "ERROR: ROBOT_PART_B not found" > ~/mission2/gamma/error.log
+echo "System initialized" > ~/mission2/delta/system.dat
+echo "Hidden message: ROBOT_PART_C" > ~/mission2/epsilon/.hidden_log
+echo "ROBOT_PART_D=active" > ~/mission2/config.ini
+```
+
+**クエスト**: 
+1. `find` コマンドを使って、"ROBOT_PART" を含むすべてのファイルを見つけよ
+2. `grep` コマンドで各パーツの場所を特定せよ
+3. すべてのパーツ（A, B, C, D）を発見したらフラグ獲得
+
+```bash
+# ヒント
+$ find ~/mission2 -type f -exec grep -l "ROBOT_PART" {} \;
+```
+
+🏁 **FLAG{master_searcher_2024}**
+
+### ミッション2-2: ログ解析官
+
+**背景**: ロボットのセンサーログから異常を検出する任務。
+
+**準備**: 以下のログファイルを作成せよ
+
+```bash
+cat > ~/sensor_log.txt << EOF
+2024-01-01 10:00:00 [INFO] Camera initialized
+2024-01-01 10:00:01 [INFO] LiDAR online
+2024-01-01 10:00:02 [WARNING] Low battery: 15%
+2024-01-01 10:00:03 [INFO] Motors engaged
+2024-01-01 10:00:04 [ERROR] CRITICAL: Unauthorized access detected
+2024-01-01 10:00:05 [INFO] Navigation system ready
+2024-01-01 10:00:06 [ERROR] CRITICAL: System compromise code: X7R9
+2024-01-01 10:00:07 [INFO] All systems operational
+2024-01-01 10:00:08 [WARNING] Temperature rising
+2024-01-01 10:00:09 [ERROR] Connection lost
+EOF
+```
+
+**クエスト**:
+1. ERROR レベルのログのみを抽出せよ
+2. CRITICAL を含む行から、侵入コード（X7R9）を特定せよ
+3. ログファイルの行数をカウントせよ
+
+```bash
+# コマンド例
+$ grep "ERROR" ~/sensor_log.txt
+$ grep "CRITICAL" ~/sensor_log.txt | grep -o "code: [A-Z0-9]*"
+$ wc -l ~/sensor_log.txt
+```
+
+🏁 **FLAG{log_analyzer_X7R9}**
+
+### ミッション2-3: パイプライン司令官
+
+**背景**: 複数のコマンドを連携させて、複雑なデータ処理を行う。
+
+**クエスト**: 以下のタスクを1行のコマンドで実行せよ
+
+1. `/etc/passwd` ファイルから、ユーザー名（最初のフィールド）だけを抽出
+2. アルファベット順にソート
+3. 最初の5件だけを表示
+4. その結果を `~/top_users.txt` に保存
+
+```bash
+# 答え
+$ cut -d: -f1 /etc/passwd | sort | head -5 > ~/top_users.txt
+```
+
+🏁 **FLAG{pipe_master_unlocked}**
+
+---
+
+## ⚔️ レベル3: システム管理者への道
+
+### ミッション3-1: パッケージハンター
+
+**背景**: ロボット制御に必要なツールをインストールする権限を手に入れた。
+
+**クエスト**:
+1. `neofetch` というシステム情報表示ツールをインストールせよ
+2. インストール後、実行して、OSの名前を確認せよ
+3. `which neofetch` でインストール場所を確認せよ
+
+```bash
+$ sudo apt update
+$ sudo apt install neofetch
+$ neofetch
+$ which neofetch
+```
+
+🏁 **FLAG{package_installer_pro}**
+
+### ミッション3-2: プロセス監視員
+
+**背景**: システムで動作している怪しいプロセスを監視する。
+
+**準備**: 新しいターミナルで以下のコマンドを実行（バックグラウンドプロセスを作成）
+
+```bash
+$ sleep 9999 &
+```
+
+**クエスト**:
+1. `ps aux | grep sleep` で sleep プロセスを見つけよ
+2. プロセスID（PID）を特定せよ
+3. `kill [PID]` でプロセスを終了させよ
+4. `top` コマンドで現在のCPU使用率トップ5を確認せよ
+
+🏁 **FLAG{process_terminator}**
+
+### ミッション3-3: ネットワーク戦士
+
+**背景**: ロボットPCとの通信路を確保する。
+
+**クエスト**:
+1. 自分のIPアドレスを確認せよ（`ip addr` または `ifconfig`）
+2. Googleのサーバー（8.8.8.8）にpingを送り、応答時間を確認せよ
+3. `nslookup` で google.com のIPアドレスを調べよ
+
+```bash
+$ ip addr show
+$ ping -c 4 8.8.8.8
+$ nslookup google.com
+```
+
+🏁 **FLAG{network_explorer}**
+
+---
+
+## 🚀 レベル4: 上級テクニック
+
+### ミッション4-1: スクリプト作成者
+
+**背景**: 繰り返し作業を自動化するスクリプトを作成する。
+
+**クエスト**: 以下の機能を持つ `robot_check.sh` スクリプトを作成せよ
+
+```bash
+#!/bin/bash
+# robot_check.sh
+
+echo "=== ロボットシステムチェック ==="
+echo "日時: $(date)"
+echo "ユーザー: $(whoami)"
+echo "現在のディレクトリ: $(pwd)"
+echo "メモリ使用状況:"
+free -h | grep Mem
+echo "ディスク使用状況:"
+df -h | grep -E "^/dev/"
+echo "=== チェック完了 ==="
+```
+
+実行権限を付与して実行せよ：
+
+```bash
+$ chmod +x robot_check.sh
+$ ./robot_check.sh
+```
+
+🏁 **FLAG{script_creator_certified}**
+
+### ミッション4-2: エイリアスマスター
+
+**背景**: よく使うコマンドにショートカットを設定する。
+
+**クエスト**: `.bashrc` に以下のエイリアスを追加せよ
+
+```bash
+# ~/.bashrc に追加
+alias ll='ls -la'
+alias robot='echo "JEDY Robot System Ready!"'
+alias myip='ip addr show | grep inet | grep -v 127.0.0.1'
+```
+
+変更を反映させて、各エイリアスを実行せよ：
+
+```bash
+$ source ~/.bashrc
+$ ll
+$ robot
+$ myip
+```
+
+🏁 **FLAG{alias_ninja}**
+
+### ミッション4-3: ファイル権限マスター
+
+**背景**: 機密ファイルのセキュリティを管理する。
+
+**クエスト**:
+1. `secret_robot_key.txt` ファイルを作成
+2. 所有者のみ読み書き可能に設定
+3. `permissions_test` ディレクトリを作成
+4. 所有者は全権限、グループは読み取りと実行、その他は権限なしに設定
+
+```bash
+$ echo "TOP_SECRET_KEY_12345" > secret_robot_key.txt
+$ chmod 600 secret_robot_key.txt
+$ mkdir permissions_test
+$ chmod 750 permissions_test
+$ ls -la secret_robot_key.txt permissions_test
+```
+
+🏁 **FLAG{permission_guardian}**
+
+---
+
+## 🏆 最終ミッション: 統合チャレンジ
+
+すべてのレベルをクリアした勇者よ、最後の試練に挑め！
+
+**ミッション**: 以下の要件を満たすシステム監視スクリプト `final_mission.sh` を作成せよ
+
+1. 引数でロボット名を受け取る（引数がない場合は "JEDY" を使用）
+2. システム情報（日時、ホスト名、稼働時間）を表示
+3. `robot_logs` ディレクトリ内のログファイル数をカウント
+4. 最新のログファイルの内容を表示
+5. 結果を `mission_report_[日付].txt` に保存
+
+```bash
+#!/bin/bash
+# final_mission.sh
+
+ROBOT_NAME=${1:-JEDY}
+DATE=$(date +%Y%m%d_%H%M%S)
+REPORT_FILE="mission_report_${DATE}.txt"
+
+echo "=== ${ROBOT_NAME} システムレポート ===" | tee $REPORT_FILE
+echo "生成日時: $(date)" | tee -a $REPORT_FILE
+echo "ホスト名: $(hostname)" | tee -a $REPORT_FILE
+echo "稼働時間: $(uptime -p)" | tee -a $REPORT_FILE
+
+mkdir -p robot_logs
+echo "ログファイル数: $(ls robot_logs | wc -l)" | tee -a $REPORT_FILE
+
+if [ -n "$(ls -A robot_logs 2>/dev/null)" ]; then
+    LATEST_LOG=$(ls -t robot_logs | head -1)
+    echo "最新ログ: $LATEST_LOG" | tee -a $REPORT_FILE
+else
+    echo "ログファイルが見つかりません" | tee -a $REPORT_FILE
+fi
+
+echo "レポートを $REPORT_FILE に保存しました"
+```
+
+🏁 **FLAG{linux_terminal_master_2024}**
+
+---
+
+## 🎊 ミッションコンプリート！
+
+すべてのフラグを集めた君は、もう立派なLinuxターミナルマスターだ！これらのスキルを使って、ロボットプログラミングの世界でさらなる冒険を楽しもう！
+
+### 獲得したスキル
+- ✅ ファイルシステムナビゲーション
+- ✅ テキスト処理とフィルタリング
+- ✅ プロセス管理
+- ✅ ネットワーク診断
+- ✅ シェルスクリプト作成
+- ✅ 権限管理
+
+### さらなる挑戦
+
+より高度な技術を身につけたい方は：
+- **[🥚 ボーナスチャレンジ](bonus/easter_eggs.md)** - 隠されたイースターエッグを発見
+- **[🏆 スコアボード](scoreboard.md)** - 進捗を記録して称号を獲得
+
+次は[ROSの世界](../ros-basics/index.md)で、実際のロボットを動かす冒険が待っている！

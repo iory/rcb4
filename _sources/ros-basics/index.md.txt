@@ -1,0 +1,141 @@
+# セッション1: ロボットとの出会い - ROS入門
+
+## 🎯 今日の目標
+
+- ROSコマンドの使い方を学ぶ（`rostopic`、`roslaunch`など）
+- ROSトピックを使ってロボットと通信する
+- 異なるPC間でROSの通信を設定する（`rossetip`、`rossetmaster`）
+- カメラ画像を使ってロボットを動かす
+- ROSのGUIツールを使いこなす
+
+## ROSって何？
+
+ROS（Robot Operating System）は、ロボットを動かすための特別なシステムです。でも「Operating System」という名前だけど、WindowsやMacOSのようなOSではありません。
+
+ROSは、ロボットの様々な部品（センサー、モーター、カメラなど）を簡単につなげて、協力して動かすための「仲介役」のようなものです。
+
+### ROSの3つの重要な概念
+
+1. **ノード（Node）**: ロボットの各機能を担当する小さなプログラム
+2. **トピック（Topic）**: ノード同士がメッセージをやり取りする通信路
+3. **メッセージ（Message）**: ノード間で送られるデータ
+
+## 双腕移動ロボット「JEDY」の紹介
+
+今回使うロボット「JEDY」（JSK Educational Dual-armed wheelY robot）は：
+
+- **腕**: 左右に7自由度ずつ（人間の腕のように動く！）
+- **車輪**: 4つのメカナムホイール（どの方向にも移動可能）
+- **グリッパー**: 物をつかむ手
+- **頭部**: カメラとマイク付き
+
+全部で22個の関節を持つ、とても高機能なロボットです！
+
+## 基本的なROSコマンド
+
+### よく使うコマンド一覧
+
+| コマンド | 説明 | 使用例 |
+|---------|------|--------|
+| `rostopic list` | 利用可能なトピックの一覧表示 | どんなデータが流れているか確認 |
+| `rostopic echo [トピック名]` | トピックの内容を表示 | センサーの値を見る |
+| `rostopic pub [トピック名]` | トピックにデータを送信 | ロボットに命令を送る |
+| `rosnode list` | 動いているノードの一覧表示 | どんなプログラムが動いているか確認 |
+| `roslaunch` | 複数のノードをまとめて起動 | ロボット全体を起動 |
+
+## 実践！JEDYを動かしてみよう
+
+### ステップ1: ロボットの電源を入れる
+
+1. JEDYのバックパックにあるUSB-PDで充電されていることを確認
+2. サーボ制御ボードのスイッチをONにする
+3. 青いLEDが点灯し、ピッと音が鳴れば成功！
+
+### ステップ2: ネットワーク接続
+
+```bash
+# Wi-Fiネットワーク「jedy-wifi-5g」に接続
+# パスワード: jsk-jedy
+```
+
+### ステップ3: ROSマスターとの通信設定
+
+```bash
+# 自分のPCのIPアドレスを設定
+rossetip
+
+# ロボットPCのIPアドレスを設定（画面に表示されているIP）
+rossetmaster 192.168.1.100  # 例：実際のIPアドレスに置き換えて
+```
+
+### ステップ4: 通信確認
+
+```bash
+# トピック一覧を表示
+rostopic list
+
+# ボタンの状態を確認
+rostopic echo /atom_s3_button_state
+```
+
+Atom S3（ロボットの背中にある小さな画面）をクリックすると、数値が変わるはずです！
+
+## 🎮 チャレンジ課題
+
+### 課題1: ディスプレイにメッセージを表示
+
+```bash
+# 好きなメッセージを送ってみよう！
+rostopic pub -1 /atom_s3_additional_info std_msgs/String "data: こんにちは、JEDY！"
+```
+
+### 課題2: センサーの値を読み取る
+
+```bash
+# IMU（姿勢センサー）の値を確認
+rostopic echo /imu_publisher/imu
+```
+
+ロボットを傾けると、値が変化します！
+
+### 課題3: Pythonでプログラムを書く（上級者向け）
+
+```python
+#!/usr/bin/env python3
+import rospy
+from std_msgs.msg import String
+
+def display_message():
+    rospy.init_node('my_first_ros_node')
+    pub = rospy.Publisher('/atom_s3_additional_info', String, queue_size=10)
+    
+    rate = rospy.Rate(1)  # 1秒に1回
+    count = 0
+    
+    while not rospy.is_shutdown():
+        message = f"カウント: {count}"
+        pub.publish(message)
+        count += 1
+        rate.sleep()
+
+if __name__ == '__main__':
+    display_message()
+```
+
+## 📝 用語集
+
+- **ノード**: ロボットの機能を担当するプログラム
+- **トピック**: データの通り道
+- **パブリッシュ**: データを送信すること
+- **サブスクライブ**: データを受信すること
+- **ROSマスター**: ROSシステム全体を管理する司令塔
+
+## 🆘 困ったときは
+
+- エラーが出たら、まずはエラーメッセージをよく読もう
+- `rostopic list`でトピックが表示されない → ネットワーク接続を確認
+- コマンドが見つからない → `source ~/ros/enshu_ws/devel/setup.bash`を実行
+
+## 次のステップ
+
+基本的なROSコマンドをマスターしたら、[セッション2: ロボット制御](../robot-control/index.md)に進みましょう！

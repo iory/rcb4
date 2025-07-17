@@ -1,0 +1,1046 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Python基礎プログラミング &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'python-basics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Python ロボット制御実践例" href="python-robot-examples.html" />
+    <link rel="prev" title="🥚 イースターエッグ &amp; ボーナスチャレンジ" href="linux-tutorial/bonus/easter_eggs.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Python基礎プログラミング</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="python">
+<h1>Python基礎プログラミング<a class="headerlink" href="#python" title="Permalink to this heading">#</a></h1>
+<section id="id1">
+<h2>この章で学ぶこと<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p>この章では、ロボットプログラミングに必要なPythonの基礎を学びます。プログラミングが初めての人でも安心して進められるよう、基本的なことから順番に説明していきます。</p>
+</section>
+<section id="id2">
+<h2>1. Pythonって何？<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<p>Pythonは、世界中で愛されているプログラミング言語です。なぜ人気なのでしょうか？</p>
+<ul class="simple">
+<li><p><strong>読みやすい</strong>: まるで英語のように書ける</p></li>
+<li><p><strong>多機能</strong>: ロボット制御、AI、ゲーム開発などなんでもできる</p></li>
+<li><p><strong>無料</strong>: お金を払わなくても使える</p></li>
+<li><p><strong>豊富な資料</strong>: 困ったときの情報がたくさんある</p></li>
+</ul>
+</section>
+<section id="id3">
+<h2>2. Pythonの世界に入ろう<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<section id="id4">
+<h3>2.1 もっと使いやすいPython環境を準備しよう<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<p>普通の<code class="docutils literal notranslate"><span class="pre">python3</span></code>でも動きますが、<strong>IPython</strong>という素晴らしいツールがあります！</p>
+<section id="ipython">
+<h4>IPythonって何？✨<a class="headerlink" href="#ipython" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>🎨 <strong>きれいな表示</strong>: コードに色がついて見やすい</p></li>
+<li><p>⬆️ <strong>履歴機能</strong>: 上矢印キーで前に実行したコマンドを呼び出せる</p></li>
+<li><p>🔍 <strong>自動補完</strong>: Tabキーで候補を表示</p></li>
+<li><p>🚀 <strong>高機能</strong>: 普通のPythonより圧倒的に便利</p></li>
+</ul>
+</section>
+<section id="id5">
+<h4>IPythonをインストールしよう<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>ipython
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h4>IPythonを起動する<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>ipython
+</pre></div>
+</div>
+<p>すると、こんなきれいな画面が表示されます：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">3.8.10</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Nov</span> <span class="mi">26</span> <span class="mi">2021</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span><span class="mi">14</span><span class="p">:</span><span class="mi">08</span><span class="p">)</span>
+<span class="n">Type</span> <span class="s1">&#39;copyright&#39;</span><span class="p">,</span> <span class="s1">&#39;credits&#39;</span> <span class="ow">or</span> <span class="s1">&#39;license&#39;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span>
+<span class="n">IPython</span> <span class="mf">8.0.1</span> <span class="o">--</span> <span class="n">An</span> <span class="n">enhanced</span> <span class="n">Interactive</span> <span class="n">Python</span><span class="o">.</span> <span class="n">Type</span> <span class="s1">&#39;?&#39;</span> <span class="k">for</span> <span class="n">help</span><span class="o">.</span>
+
+<span class="n">In</span> <span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+</pre></div>
+</div>
+<p>この <code class="docutils literal notranslate"><span class="pre">In</span> <span class="pre">[1]:</span></code> が見えたら、IPythonの世界に入れました！</p>
+</section>
+<section id="id7">
+<h4>IPythonの便利な機能<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p><strong>↑キーで履歴を辿れる</strong></p>
+<ul class="simple">
+<li><p>前に実行したコマンドを簡単に呼び出せる</p></li>
+</ul>
+</li>
+<li><p><strong>Tabキーで自動補完</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">pri</span></code> と入力してTabキーを押すと <code class="docutils literal notranslate"><span class="pre">print</span></code> が候補に出る</p></li>
+</ul>
+</li>
+<li><p><strong>きれいな色分け</strong></p>
+<ul class="simple">
+<li><p>コードが読みやすく色分けされる</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="id8">
+<h3>2.2 Pythonを起動する（従来版）<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<p>IPythonがない場合は、普通のPythonでも大丈夫：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python3
+</pre></div>
+</div>
+<p>すると、以下のような画面が表示されます：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span> <span class="mf">3.8.10</span> <span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">Nov</span> <span class="mi">26</span> <span class="mi">2021</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span><span class="mi">14</span><span class="p">:</span><span class="mi">08</span><span class="p">)</span>
+<span class="p">[</span><span class="n">GCC</span> <span class="mf">9.3.0</span><span class="p">]</span> <span class="n">on</span> <span class="n">linux</span>
+<span class="n">Type</span> <span class="s2">&quot;help&quot;</span><span class="p">,</span> <span class="s2">&quot;copyright&quot;</span><span class="p">,</span> <span class="s2">&quot;credits&quot;</span> <span class="ow">or</span> <span class="s2">&quot;license&quot;</span> <span class="k">for</span> <span class="n">more</span> <span class="n">information</span><span class="o">.</span>
+<span class="o">&gt;&gt;&gt;</span>
+</pre></div>
+</div>
+<p>この <code class="docutils literal notranslate"><span class="pre">&gt;&gt;&gt;</span></code> が見えたら、Pythonの世界に入れました！</p>
+</section>
+<section id="print">
+<h3>2.3 最初の魔法：print関数<a class="headerlink" href="#print" title="Permalink to this heading">#</a></h3>
+<p>IPythonまたは普通のPythonで以下を入力してみましょう：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hello, Robot World!&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>IPythonの場合</strong>：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>In [1]: print(&quot;Hello, Robot World!&quot;)
+Hello, Robot World!
+
+In [2]: 
+</pre></div>
+</div>
+<p><strong>普通のPythonの場合</strong>：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hello, Robot World!&quot;</span><span class="p">)</span>
+<span class="go">Hello, Robot World!</span>
+<span class="gp">&gt;&gt;&gt; </span>
+</pre></div>
+</div>
+<p>おめでとうございます！あなたは最初のPythonプログラムを実行しました！</p>
+<p>💡 <strong>IPythonの便利さを実感</strong>：</p>
+<ul class="simple">
+<li><p>上矢印キーを押すと、さっき入力した <code class="docutils literal notranslate"><span class="pre">print(&quot;Hello,</span> <span class="pre">Robot</span> <span class="pre">World!&quot;)</span></code> が再度表示される</p></li>
+<li><p>長いコマンドを何度も入力する必要がない！</p></li>
+</ul>
+</section>
+</section>
+<section id="id9">
+<h2>3. 数の魔法：計算をしてみよう<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h2>
+<section id="id10">
+<h3>3.1 基本的な計算<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 足し算</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">5</span><span class="p">)</span>    <span class="c1"># 結果: 8</span>
+
+<span class="c1"># 引き算</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">10</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span>   <span class="c1"># 結果: 6</span>
+
+<span class="c1"># 掛け算</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">6</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span>    <span class="c1"># 結果: 42</span>
+
+<span class="c1"># 割り算</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">15</span> <span class="o">/</span> <span class="mi">3</span><span class="p">)</span>   <span class="c1"># 結果: 5.0</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>3.2 ロボットの移動距離を計算<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ロボットが1秒間に30cm進むとき、5秒間で何cm進む？</span>
+<span class="n">speed</span> <span class="o">=</span> <span class="mi">30</span>  <span class="c1"># cm/秒</span>
+<span class="n">time</span> <span class="o">=</span> <span class="mi">5</span>    <span class="c1"># 秒</span>
+<span class="n">distance</span> <span class="o">=</span> <span class="n">speed</span> <span class="o">*</span> <span class="n">time</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ロボットは</span><span class="si">{</span><span class="n">distance</span><span class="si">}</span><span class="s2">cm進みます&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id12">
+<h2>4. 記憶の魔法：変数を使おう<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h2>
+<section id="id13">
+<h3>4.1 変数って何？<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
+<p>変数は、値を入れておく「箱」のようなものです。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">robot_name</span> <span class="o">=</span> <span class="s2">&quot;JEDY&quot;</span>
+<span class="n">robot_height</span> <span class="o">=</span> <span class="mi">120</span>  <span class="c1"># cm</span>
+<span class="n">robot_speed</span> <span class="o">=</span> <span class="mi">30</span>    <span class="c1"># cm/秒</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ロボットの名前: </span><span class="si">{</span><span class="n">robot_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;身長: </span><span class="si">{</span><span class="n">robot_height</span><span class="si">}</span><span class="s2">cm&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;速度: </span><span class="si">{</span><span class="n">robot_speed</span><span class="si">}</span><span class="s2">cm/秒&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h3>4.2 変数の種類<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 文字列（テキスト）</span>
+<span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;田中太郎&quot;</span>
+<span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;こんにちは、ロボット！&quot;</span>
+
+<span class="c1"># 数値（整数）</span>
+<span class="n">age</span> <span class="o">=</span> <span class="mi">15</span>
+<span class="n">score</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="c1"># 数値（小数）</span>
+<span class="n">height</span> <span class="o">=</span> <span class="mf">165.5</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="mf">52.3</span>
+
+<span class="c1"># 真偽値（True/False）</span>
+<span class="n">is_student</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="n">is_robot</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id15">
+<h2>5. 条件分岐：もしも〜なら<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h2>
+<section id="if">
+<h3>5.1 if文の基本<a class="headerlink" href="#if" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">temperature</span> <span class="o">=</span> <span class="mi">25</span>
+
+<span class="k">if</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;今日は暑いですね&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">temperature</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;過ごしやすい気温です&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;少し涼しいですね&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h3>5.2 ロボットの動作制御<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">battery_level</span> <span class="o">=</span> <span class="mi">80</span>
+
+<span class="k">if</span> <span class="n">battery_level</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ロボットは元気に動けます&quot;</span><span class="p">)</span>
+    <span class="n">can_move</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;充電が必要です&quot;</span><span class="p">)</span>
+    <span class="n">can_move</span> <span class="o">=</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id17">
+<h2>6. 繰り返しの魔法：ループ<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<section id="for">
+<h3>6.1 for文：決まった回数繰り返す<a class="headerlink" href="#for" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1から5まで数える</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;カウント: </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># ロボットの歩数をカウント</span>
+<span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;歩数: </span><span class="si">{</span><span class="n">step</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="while">
+<h3>6.2 while文：条件が満たされている間繰り返す<a class="headerlink" href="#while" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">battery</span> <span class="o">=</span> <span class="mi">100</span>
+
+<span class="k">while</span> <span class="n">battery</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;バッテリー残量: </span><span class="si">{</span><span class="n">battery</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    <span class="n">battery</span> <span class="o">-=</span> <span class="mi">10</span>  <span class="c1"># 10%ずつ減らす</span>
+    
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;バッテリーが空になりました&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id18">
+<h2>7. リスト：複数の値をまとめて管理<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h2>
+<section id="id19">
+<h3>7.1 リストの基本<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ロボットの関節角度リスト</span>
+<span class="n">joint_angles</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+<span class="c1"># リストの要素にアクセス</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;1番目の関節: </span><span class="si">{</span><span class="n">joint_angles</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">度&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;3番目の関節: </span><span class="si">{</span><span class="n">joint_angles</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">度&quot;</span><span class="p">)</span>
+
+<span class="c1"># リストの長さ</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;関節の数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">joint_angles</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id20">
+<h3>7.2 リストの操作<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 新しい角度を追加</span>
+<span class="n">joint_angles</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">30</span><span class="p">)</span>
+
+<span class="c1"># 全ての角度を表示</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">angle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">joint_angles</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;関節</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">angle</span><span class="si">}</span><span class="s2">度&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id21">
+<h2>8. 関数：処理をまとめよう<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h2>
+<section id="id22">
+<h3>8.1 関数の基本<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">greet_robot</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;こんにちは、ロボット！&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;今日も一緒に学びましょう！&quot;</span><span class="p">)</span>
+
+<span class="c1"># 関数を呼び出す</span>
+<span class="n">greet_robot</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id23">
+<h3>8.2 引数を持つ関数<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">move_robot</span><span class="p">(</span><span class="n">distance</span><span class="p">,</span> <span class="n">direction</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ロボットが</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">に</span><span class="si">{</span><span class="n">distance</span><span class="si">}</span><span class="s2">cm移動します&quot;</span><span class="p">)</span>
+
+<span class="c1"># 関数を使う</span>
+<span class="n">move_robot</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;前&quot;</span><span class="p">)</span>
+<span class="n">move_robot</span><span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;右&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id24">
+<h3>8.3 戻り値を持つ関数<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">calculate_distance</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">y1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">y2</span><span class="p">):</span>
+    <span class="n">distance</span> <span class="o">=</span> <span class="p">((</span><span class="n">x2</span> <span class="o">-</span> <span class="n">x1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">y2</span> <span class="o">-</span> <span class="n">y1</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
+    <span class="k">return</span> <span class="n">distance</span>
+
+<span class="c1"># 2点間の距離を計算</span>
+<span class="n">dist</span> <span class="o">=</span> <span class="n">calculate_distance</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;距離: </span><span class="si">{</span><span class="n">dist</span><span class="si">}</span><span class="s2">cm&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id25">
+<h2>9. 実践：ロボットシミュレーター<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h2>
+<p>これまで学んだことを使って、簡単なロボットシミュレーターを作ってみましょう！</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">SimpleRobot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">battery</span> <span class="o">=</span> <span class="mi">100</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">direction</span><span class="p">,</span> <span class="n">distance</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">battery</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">のバッテリーが空です&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+            
+        <span class="k">if</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;前&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">+=</span> <span class="n">distance</span>
+        <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;後&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-=</span> <span class="n">distance</span>
+        <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;右&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">+=</span> <span class="n">distance</span>
+        <span class="k">elif</span> <span class="n">direction</span> <span class="o">==</span> <span class="s2">&quot;左&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-=</span> <span class="n">distance</span>
+            
+        <span class="bp">self</span><span class="o">.</span><span class="n">battery</span> <span class="o">-=</span> <span class="mi">5</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">が</span><span class="si">{</span><span class="n">direction</span><span class="si">}</span><span class="s2">に</span><span class="si">{</span><span class="n">distance</span><span class="si">}</span><span class="s2">cm移動しました&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;現在位置: (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;バッテリー残量: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;=== </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">の状態 ===&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;位置: (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;バッテリー: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">battery</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="c1"># ロボットを作成</span>
+<span class="n">my_robot</span> <span class="o">=</span> <span class="n">SimpleRobot</span><span class="p">(</span><span class="s2">&quot;JEDY&quot;</span><span class="p">)</span>
+
+<span class="c1"># ロボットを動かす</span>
+<span class="n">my_robot</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="s2">&quot;前&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+<span class="n">my_robot</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="s2">&quot;右&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+<span class="n">my_robot</span><span class="o">.</span><span class="n">move</span><span class="p">(</span><span class="s2">&quot;後&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+
+<span class="c1"># 状態を確認</span>
+<span class="n">my_robot</span><span class="o">.</span><span class="n">status</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id26">
+<h2>10. 練習問題<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h2>
+<section id="id27">
+<h3>問題1: 温度変換器<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h3>
+<p>摂氏温度を華氏温度に変換するプログラムを作ってください。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">celsius_to_fahrenheit</span><span class="p">(</span><span class="n">celsius</span><span class="p">):</span>
+    <span class="c1"># ここにコードを書いてください</span>
+    <span class="k">pass</span>
+
+<span class="c1"># テスト</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">celsius_to_fahrenheit</span><span class="p">(</span><span class="mi">25</span><span class="p">))</span>  <span class="c1"># 結果: 77.0</span>
+</pre></div>
+</div>
+</section>
+<section id="id28">
+<h3>問題2: ロボットの歩数カウンター<a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h3>
+<p>ロボットが歩いた歩数を記録し、合計歩数と平均歩幅を計算するプログラムを作ってください。</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">33</span><span class="p">]</span>
+
+<span class="c1"># 合計歩数を計算</span>
+<span class="n">total_steps</span> <span class="o">=</span> <span class="c1"># ここにコードを書いてください</span>
+
+<span class="c1"># 平均歩幅を計算</span>
+<span class="n">average_step</span> <span class="o">=</span> <span class="c1"># ここにコードを書いてください</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;合計歩数: </span><span class="si">{</span><span class="n">total_steps</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;平均歩幅: </span><span class="si">{</span><span class="n">average_step</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">cm&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id29">
+<h2>11. まとめ<a class="headerlink" href="#id29" title="Permalink to this heading">#</a></h2>
+<p>この章では、Pythonの基本的な文法を学びました：</p>
+<ul class="simple">
+<li><p><strong>変数</strong>: 値を保存する</p></li>
+<li><p><strong>条件分岐</strong>: 状況に応じて処理を変える</p></li>
+<li><p><strong>ループ</strong>: 繰り返し処理</p></li>
+<li><p><strong>リスト</strong>: 複数の値をまとめて管理</p></li>
+<li><p><strong>関数</strong>: 処理をまとめて再利用</p></li>
+<li><p><strong>クラス</strong>: データと処理をまとめた設計図</p></li>
+</ul>
+<p>これらの知識を使って、次の章では実際のロボット制御プログラムを作っていきます！</p>
+</section>
+<section id="id30">
+<h2>12. 次のステップ<a class="headerlink" href="#id30" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="ros-basics/index.html"><span class="std std-doc">ROS基礎</span></a>: ROSの基本概念を学ぶ</p></li>
+<li><p><a class="reference internal" href="robot-control/index.html"><span class="std std-doc">ロボット制御</span></a>: scikit-robotでロボットを動かす</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>💡 ヒント</strong>: プログラミングは実際に手を動かすことが大切です。サンプルコードを自分で入力して、動かしてみましょう！</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="linux-tutorial/bonus/easter_eggs.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🥚 イースターエッグ &amp; ボーナスチャレンジ</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="python-robot-examples.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Python ロボット制御実践例</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">この章で学ぶこと</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">1. Pythonって何？</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">2. Pythonの世界に入ろう</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">2.1 もっと使いやすいPython環境を準備しよう</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ipython">IPythonって何？✨</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">IPythonをインストールしよう</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">IPythonを起動する</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">IPythonの便利な機能</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">2.2 Pythonを起動する（従来版）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#print">2.3 最初の魔法：print関数</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">3. 数の魔法：計算をしてみよう</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">3.1 基本的な計算</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">3.2 ロボットの移動距離を計算</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">4. 記憶の魔法：変数を使おう</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">4.1 変数って何？</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">4.2 変数の種類</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">5. 条件分岐：もしも〜なら</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#if">5.1 if文の基本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">5.2 ロボットの動作制御</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">6. 繰り返しの魔法：ループ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#for">6.1 for文：決まった回数繰り返す</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#while">6.2 while文：条件が満たされている間繰り返す</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">7. リスト：複数の値をまとめて管理</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">7.1 リストの基本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">7.2 リストの操作</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">8. 関数：処理をまとめよう</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">8.1 関数の基本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">8.2 引数を持つ関数</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">8.3 戻り値を持つ関数</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">9. 実践：ロボットシミュレーター</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">10. 練習問題</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">問題1: 温度変換器</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">問題2: ロボットの歩数カウンター</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">11. まとめ</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">12. 次のステップ</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/python-basics.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/python-basics.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

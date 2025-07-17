@@ -1,0 +1,897 @@
+# 🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦
+
+## ミッション概要
+
+君たちは、失われたロボット基地との通信を復旧させる通信専門チームの一員だ。各地に散らばったロボットたちとの接続を確立し、重要なデータを回収する任務に就いた。
+
+ネットワークコマンドを駆使して、すべてのロボットとの通信を回復させ、ロボット・ネットワークを再構築せよ！
+
+---
+
+## 🔍 レベル1: 偵察ミッション - Ping Master
+
+### ミッション1-1: ネットワーク生存確認
+
+**背景**: 長い間沈黙を続けていたロボット基地からの信号を検出した。まずは基本的な通信が可能か確認せよ。
+
+**クエスト**: 各種ネットワークターゲットとの通信状況を調査する
+
+```bash
+# 1. インターネット接続の確認
+ping -c 4 8.8.8.8
+
+# 2. DNS動作確認
+ping -c 4 google.com
+
+# 3. ローカルネットワーク確認（ルーター）
+ping -c 4 192.168.1.1
+
+# 4. 自分自身への通信確認
+ping -c 4 localhost
+```
+
+**調査項目**:
+- 各pingの応答時間（ms）を記録
+- パケット損失率を確認
+- 最も早い応答時間を特定
+
+🏁 **FLAG{network_scout_activated}**
+
+### ミッション1-2: 通信品質の分析
+
+**背景**: 複数のロボット基地との通信品質を詳しく分析し、最適な通信ルートを決定する必要がある。
+
+**クエスト**: より詳細なネットワーク分析を実行せよ
+
+```bash
+# 長時間の通信テスト（30秒間）
+timeout 30 ping google.com
+
+# 大きなパケットでのテスト
+ping -s 1000 -c 5 google.com
+
+# 高頻度での通信テスト
+ping -i 0.2 -c 10 8.8.8.8
+
+# IPv6での通信テスト
+ping6 -c 3 ::1
+```
+
+**分析項目**:
+- 平均応答時間
+- 最大・最小応答時間
+- ジッター（応答時間のばらつき）
+
+🏁 **FLAG{ping_analyzer_pro}**
+
+### ミッション1-3: 失われた基地の発見
+
+**背景**: 古い記録から、いくつかのIPアドレスが見つかった。これらの基地がまだ生きているか確認せよ。
+
+**クエスト**: 複数のターゲットに対する一括調査を実行
+
+```bash
+# テスト用の疑似IPリストを作成
+echo "127.0.0.1
+8.8.8.8
+192.168.1.1
+1.1.1.1
+208.67.222.222" > target_list.txt
+
+# 各ターゲットへの ping テスト
+while read ip; do
+    echo "Testing $ip..."
+    if ping -c 2 -W 3 $ip > /dev/null 2>&1; then
+        echo "✅ $ip is ALIVE"
+    else
+        echo "❌ $ip is DOWN"
+    fi
+done < target_list.txt
+```
+
+**成功条件**: 生存している基地の数を特定し、リストを作成
+
+🏁 **FLAG{base_discovery_complete}**
+
+---
+
+## 🔐 レベル2: 潜入ミッション - SSH Infiltration
+
+### ミッション2-1: ローカル侵入訓練
+
+**背景**: 実際のロボット基地に侵入する前に、ローカル環境で SSH 接続の訓練を行う。
+
+**クエスト**: 自分のマシンへのSSH接続をマスターせよ
+
+```bash
+# SSH サーバーがインストールされているか確認
+which sshd || echo "SSH server not found"
+
+# SSH サーバーの状態確認
+systemctl status ssh || systemctl status sshd
+
+# 必要に応じてSSHサーバーをインストール
+# sudo apt install openssh-server
+
+# localhost への接続テスト
+ssh localhost
+
+# 詳細なログでの接続確認
+ssh -v localhost
+
+# 特定のポートでの接続テスト
+ssh -p 22 localhost
+```
+
+**確認項目**:
+- SSH接続が成功するか
+- 接続時の認証方法
+- 接続後のプロンプト表示
+
+🏁 **FLAG{ssh_local_master}**
+
+### ミッション2-2: セキュア通信の確立
+
+**背景**: より安全な通信を確立するため、SSH鍵認証システムを構築せよ。
+
+**クエスト**: SSH鍵ペアを作成し、鍵認証を設定する
+
+```bash
+# SSH鍵ペアの生成
+ssh-keygen -t ed25519 -f ~/.ssh/id_quest_robot -C "robot-quest-$(date +%Y%m%d)"
+
+# 鍵ファイルの確認
+ls -la ~/.ssh/id_quest_robot*
+
+# 公開鍵の内容を確認
+cat ~/.ssh/id_quest_robot.pub
+
+# 公開鍵を authorized_keys に追加（ローカルテスト用）
+cat ~/.ssh/id_quest_robot.pub >> ~/.ssh/authorized_keys
+
+# 鍵ファイルの権限を正しく設定
+chmod 600 ~/.ssh/id_quest_robot
+chmod 644 ~/.ssh/id_quest_robot.pub
+chmod 700 ~/.ssh
+chmod 600 ~/.ssh/authorized_keys
+
+# 新しい鍵での接続テスト
+ssh -i ~/.ssh/id_quest_robot localhost
+```
+
+**成功条件**: パスワード入力なしでSSH接続が可能
+
+🏁 **FLAG{crypto_key_master}**
+
+### ミッション2-3: 高度な接続テクニック
+
+**背景**: 複雑なネットワーク環境でも確実に接続できる高度な技術を習得せよ。
+
+**クエスト**: SSH設定ファイルを活用した効率的な接続管理
+
+```bash
+# SSH設定ファイルを作成
+cat > ~/.ssh/config_quest << 'EOF'
+Host robot-local
+    HostName localhost
+    User $(whoami)
+    Port 22
+    IdentityFile ~/.ssh/id_quest_robot
+    ConnectTimeout 10
+    ServerAliveInterval 60
+
+Host robot-backup
+    HostName 127.0.0.1
+    User $(whoami)
+    Port 22
+    IdentityFile ~/.ssh/id_quest_robot
+    ProxyCommand nc -X connect -x 127.0.0.1:1080 %h %p
+
+Host robot-*
+    User robot
+    IdentityFile ~/.ssh/id_quest_robot
+    StrictHostKeyChecking no
+    UserKnownHostsFile /dev/null
+    LogLevel ERROR
+EOF
+
+# 設定ファイルを使った接続テスト
+ssh -F ~/.ssh/config_quest robot-local
+
+# 接続エイリアスの作成
+echo "alias sshquest='ssh -F ~/.ssh/config_quest'" >> ~/.bashrc
+source ~/.bashrc
+```
+
+🏁 **FLAG{ssh_config_ninja}**
+
+---
+
+## 📁 レベル3: データ回収ミッション - File Transfer Operations
+
+### ミッション3-1: 緊急データ救出
+
+**背景**: ロボット基地から重要なデータファイルを緊急回収する必要がある。
+
+**クエスト**: SCP を使ったファイル転送操作をマスターせよ
+
+```bash
+# 回収対象のテストデータを作成
+mkdir -p ~/robot_data_recovery
+cd ~/robot_data_recovery
+
+# 模擬的なロボットデータファイルを作成
+cat > robot_status.json << 'EOF'
+{
+  "robot_id": "JEDY-001",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "battery_level": 87,
+  "location": {"x": 10.5, "y": -3.2, "z": 0.1},
+  "sensors": {
+    "camera": "active",
+    "lidar": "active",
+    "ultrasonic": "warning"
+  },
+  "mission_status": "data_recovery_in_progress"
+}
+EOF
+
+cat > sensor_logs.txt << 'EOF'
+2024-01-15 10:25:00 [INFO] Camera initialization complete
+2024-01-15 10:25:01 [INFO] LiDAR calibration successful
+2024-01-15 10:25:02 [WARN] Ultrasonic sensor interference detected
+2024-01-15 10:25:03 [INFO] Navigation system online
+2024-01-15 10:25:04 [INFO] Mission parameters loaded
+2024-01-15 10:25:05 [INFO] Autonomous mode activated
+EOF
+
+echo "SECRET_ROBOT_CODES=ALPHA-7739-BETA-2156" > secret_codes.env
+
+# ファイル転送の練習（localhost を模擬リモートとして使用）
+# 単一ファイルの転送
+scp robot_status.json localhost:/tmp/
+
+# 複数ファイルの転送
+scp *.txt *.env localhost:/tmp/
+
+# ディレクトリ全体の転送
+cd ..
+scp -r robot_data_recovery localhost:/tmp/
+
+# 転送結果の確認
+ssh localhost "ls -la /tmp/robot_*"
+ssh localhost "cat /tmp/robot_status.json"
+```
+
+**成功条件**: すべてのファイルが正常に転送されることを確認
+
+🏁 **FLAG{data_extraction_success}**
+
+### ミッション3-2: 高速大容量データ同期
+
+**背景**: 大量のセンサーデータを効率的に同期する必要がある。rsyncを使った高度な同期技術を習得せよ。
+
+**クエスト**: rsync を使った効率的なデータ同期
+
+```bash
+# 大量データの模擬作成
+mkdir -p ~/massive_robot_data/{logs,images,videos,configs}
+
+# ログファイルの生成
+for i in {1..100}; do
+    echo "2024-01-15 $(printf '%02d' $((i % 24))):$(printf '%02d' $((i % 60))):00 [INFO] Robot operation log entry $i" > ~/massive_robot_data/logs/robot_log_$i.txt
+done
+
+# 設定ファイルの生成
+for config in motor_control sensor_calibration navigation_params; do
+    echo "# $config configuration
+param_1=value_$RANDOM
+param_2=value_$RANDOM
+param_3=value_$RANDOM" > ~/massive_robot_data/configs/$config.conf
+done
+
+# 模擬画像ファイルの作成
+for i in {1..20}; do
+    dd if=/dev/urandom of=~/massive_robot_data/images/sensor_image_$i.raw bs=1024 count=100 2>/dev/null
+done
+
+# rsync による同期
+# 基本的な同期
+rsync -av ~/massive_robot_data/ localhost:/tmp/synced_robot_data/
+
+# 進行状況付きの同期
+rsync -av --progress ~/massive_robot_data/ localhost:/tmp/synced_robot_data/
+
+# 除外パターンを使った同期
+rsync -av --exclude='*.raw' --exclude='logs/' ~/massive_robot_data/ localhost:/tmp/filtered_robot_data/
+
+# 削除同期（危険な操作なので注意）
+rsync -av --delete ~/massive_robot_data/ localhost:/tmp/exact_robot_data/
+
+# 同期結果の確認
+ssh localhost "du -sh /tmp/*robot_data*"
+ssh localhost "find /tmp/synced_robot_data -type f | wc -l"
+```
+
+🏁 **FLAG{sync_master_unlocked}**
+
+### ミッション3-3: 自動化バックアップシステム
+
+**背景**: 定期的なデータバックアップシステムを構築し、データ損失を防げ。
+
+**クエスト**: 自動化されたバックアップスクリプトを作成
+
+```bash
+# 自動バックアップスクリプトの作成
+cat > ~/robot_backup.sh << 'EOF'
+#!/bin/bash
+
+# ロボットデータ自動バックアップスクリプト
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+SOURCE_DIR="$HOME/massive_robot_data"
+BACKUP_BASE="/tmp/robot_backups"
+BACKUP_DIR="$BACKUP_BASE/backup_$TIMESTAMP"
+LOG_FILE="$BACKUP_BASE/backup.log"
+
+# バックアップディレクトリの作成
+mkdir -p "$BACKUP_BASE"
+
+# ログ関数
+log_message() {
+    echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" | tee -a "$LOG_FILE"
+}
+
+log_message "=== Robot Data Backup Started ==="
+log_message "Source: $SOURCE_DIR"
+log_message "Destination: $BACKUP_DIR"
+
+# 事前チェック
+if [ ! -d "$SOURCE_DIR" ]; then
+    log_message "ERROR: Source directory not found: $SOURCE_DIR"
+    exit 1
+fi
+
+# ディスク容量チェック
+REQUIRED_SPACE=$(du -s "$SOURCE_DIR" | cut -f1)
+AVAILABLE_SPACE=$(df /tmp | awk 'NR==2 {print $4}')
+
+if [ "$REQUIRED_SPACE" -gt "$AVAILABLE_SPACE" ]; then
+    log_message "ERROR: Insufficient disk space"
+    exit 1
+fi
+
+# バックアップ実行
+log_message "Starting data synchronization..."
+if rsync -av --stats "$SOURCE_DIR/" "$BACKUP_DIR/" 2>&1 | tee -a "$LOG_FILE"; then
+    log_message "SUCCESS: Backup completed successfully"
+    
+    # バックアップサイズの記録
+    BACKUP_SIZE=$(du -sh "$BACKUP_DIR" | cut -f1)
+    log_message "Backup size: $BACKUP_SIZE"
+    
+    # 古いバックアップの清理（最新5つを保持）
+    ls -t "$BACKUP_BASE"/backup_* | tail -n +6 | xargs -r rm -rf
+    log_message "Old backups cleaned up"
+    
+else
+    log_message "ERROR: Backup failed"
+    exit 1
+fi
+
+log_message "=== Robot Data Backup Completed ==="
+EOF
+
+# スクリプトに実行権限を付与
+chmod +x ~/robot_backup.sh
+
+# バックアップ実行
+~/robot_backup.sh
+
+# バックアップ結果の確認
+ls -la /tmp/robot_backups/
+cat /tmp/robot_backups/backup.log
+```
+
+🏁 **FLAG{backup_automation_master}**
+
+---
+
+## 🌉 レベル4: 高度な通信技術 - Advanced Networking
+
+### ミッション4-1: ポートフォワーディング作戦
+
+**背景**: 複雑なネットワーク構成で隠されたロボットサービスにアクセスする必要がある。
+
+**クエスト**: SSH ポートフォワーディングを使った高度なアクセス技術
+
+```bash
+# ローカルWebサーバーを起動（模擬ロボットサービス）
+python3 -m http.server 8080 &
+SERVER_PID=$!
+
+# ローカルポートフォワーディングのテスト
+# ポート9090経由でローカルの8080にアクセス
+ssh -L 9090:localhost:8080 localhost -N &
+FORWARD_PID=$!
+
+# 接続テスト
+sleep 2
+curl -s http://localhost:9090 | head -5
+
+# 動的ポートフォワーディング（SOCKSプロキシ）
+ssh -D 1080 localhost -N &
+SOCKS_PID=$!
+
+# SOCKSプロキシ経由での接続テスト
+curl -s --socks5 localhost:1080 http://httpbin.org/ip
+
+# クリーンアップ
+kill $SERVER_PID $FORWARD_PID $SOCKS_PID 2>/dev/null
+```
+
+🏁 **FLAG{tunnel_master_activated}**
+
+### ミッション4-2: マルチホップ接続
+
+**背景**: 複数のサーバーを経由してターゲットにアクセスする必要がある。
+
+**クエスト**: ProxyCommand を使った多段接続
+
+```bash
+# 多段接続設定の作成
+cat >> ~/.ssh/config_quest << 'EOF'
+
+Host jump-server
+    HostName localhost
+    User $(whoami)
+    Port 22
+    IdentityFile ~/.ssh/id_quest_robot
+
+Host target-robot
+    HostName localhost
+    User $(whoami)
+    Port 22
+    ProxyCommand ssh -F ~/.ssh/config_quest jump-server -W %h:%p
+    IdentityFile ~/.ssh/id_quest_robot
+EOF
+
+# 多段接続のテスト
+ssh -F ~/.ssh/config_quest target-robot "echo 'Multi-hop connection successful!'"
+
+# ファイル転送での多段接続
+echo "Secret robot data from target" > secret_data.txt
+scp -F ~/.ssh/config_quest secret_data.txt target-robot:/tmp/
+ssh -F ~/.ssh/config_quest target-robot "cat /tmp/secret_data.txt"
+```
+
+🏁 **FLAG{multihop_specialist}**
+
+### ミッション4-3: セッション管理とX11転送
+
+**背景**: GUI アプリケーションのリモート実行とセッション永続化技術を習得せよ。
+
+**クエスト**: 高度なセッション管理技術
+
+```bash
+# X11転送のテスト（GUIアプリケーション）
+ssh -X localhost "echo 'X11 forwarding test'; which xeyes && xeyes &"
+
+# セッション永続化のためのscreen/tmuxセッション
+ssh localhost "which tmux && tmux new-session -d -s robot-session 'top'"
+ssh localhost "tmux list-sessions"
+ssh localhost "tmux send-keys -t robot-session 'echo Robot session active' Enter"
+
+# セッションへの再接続
+ssh localhost "tmux attach-session -t robot-session"
+
+# KeepAlive設定での長時間接続
+ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=3 localhost "sleep 300 && echo 'Long session completed'"
+```
+
+🏁 **FLAG{session_master_elite}**
+
+---
+
+## 🛡️ レベル5: セキュリティ・トラブルシューティング
+
+### ミッション5-1: セキュリティ強化作戦
+
+**背景**: ロボットネットワークのセキュリティを最高レベルまで引き上げよ。
+
+**クエスト**: SSH セキュリティの最適化
+
+```bash
+# セキュアなSSH設定の作成
+sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.backup
+
+# セキュリティ強化設定（実際の環境では注意して実行）
+cat > ~/secure_ssh_config << 'EOF'
+# セキュア SSH 設定
+Port 2222
+Protocol 2
+PermitRootLogin no
+PubkeyAuthentication yes
+PasswordAuthentication no
+PermitEmptyPasswords no
+MaxAuthTries 3
+MaxSessions 5
+ClientAliveInterval 300
+ClientAliveCountMax 2
+LoginGraceTime 60
+AllowUsers $(whoami)
+DenyUsers root
+EOF
+
+# SSH鍵の強化
+ssh-keygen -t ed25519 -a 100 -f ~/.ssh/id_ultra_secure -C "ultra-secure-$(date +%Y%m%d)"
+
+# 鍵の権限設定
+chmod 400 ~/.ssh/id_ultra_secure
+chmod 444 ~/.ssh/id_ultra_secure.pub
+
+# セキュア接続のテスト
+ssh -i ~/.ssh/id_ultra_secure -o StrictHostKeyChecking=yes localhost "echo 'Secure connection established'"
+```
+
+🏁 **FLAG{security_fortress_built}**
+
+### ミッション5-2: ネットワーク診断マスター
+
+**背景**: 複雑なネットワーク問題を診断・解決する技術を身につけよ。
+
+**クエスト**: 総合的なネットワーク診断ツールの作成
+
+```bash
+# ネットワーク診断スクリプトの作成
+cat > ~/network_diagnostics.sh << 'EOF'
+#!/bin/bash
+
+echo "🔍 Robot Network Diagnostics Tool"
+echo "=================================="
+
+# 基本的なネットワーク情報
+echo "📡 Network Interfaces:"
+ip addr show | grep -E "(inet |inet6 )" | awk '{print "  " $2}'
+
+echo ""
+echo "🌐 Routing Table:"
+ip route | head -5 | while read line; do echo "  $line"; done
+
+echo ""
+echo "📶 DNS Configuration:"
+cat /etc/resolv.conf | grep -v "^#" | while read line; do echo "  $line"; done
+
+echo ""
+echo "🏓 Connectivity Tests:"
+
+# 接続テスト対象
+TARGETS=("8.8.8.8" "1.1.1.1" "google.com" "localhost")
+
+for target in "${TARGETS[@]}"; do
+    if ping -c 2 -W 3 "$target" >/dev/null 2>&1; then
+        RTT=$(ping -c 1 "$target" 2>/dev/null | grep "time=" | grep -o "time=[0-9.]*" | cut -d= -f2)
+        echo "  ✅ $target (${RTT}ms)"
+    else
+        echo "  ❌ $target (unreachable)"
+    fi
+done
+
+echo ""
+echo "🔐 SSH Service Status:"
+if systemctl is-active --quiet ssh || systemctl is-active --quiet sshd; then
+    echo "  ✅ SSH service is running"
+    echo "  📊 Active SSH connections:"
+    who | grep -c "pts" | awk '{print "     Active sessions: " $1}'
+else
+    echo "  ❌ SSH service is not running"
+fi
+
+echo ""
+echo "🔧 Network Performance:"
+echo "  📈 Network statistics:"
+cat /proc/net/dev | grep -E "(lo|eth|wlan)" | while read line; do
+    interface=$(echo $line | cut -d: -f1 | tr -d ' ')
+    rx_bytes=$(echo $line | awk '{print $2}')
+    tx_bytes=$(echo $line | awk '{print $10}')
+    rx_mb=$((rx_bytes / 1024 / 1024))
+    tx_mb=$((tx_bytes / 1024 / 1024))
+    echo "     $interface: RX ${rx_mb}MB, TX ${tx_mb}MB"
+done
+
+echo ""
+echo "🎯 Diagnostic Complete!"
+EOF
+
+chmod +x ~/network_diagnostics.sh
+~/network_diagnostics.sh
+```
+
+🏁 **FLAG{diagnostic_wizard}**
+
+### ミッション5-3: 緊急通信復旧システム
+
+**背景**: 通信障害時の緊急復旧手順を確立せよ。
+
+**クエスト**: 自動復旧システムの構築
+
+```bash
+# 緊急復旧スクリプトの作成
+cat > ~/emergency_recovery.sh << 'EOF'
+#!/bin/bash
+
+echo "🚨 Emergency Network Recovery System"
+echo "==================================="
+
+TARGETS=("8.8.8.8" "1.1.1.1" "localhost")
+RECOVERY_LOG="/tmp/recovery_$(date +%Y%m%d_%H%M%S).log"
+
+log_action() {
+    echo "[$(date '+%H:%M:%S')] $1" | tee -a "$RECOVERY_LOG"
+}
+
+check_connectivity() {
+    for target in "${TARGETS[@]}"; do
+        if ping -c 2 -W 3 "$target" >/dev/null 2>&1; then
+            log_action "✅ Connectivity to $target: OK"
+            return 0
+        else
+            log_action "❌ Connectivity to $target: FAILED"
+        fi
+    done
+    return 1
+}
+
+recover_network() {
+    log_action "🔧 Starting network recovery procedures..."
+    
+    # 1. ネットワークインターフェースの再起動
+    log_action "Restarting network interfaces..."
+    sudo ip link set lo down 2>/dev/null || true
+    sudo ip link set lo up 2>/dev/null || true
+    
+    # 2. DNS設定の確認
+    if [ ! -f "/etc/resolv.conf" ] || [ ! -s "/etc/resolv.conf" ]; then
+        log_action "Restoring DNS configuration..."
+        echo "nameserver 8.8.8.8" | sudo tee /etc/resolv.conf.recovery >/dev/null
+    fi
+    
+    # 3. SSH サービスの確認
+    if ! systemctl is-active --quiet ssh && ! systemctl is-active --quiet sshd; then
+        log_action "Attempting to restart SSH service..."
+        sudo systemctl start ssh 2>/dev/null || sudo systemctl start sshd 2>/dev/null || true
+    fi
+    
+    log_action "🔧 Recovery procedures completed"
+}
+
+main() {
+    log_action "🚨 Emergency recovery system activated"
+    
+    if check_connectivity; then
+        log_action "✅ Network connectivity is operational"
+    else
+        log_action "❌ Network connectivity issues detected"
+        recover_network
+        
+        # 再テスト
+        sleep 5
+        if check_connectivity; then
+            log_action "✅ Network recovery successful!"
+        else
+            log_action "❌ Network recovery failed - manual intervention required"
+        fi
+    fi
+    
+    log_action "📋 Recovery log saved to: $RECOVERY_LOG"
+    echo "📋 Full log available at: $RECOVERY_LOG"
+}
+
+main
+EOF
+
+chmod +x ~/emergency_recovery.sh
+~/emergency_recovery.sh
+```
+
+🏁 **FLAG{emergency_recovery_online}**
+
+---
+
+## 🏆 最終ミッション: ロボット通信司令部の構築
+
+### 最終チャレンジ: 統合通信システムの完成
+
+**背景**: すべての技術を結集し、完全なロボット通信管理システムを構築せよ。
+
+**クエスト**: 統合通信管理ダッシュボードの作成
+
+```bash
+# 統合システム管理スクリプトの作成
+cat > ~/robot_command_center.sh << 'EOF'
+#!/bin/bash
+
+# ロボット通信司令部システム
+ROBOTS_CONFIG="$HOME/.robot_fleet.conf"
+LOGS_DIR="$HOME/robot_logs"
+mkdir -p "$LOGS_DIR"
+
+# 設定ファイルの初期化
+if [ ! -f "$ROBOTS_CONFIG" ]; then
+    cat > "$ROBOTS_CONFIG" << EOC
+# Robot Fleet Configuration
+# Format: name,ip,port,user,key_file
+robot-alpha,127.0.0.1,22,$(whoami),~/.ssh/id_quest_robot
+robot-beta,localhost,22,$(whoami),~/.ssh/id_quest_robot
+robot-gamma,127.0.0.1,22,$(whoami),~/.ssh/id_ed25519
+EOC
+fi
+
+show_menu() {
+    clear
+    echo "🤖 ROBOT COMMUNICATION COMMAND CENTER 🤖"
+    echo "=========================================="
+    echo "1. 📡 Fleet Status Check"
+    echo "2. 🔗 Connect to Robot"
+    echo "3. 📁 File Transfer"
+    echo "4. 📊 System Diagnostics"
+    echo "5. 🚨 Emergency Recovery"
+    echo "6. 📋 View Logs"
+    echo "7. ⚙️  Fleet Configuration"
+    echo "0. 🚪 Exit"
+    echo "=========================================="
+    read -p "Select option [0-7]: " choice
+}
+
+fleet_status() {
+    echo "🔍 Checking fleet status..."
+    echo "Robot Name       Status    Response Time"
+    echo "----------------------------------------"
+    
+    while IFS=',' read -r name ip port user key; do
+        if [[ $name =~ ^# ]] || [ -z "$name" ]; then continue; fi
+        
+        if ping -c 2 -W 3 "$ip" >/dev/null 2>&1; then
+            rtt=$(ping -c 1 "$ip" 2>/dev/null | grep "time=" | grep -o "time=[0-9.]*" | cut -d= -f2)
+            printf "%-15s ✅ ONLINE   %s\n" "$name" "${rtt}ms"
+        else
+            printf "%-15s ❌ OFFLINE  ---\n" "$name"
+        fi
+    done < "$ROBOTS_CONFIG"
+}
+
+connect_robot() {
+    echo "🔗 Available robots:"
+    awk -F, '!/^#/ && NF>1 {print NR-1 ". " $1}' "$ROBOTS_CONFIG"
+    read -p "Select robot number: " num
+    
+    robot_info=$(awk -F, -v n=$((num+1)) 'NR==n && !/^#/ {print}' "$ROBOTS_CONFIG")
+    if [ -n "$robot_info" ]; then
+        name=$(echo "$robot_info" | cut -d, -f1)
+        ip=$(echo "$robot_info" | cut -d, -f2)
+        port=$(echo "$robot_info" | cut -d, -f3)
+        user=$(echo "$robot_info" | cut -d, -f4)
+        key=$(echo "$robot_info" | cut -d, -f5)
+        
+        echo "Connecting to $name ($ip)..."
+        ssh -i "${key/#\~/$HOME}" -p "$port" "$user@$ip"
+    else
+        echo "Invalid robot selection"
+    fi
+}
+
+file_transfer() {
+    echo "📁 File Transfer Options:"
+    echo "1. Upload to robot"
+    echo "2. Download from robot"
+    read -p "Select option [1-2]: " opt
+    
+    case $opt in
+        1)
+            read -p "Local file path: " local_file
+            read -p "Remote destination: " remote_path
+            echo "🚀 Upload functionality would be implemented here"
+            ;;
+        2)
+            read -p "Remote file path: " remote_file
+            read -p "Local destination: " local_path
+            echo "📥 Download functionality would be implemented here"
+            ;;
+    esac
+}
+
+system_diagnostics() {
+    echo "📊 Running system diagnostics..."
+    ~/network_diagnostics.sh 2>/dev/null || echo "Diagnostics script not found"
+}
+
+emergency_recovery() {
+    echo "🚨 Initiating emergency recovery..."
+    ~/emergency_recovery.sh 2>/dev/null || echo "Recovery script not found"
+}
+
+view_logs() {
+    echo "📋 Recent log files:"
+    ls -lt "$LOGS_DIR"/ 2>/dev/null | head -10 || echo "No logs found"
+}
+
+fleet_config() {
+    echo "⚙️ Fleet Configuration:"
+    echo "Current robots:"
+    cat "$ROBOTS_CONFIG"
+    echo ""
+    echo "Edit configuration? (y/n)"
+    read -r response
+    if [[ $response =~ ^[Yy] ]]; then
+        ${EDITOR:-nano} "$ROBOTS_CONFIG"
+    fi
+}
+
+main() {
+    while true; do
+        show_menu
+        case $choice in
+            1) fleet_status; read -p "Press Enter to continue..."; ;;
+            2) connect_robot; ;;
+            3) file_transfer; read -p "Press Enter to continue..."; ;;
+            4) system_diagnostics; read -p "Press Enter to continue..."; ;;
+            5) emergency_recovery; read -p "Press Enter to continue..."; ;;
+            6) view_logs; read -p "Press Enter to continue..."; ;;
+            7) fleet_config; ;;
+            0) echo "👋 Shutting down command center..."; exit 0; ;;
+            *) echo "Invalid option"; sleep 1; ;;
+        esac
+    done
+}
+
+main
+EOF
+
+chmod +x ~/robot_command_center.sh
+
+echo "🎉 Robot Command Center is ready!"
+echo "🚀 Launch with: ~/robot_command_center.sh"
+
+# デモ実行
+echo ""
+echo "🎬 Demo - Fleet Status Check:"
+~/robot_command_center.sh << 'DEMO'
+1
+
+0
+DEMO
+```
+
+🏁 **ULTIMATE_FLAG{network_command_master_2024}**
+
+---
+
+## 🎊 Network Quest 完全制覇！
+
+### 🏅 獲得したスキル
+
+- ✅ **ping マスタリー**: ネットワーク疎通確認と品質分析
+- ✅ **SSH エキスパート**: 安全なリモートアクセスと認証
+- ✅ **ファイル転送プロ**: SCP/rsync による効率的なデータ管理
+- ✅ **ポートフォワーディング**: 複雑なネットワーク構成への対応
+- ✅ **セキュリティ専門家**: SSH強化とセキュリティ最適化
+- ✅ **トラブルシューティング**: 障害診断と緊急復旧
+- ✅ **システム統合**: 包括的な通信管理システム構築
+
+### 🎯 実戦への応用
+
+Network Quest をマスターした君は、もう実際のロボット開発で：
+
+- **リモートロボット制御**: 安全で確実な遠隔操作
+- **データ収集システム**: 効率的なセンサーデータ管理
+- **チーム開発環境**: 複数開発者での共同作業
+- **トラブル対応**: 迅速な問題解決と復旧
+
+### 🚀 次のレベルへ
+
+ネットワーク通信をマスターしたら、実際のロボットプログラミングで：
+
+- **[🤖 ROSネットワーク通信](../ros-basics/index.md)** でロボット間通信
+- **[⚡ リアルタイム制御](../robot-control/index.md)** での低遅延通信
+- **[🔧 IoTデバイス連携](../arduino-basics/index.md)** でのセンサーネットワーク
+
+君はもう立派なネットワーク通信マスターだ！ロボットたちとの完璧な通信を実現しよう！

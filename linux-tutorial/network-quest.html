@@ -1,0 +1,1465 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦 &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'linux-tutorial/network-quest';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🏆 Linux Command Quest スコアボード" href="scoreboard.html" />
+    <link rel="prev" title="🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦" href="git-quest.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="basics.html">🐧 Linux基礎講座 - ターミナルの世界へようこそ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git-basics.html">🔧 Git入門 - ロボットプログラミングのバージョン管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="network-basics.html">🌐 ネットワーク基礎 - ロボットとの通信術</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quest.html">🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git-quest.html">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</a></li>
+
+
+
+
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoreboard.html">🏆 Linux Command Quest スコアボード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bonus/easter_eggs.html">🥚 イースターエッグ &amp; ボーナスチャレンジ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🐧 Linuxチュートリアル - ロボットプログラミングの第一歩</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="network-command-quest">
+<h1>🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦<a class="headerlink" href="#network-command-quest" title="Permalink to this heading">#</a></h1>
+<section id="id1">
+<h2>ミッション概要<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p>君たちは、失われたロボット基地との通信を復旧させる通信専門チームの一員だ。各地に散らばったロボットたちとの接続を確立し、重要なデータを回収する任務に就いた。</p>
+<p>ネットワークコマンドを駆使して、すべてのロボットとの通信を回復させ、ロボット・ネットワークを再構築せよ！</p>
+</section>
+<hr class="docutils" />
+<section id="ping-master">
+<h2>🔍 レベル1: 偵察ミッション - Ping Master<a class="headerlink" href="#ping-master" title="Permalink to this heading">#</a></h2>
+<section id="id2">
+<h3>ミッション1-1: ネットワーク生存確認<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 長い間沈黙を続けていたロボット基地からの信号を検出した。まずは基本的な通信が可能か確認せよ。</p>
+<p><strong>クエスト</strong>: 各種ネットワークターゲットとの通信状況を調査する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. インターネット接続の確認</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">8</span>.8.8.8
+
+<span class="c1"># 2. DNS動作確認</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>google.com
+
+<span class="c1"># 3. ローカルネットワーク確認（ルーター）</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">192</span>.168.1.1
+
+<span class="c1"># 4. 自分自身への通信確認</span>
+ping<span class="w"> </span>-c<span class="w"> </span><span class="m">4</span><span class="w"> </span>localhost
+</pre></div>
+</div>
+<p><strong>調査項目</strong>:</p>
+<ul class="simple">
+<li><p>各pingの応答時間（ms）を記録</p></li>
+<li><p>パケット損失率を確認</p></li>
+<li><p>最も早い応答時間を特定</p></li>
+</ul>
+<p>🏁 <strong>FLAG{network_scout_activated}</strong></p>
+</section>
+<section id="id3">
+<h3>ミッション1-2: 通信品質の分析<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 複数のロボット基地との通信品質を詳しく分析し、最適な通信ルートを決定する必要がある。</p>
+<p><strong>クエスト</strong>: より詳細なネットワーク分析を実行せよ</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 長時間の通信テスト（30秒間）</span>
+timeout<span class="w"> </span><span class="m">30</span><span class="w"> </span>ping<span class="w"> </span>google.com
+
+<span class="c1"># 大きなパケットでのテスト</span>
+ping<span class="w"> </span>-s<span class="w"> </span><span class="m">1000</span><span class="w"> </span>-c<span class="w"> </span><span class="m">5</span><span class="w"> </span>google.com
+
+<span class="c1"># 高頻度での通信テスト</span>
+ping<span class="w"> </span>-i<span class="w"> </span><span class="m">0</span>.2<span class="w"> </span>-c<span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">8</span>.8.8.8
+
+<span class="c1"># IPv6での通信テスト</span>
+ping6<span class="w"> </span>-c<span class="w"> </span><span class="m">3</span><span class="w"> </span>::1
+</pre></div>
+</div>
+<p><strong>分析項目</strong>:</p>
+<ul class="simple">
+<li><p>平均応答時間</p></li>
+<li><p>最大・最小応答時間</p></li>
+<li><p>ジッター（応答時間のばらつき）</p></li>
+</ul>
+<p>🏁 <strong>FLAG{ping_analyzer_pro}</strong></p>
+</section>
+<section id="id4">
+<h3>ミッション1-3: 失われた基地の発見<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 古い記録から、いくつかのIPアドレスが見つかった。これらの基地がまだ生きているか確認せよ。</p>
+<p><strong>クエスト</strong>: 複数のターゲットに対する一括調査を実行</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># テスト用の疑似IPリストを作成</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;127.0.0.1</span>
+<span class="s2">8.8.8.8</span>
+<span class="s2">192.168.1.1</span>
+<span class="s2">1.1.1.1</span>
+<span class="s2">208.67.222.222&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>target_list.txt
+
+<span class="c1"># 各ターゲットへの ping テスト</span>
+<span class="k">while</span><span class="w"> </span><span class="nb">read</span><span class="w"> </span>ip<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Testing </span><span class="nv">$ip</span><span class="s2">...&quot;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>ping<span class="w"> </span>-c<span class="w"> </span><span class="m">2</span><span class="w"> </span>-W<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="nv">$ip</span><span class="w"> </span>&gt;<span class="w"> </span>/dev/null<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;✅ </span><span class="nv">$ip</span><span class="s2"> is ALIVE&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;❌ </span><span class="nv">$ip</span><span class="s2"> is DOWN&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="k">done</span><span class="w"> </span>&lt;<span class="w"> </span>target_list.txt
+</pre></div>
+</div>
+<p><strong>成功条件</strong>: 生存している基地の数を特定し、リストを作成</p>
+<p>🏁 <strong>FLAG{base_discovery_complete}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="ssh-infiltration">
+<h2>🔐 レベル2: 潜入ミッション - SSH Infiltration<a class="headerlink" href="#ssh-infiltration" title="Permalink to this heading">#</a></h2>
+<section id="id5">
+<h3>ミッション2-1: ローカル侵入訓練<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 実際のロボット基地に侵入する前に、ローカル環境で SSH 接続の訓練を行う。</p>
+<p><strong>クエスト</strong>: 自分のマシンへのSSH接続をマスターせよ</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># SSH サーバーがインストールされているか確認</span>
+which<span class="w"> </span>sshd<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SSH server not found&quot;</span>
+
+<span class="c1"># SSH サーバーの状態確認</span>
+systemctl<span class="w"> </span>status<span class="w"> </span>ssh<span class="w"> </span><span class="o">||</span><span class="w"> </span>systemctl<span class="w"> </span>status<span class="w"> </span>sshd
+
+<span class="c1"># 必要に応じてSSHサーバーをインストール</span>
+<span class="c1"># sudo apt install openssh-server</span>
+
+<span class="c1"># localhost への接続テスト</span>
+ssh<span class="w"> </span>localhost
+
+<span class="c1"># 詳細なログでの接続確認</span>
+ssh<span class="w"> </span>-v<span class="w"> </span>localhost
+
+<span class="c1"># 特定のポートでの接続テスト</span>
+ssh<span class="w"> </span>-p<span class="w"> </span><span class="m">22</span><span class="w"> </span>localhost
+</pre></div>
+</div>
+<p><strong>確認項目</strong>:</p>
+<ul class="simple">
+<li><p>SSH接続が成功するか</p></li>
+<li><p>接続時の認証方法</p></li>
+<li><p>接続後のプロンプト表示</p></li>
+</ul>
+<p>🏁 <strong>FLAG{ssh_local_master}</strong></p>
+</section>
+<section id="id6">
+<h3>ミッション2-2: セキュア通信の確立<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: より安全な通信を確立するため、SSH鍵認証システムを構築せよ。</p>
+<p><strong>クエスト</strong>: SSH鍵ペアを作成し、鍵認証を設定する</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># SSH鍵ペアの生成</span>
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-f<span class="w"> </span>~/.ssh/id_quest_robot<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;robot-quest-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># 鍵ファイルの確認</span>
+ls<span class="w"> </span>-la<span class="w"> </span>~/.ssh/id_quest_robot*
+
+<span class="c1"># 公開鍵の内容を確認</span>
+cat<span class="w"> </span>~/.ssh/id_quest_robot.pub
+
+<span class="c1"># 公開鍵を authorized_keys に追加（ローカルテスト用）</span>
+cat<span class="w"> </span>~/.ssh/id_quest_robot.pub<span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.ssh/authorized_keys
+
+<span class="c1"># 鍵ファイルの権限を正しく設定</span>
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>~/.ssh/id_quest_robot
+chmod<span class="w"> </span><span class="m">644</span><span class="w"> </span>~/.ssh/id_quest_robot.pub
+chmod<span class="w"> </span><span class="m">700</span><span class="w"> </span>~/.ssh
+chmod<span class="w"> </span><span class="m">600</span><span class="w"> </span>~/.ssh/authorized_keys
+
+<span class="c1"># 新しい鍵での接続テスト</span>
+ssh<span class="w"> </span>-i<span class="w"> </span>~/.ssh/id_quest_robot<span class="w"> </span>localhost
+</pre></div>
+</div>
+<p><strong>成功条件</strong>: パスワード入力なしでSSH接続が可能</p>
+<p>🏁 <strong>FLAG{crypto_key_master}</strong></p>
+</section>
+<section id="id7">
+<h3>ミッション2-3: 高度な接続テクニック<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 複雑なネットワーク環境でも確実に接続できる高度な技術を習得せよ。</p>
+<p><strong>クエスト</strong>: SSH設定ファイルを活用した効率的な接続管理</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># SSH設定ファイルを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">Host robot-local</span>
+<span class="s">    HostName localhost</span>
+<span class="s">    User $(whoami)</span>
+<span class="s">    Port 22</span>
+<span class="s">    IdentityFile ~/.ssh/id_quest_robot</span>
+<span class="s">    ConnectTimeout 10</span>
+<span class="s">    ServerAliveInterval 60</span>
+
+<span class="s">Host robot-backup</span>
+<span class="s">    HostName 127.0.0.1</span>
+<span class="s">    User $(whoami)</span>
+<span class="s">    Port 22</span>
+<span class="s">    IdentityFile ~/.ssh/id_quest_robot</span>
+<span class="s">    ProxyCommand nc -X connect -x 127.0.0.1:1080 %h %p</span>
+
+<span class="s">Host robot-*</span>
+<span class="s">    User robot</span>
+<span class="s">    IdentityFile ~/.ssh/id_quest_robot</span>
+<span class="s">    StrictHostKeyChecking no</span>
+<span class="s">    UserKnownHostsFile /dev/null</span>
+<span class="s">    LogLevel ERROR</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 設定ファイルを使った接続テスト</span>
+ssh<span class="w"> </span>-F<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span>robot-local
+
+<span class="c1"># 接続エイリアスの作成</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;alias sshquest=&#39;ssh -F ~/.ssh/config_quest&#39;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.bashrc
+<span class="nb">source</span><span class="w"> </span>~/.bashrc
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{ssh_config_ninja}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="file-transfer-operations">
+<h2>📁 レベル3: データ回収ミッション - File Transfer Operations<a class="headerlink" href="#file-transfer-operations" title="Permalink to this heading">#</a></h2>
+<section id="id8">
+<h3>ミッション3-1: 緊急データ救出<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: ロボット基地から重要なデータファイルを緊急回収する必要がある。</p>
+<p><strong>クエスト</strong>: SCP を使ったファイル転送操作をマスターせよ</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 回収対象のテストデータを作成</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/robot_data_recovery
+<span class="nb">cd</span><span class="w"> </span>~/robot_data_recovery
+
+<span class="c1"># 模擬的なロボットデータファイルを作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>robot_status.json<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">{</span>
+<span class="s">  &quot;robot_id&quot;: &quot;JEDY-001&quot;,</span>
+<span class="s">  &quot;timestamp&quot;: &quot;2024-01-15T10:30:00Z&quot;,</span>
+<span class="s">  &quot;battery_level&quot;: 87,</span>
+<span class="s">  &quot;location&quot;: {&quot;x&quot;: 10.5, &quot;y&quot;: -3.2, &quot;z&quot;: 0.1},</span>
+<span class="s">  &quot;sensors&quot;: {</span>
+<span class="s">    &quot;camera&quot;: &quot;active&quot;,</span>
+<span class="s">    &quot;lidar&quot;: &quot;active&quot;,</span>
+<span class="s">    &quot;ultrasonic&quot;: &quot;warning&quot;</span>
+<span class="s">  },</span>
+<span class="s">  &quot;mission_status&quot;: &quot;data_recovery_in_progress&quot;</span>
+<span class="s">}</span>
+<span class="s">EOF</span>
+
+cat<span class="w"> </span>&gt;<span class="w"> </span>sensor_logs.txt<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">2024-01-15 10:25:00 [INFO] Camera initialization complete</span>
+<span class="s">2024-01-15 10:25:01 [INFO] LiDAR calibration successful</span>
+<span class="s">2024-01-15 10:25:02 [WARN] Ultrasonic sensor interference detected</span>
+<span class="s">2024-01-15 10:25:03 [INFO] Navigation system online</span>
+<span class="s">2024-01-15 10:25:04 [INFO] Mission parameters loaded</span>
+<span class="s">2024-01-15 10:25:05 [INFO] Autonomous mode activated</span>
+<span class="s">EOF</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SECRET_ROBOT_CODES=ALPHA-7739-BETA-2156&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>secret_codes.env
+
+<span class="c1"># ファイル転送の練習（localhost を模擬リモートとして使用）</span>
+<span class="c1"># 単一ファイルの転送</span>
+scp<span class="w"> </span>robot_status.json<span class="w"> </span>localhost:/tmp/
+
+<span class="c1"># 複数ファイルの転送</span>
+scp<span class="w"> </span>*.txt<span class="w"> </span>*.env<span class="w"> </span>localhost:/tmp/
+
+<span class="c1"># ディレクトリ全体の転送</span>
+<span class="nb">cd</span><span class="w"> </span>..
+scp<span class="w"> </span>-r<span class="w"> </span>robot_data_recovery<span class="w"> </span>localhost:/tmp/
+
+<span class="c1"># 転送結果の確認</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;ls -la /tmp/robot_*&quot;</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;cat /tmp/robot_status.json&quot;</span>
+</pre></div>
+</div>
+<p><strong>成功条件</strong>: すべてのファイルが正常に転送されることを確認</p>
+<p>🏁 <strong>FLAG{data_extraction_success}</strong></p>
+</section>
+<section id="id9">
+<h3>ミッション3-2: 高速大容量データ同期<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 大量のセンサーデータを効率的に同期する必要がある。rsyncを使った高度な同期技術を習得せよ。</p>
+<p><strong>クエスト</strong>: rsync を使った効率的なデータ同期</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 大量データの模擬作成</span>
+mkdir<span class="w"> </span>-p<span class="w"> </span>~/massive_robot_data/<span class="o">{</span>logs,images,videos,configs<span class="o">}</span>
+
+<span class="c1"># ログファイルの生成</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..100<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;2024-01-15 </span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%02d&#39;</span><span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="m">24</span><span class="k">)))</span><span class="s2">:</span><span class="k">$(</span><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;%02d&#39;</span><span class="w"> </span><span class="k">$((</span><span class="nv">i</span><span class="w"> </span><span class="o">%</span><span class="w"> </span><span class="m">60</span><span class="k">)))</span><span class="s2">:00 [INFO] Robot operation log entry </span><span class="nv">$i</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>~/massive_robot_data/logs/robot_log_<span class="nv">$i</span>.txt
+<span class="k">done</span>
+
+<span class="c1"># 設定ファイルの生成</span>
+<span class="k">for</span><span class="w"> </span>config<span class="w"> </span><span class="k">in</span><span class="w"> </span>motor_control<span class="w"> </span>sensor_calibration<span class="w"> </span>navigation_params<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;# </span><span class="nv">$config</span><span class="s2"> configuration</span>
+<span class="s2">param_1=value_</span><span class="nv">$RANDOM</span>
+<span class="s2">param_2=value_</span><span class="nv">$RANDOM</span>
+<span class="s2">param_3=value_</span><span class="nv">$RANDOM</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>~/massive_robot_data/configs/<span class="nv">$config</span>.conf
+<span class="k">done</span>
+
+<span class="c1"># 模擬画像ファイルの作成</span>
+<span class="k">for</span><span class="w"> </span>i<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">{</span><span class="m">1</span>..20<span class="o">}</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>dd<span class="w"> </span><span class="k">if</span><span class="o">=</span>/dev/urandom<span class="w"> </span><span class="nv">of</span><span class="o">=</span>~/massive_robot_data/images/sensor_image_<span class="nv">$i</span>.raw<span class="w"> </span><span class="nv">bs</span><span class="o">=</span><span class="m">1024</span><span class="w"> </span><span class="nv">count</span><span class="o">=</span><span class="m">100</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+<span class="k">done</span>
+
+<span class="c1"># rsync による同期</span>
+<span class="c1"># 基本的な同期</span>
+rsync<span class="w"> </span>-av<span class="w"> </span>~/massive_robot_data/<span class="w"> </span>localhost:/tmp/synced_robot_data/
+
+<span class="c1"># 進行状況付きの同期</span>
+rsync<span class="w"> </span>-av<span class="w"> </span>--progress<span class="w"> </span>~/massive_robot_data/<span class="w"> </span>localhost:/tmp/synced_robot_data/
+
+<span class="c1"># 除外パターンを使った同期</span>
+rsync<span class="w"> </span>-av<span class="w"> </span>--exclude<span class="o">=</span><span class="s1">&#39;*.raw&#39;</span><span class="w"> </span>--exclude<span class="o">=</span><span class="s1">&#39;logs/&#39;</span><span class="w"> </span>~/massive_robot_data/<span class="w"> </span>localhost:/tmp/filtered_robot_data/
+
+<span class="c1"># 削除同期（危険な操作なので注意）</span>
+rsync<span class="w"> </span>-av<span class="w"> </span>--delete<span class="w"> </span>~/massive_robot_data/<span class="w"> </span>localhost:/tmp/exact_robot_data/
+
+<span class="c1"># 同期結果の確認</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;du -sh /tmp/*robot_data*&quot;</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;find /tmp/synced_robot_data -type f | wc -l&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{sync_master_unlocked}</strong></p>
+</section>
+<section id="id10">
+<h3>ミッション3-3: 自動化バックアップシステム<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 定期的なデータバックアップシステムを構築し、データ損失を防げ。</p>
+<p><strong>クエスト</strong>: 自動化されたバックアップスクリプトを作成</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 自動バックアップスクリプトの作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/robot_backup.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s"># ロボットデータ自動バックアップスクリプト</span>
+<span class="s">TIMESTAMP=$(date +%Y%m%d_%H%M%S)</span>
+<span class="s">SOURCE_DIR=&quot;$HOME/massive_robot_data&quot;</span>
+<span class="s">BACKUP_BASE=&quot;/tmp/robot_backups&quot;</span>
+<span class="s">BACKUP_DIR=&quot;$BACKUP_BASE/backup_$TIMESTAMP&quot;</span>
+<span class="s">LOG_FILE=&quot;$BACKUP_BASE/backup.log&quot;</span>
+
+<span class="s"># バックアップディレクトリの作成</span>
+<span class="s">mkdir -p &quot;$BACKUP_BASE&quot;</span>
+
+<span class="s"># ログ関数</span>
+<span class="s">log_message() {</span>
+<span class="s">    echo &quot;[$(date &#39;+%Y-%m-%d %H:%M:%S&#39;)] $1&quot; | tee -a &quot;$LOG_FILE&quot;</span>
+<span class="s">}</span>
+
+<span class="s">log_message &quot;=== Robot Data Backup Started ===&quot;</span>
+<span class="s">log_message &quot;Source: $SOURCE_DIR&quot;</span>
+<span class="s">log_message &quot;Destination: $BACKUP_DIR&quot;</span>
+
+<span class="s"># 事前チェック</span>
+<span class="s">if [ ! -d &quot;$SOURCE_DIR&quot; ]; then</span>
+<span class="s">    log_message &quot;ERROR: Source directory not found: $SOURCE_DIR&quot;</span>
+<span class="s">    exit 1</span>
+<span class="s">fi</span>
+
+<span class="s"># ディスク容量チェック</span>
+<span class="s">REQUIRED_SPACE=$(du -s &quot;$SOURCE_DIR&quot; | cut -f1)</span>
+<span class="s">AVAILABLE_SPACE=$(df /tmp | awk &#39;NR==2 {print $4}&#39;)</span>
+
+<span class="s">if [ &quot;$REQUIRED_SPACE&quot; -gt &quot;$AVAILABLE_SPACE&quot; ]; then</span>
+<span class="s">    log_message &quot;ERROR: Insufficient disk space&quot;</span>
+<span class="s">    exit 1</span>
+<span class="s">fi</span>
+
+<span class="s"># バックアップ実行</span>
+<span class="s">log_message &quot;Starting data synchronization...&quot;</span>
+<span class="s">if rsync -av --stats &quot;$SOURCE_DIR/&quot; &quot;$BACKUP_DIR/&quot; 2&gt;&amp;1 | tee -a &quot;$LOG_FILE&quot;; then</span>
+<span class="s">    log_message &quot;SUCCESS: Backup completed successfully&quot;</span>
+<span class="s">    </span>
+<span class="s">    # バックアップサイズの記録</span>
+<span class="s">    BACKUP_SIZE=$(du -sh &quot;$BACKUP_DIR&quot; | cut -f1)</span>
+<span class="s">    log_message &quot;Backup size: $BACKUP_SIZE&quot;</span>
+<span class="s">    </span>
+<span class="s">    # 古いバックアップの清理（最新5つを保持）</span>
+<span class="s">    ls -t &quot;$BACKUP_BASE&quot;/backup_* | tail -n +6 | xargs -r rm -rf</span>
+<span class="s">    log_message &quot;Old backups cleaned up&quot;</span>
+<span class="s">    </span>
+<span class="s">else</span>
+<span class="s">    log_message &quot;ERROR: Backup failed&quot;</span>
+<span class="s">    exit 1</span>
+<span class="s">fi</span>
+
+<span class="s">log_message &quot;=== Robot Data Backup Completed ===&quot;</span>
+<span class="s">EOF</span>
+
+<span class="c1"># スクリプトに実行権限を付与</span>
+chmod<span class="w"> </span>+x<span class="w"> </span>~/robot_backup.sh
+
+<span class="c1"># バックアップ実行</span>
+~/robot_backup.sh
+
+<span class="c1"># バックアップ結果の確認</span>
+ls<span class="w"> </span>-la<span class="w"> </span>/tmp/robot_backups/
+cat<span class="w"> </span>/tmp/robot_backups/backup.log
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{backup_automation_master}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="advanced-networking">
+<h2>🌉 レベル4: 高度な通信技術 - Advanced Networking<a class="headerlink" href="#advanced-networking" title="Permalink to this heading">#</a></h2>
+<section id="id11">
+<h3>ミッション4-1: ポートフォワーディング作戦<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 複雑なネットワーク構成で隠されたロボットサービスにアクセスする必要がある。</p>
+<p><strong>クエスト</strong>: SSH ポートフォワーディングを使った高度なアクセス技術</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ローカルWebサーバーを起動（模擬ロボットサービス）</span>
+python3<span class="w"> </span>-m<span class="w"> </span>http.server<span class="w"> </span><span class="m">8080</span><span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">SERVER_PID</span><span class="o">=</span><span class="nv">$!</span>
+
+<span class="c1"># ローカルポートフォワーディングのテスト</span>
+<span class="c1"># ポート9090経由でローカルの8080にアクセス</span>
+ssh<span class="w"> </span>-L<span class="w"> </span><span class="m">9090</span>:localhost:8080<span class="w"> </span>localhost<span class="w"> </span>-N<span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">FORWARD_PID</span><span class="o">=</span><span class="nv">$!</span>
+
+<span class="c1"># 接続テスト</span>
+sleep<span class="w"> </span><span class="m">2</span>
+curl<span class="w"> </span>-s<span class="w"> </span>http://localhost:9090<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-5
+
+<span class="c1"># 動的ポートフォワーディング（SOCKSプロキシ）</span>
+ssh<span class="w"> </span>-D<span class="w"> </span><span class="m">1080</span><span class="w"> </span>localhost<span class="w"> </span>-N<span class="w"> </span><span class="p">&amp;</span>
+<span class="nv">SOCKS_PID</span><span class="o">=</span><span class="nv">$!</span>
+
+<span class="c1"># SOCKSプロキシ経由での接続テスト</span>
+curl<span class="w"> </span>-s<span class="w"> </span>--socks5<span class="w"> </span>localhost:1080<span class="w"> </span>http://httpbin.org/ip
+
+<span class="c1"># クリーンアップ</span>
+<span class="nb">kill</span><span class="w"> </span><span class="nv">$SERVER_PID</span><span class="w"> </span><span class="nv">$FORWARD_PID</span><span class="w"> </span><span class="nv">$SOCKS_PID</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{tunnel_master_activated}</strong></p>
+</section>
+<section id="id12">
+<h3>ミッション4-2: マルチホップ接続<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 複数のサーバーを経由してターゲットにアクセスする必要がある。</p>
+<p><strong>クエスト</strong>: ProxyCommand を使った多段接続</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 多段接続設定の作成</span>
+cat<span class="w"> </span>&gt;&gt;<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+
+<span class="s">Host jump-server</span>
+<span class="s">    HostName localhost</span>
+<span class="s">    User $(whoami)</span>
+<span class="s">    Port 22</span>
+<span class="s">    IdentityFile ~/.ssh/id_quest_robot</span>
+
+<span class="s">Host target-robot</span>
+<span class="s">    HostName localhost</span>
+<span class="s">    User $(whoami)</span>
+<span class="s">    Port 22</span>
+<span class="s">    ProxyCommand ssh -F ~/.ssh/config_quest jump-server -W %h:%p</span>
+<span class="s">    IdentityFile ~/.ssh/id_quest_robot</span>
+<span class="s">EOF</span>
+
+<span class="c1"># 多段接続のテスト</span>
+ssh<span class="w"> </span>-F<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span>target-robot<span class="w"> </span><span class="s2">&quot;echo &#39;Multi-hop connection successful!&#39;&quot;</span>
+
+<span class="c1"># ファイル転送での多段接続</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Secret robot data from target&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>secret_data.txt
+scp<span class="w"> </span>-F<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span>secret_data.txt<span class="w"> </span>target-robot:/tmp/
+ssh<span class="w"> </span>-F<span class="w"> </span>~/.ssh/config_quest<span class="w"> </span>target-robot<span class="w"> </span><span class="s2">&quot;cat /tmp/secret_data.txt&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{multihop_specialist}</strong></p>
+</section>
+<section id="x11">
+<h3>ミッション4-3: セッション管理とX11転送<a class="headerlink" href="#x11" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: GUI アプリケーションのリモート実行とセッション永続化技術を習得せよ。</p>
+<p><strong>クエスト</strong>: 高度なセッション管理技術</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># X11転送のテスト（GUIアプリケーション）</span>
+ssh<span class="w"> </span>-X<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;echo &#39;X11 forwarding test&#39;; which xeyes &amp;&amp; xeyes &amp;&quot;</span>
+
+<span class="c1"># セッション永続化のためのscreen/tmuxセッション</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;which tmux &amp;&amp; tmux new-session -d -s robot-session &#39;top&#39;&quot;</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;tmux list-sessions&quot;</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;tmux send-keys -t robot-session &#39;echo Robot session active&#39; Enter&quot;</span>
+
+<span class="c1"># セッションへの再接続</span>
+ssh<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;tmux attach-session -t robot-session&quot;</span>
+
+<span class="c1"># KeepAlive設定での長時間接続</span>
+ssh<span class="w"> </span>-o<span class="w"> </span><span class="nv">ServerAliveInterval</span><span class="o">=</span><span class="m">60</span><span class="w"> </span>-o<span class="w"> </span><span class="nv">ServerAliveCountMax</span><span class="o">=</span><span class="m">3</span><span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;sleep 300 &amp;&amp; echo &#39;Long session completed&#39;&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{session_master_elite}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id13">
+<h2>🛡️ レベル5: セキュリティ・トラブルシューティング<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<section id="id14">
+<h3>ミッション5-1: セキュリティ強化作戦<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: ロボットネットワークのセキュリティを最高レベルまで引き上げよ。</p>
+<p><strong>クエスト</strong>: SSH セキュリティの最適化</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># セキュアなSSH設定の作成</span>
+sudo<span class="w"> </span>cp<span class="w"> </span>/etc/ssh/sshd_config<span class="w"> </span>/etc/ssh/sshd_config.backup
+
+<span class="c1"># セキュリティ強化設定（実際の環境では注意して実行）</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/secure_ssh_config<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s"># セキュア SSH 設定</span>
+<span class="s">Port 2222</span>
+<span class="s">Protocol 2</span>
+<span class="s">PermitRootLogin no</span>
+<span class="s">PubkeyAuthentication yes</span>
+<span class="s">PasswordAuthentication no</span>
+<span class="s">PermitEmptyPasswords no</span>
+<span class="s">MaxAuthTries 3</span>
+<span class="s">MaxSessions 5</span>
+<span class="s">ClientAliveInterval 300</span>
+<span class="s">ClientAliveCountMax 2</span>
+<span class="s">LoginGraceTime 60</span>
+<span class="s">AllowUsers $(whoami)</span>
+<span class="s">DenyUsers root</span>
+<span class="s">EOF</span>
+
+<span class="c1"># SSH鍵の強化</span>
+ssh-keygen<span class="w"> </span>-t<span class="w"> </span>ed25519<span class="w"> </span>-a<span class="w"> </span><span class="m">100</span><span class="w"> </span>-f<span class="w"> </span>~/.ssh/id_ultra_secure<span class="w"> </span>-C<span class="w"> </span><span class="s2">&quot;ultra-secure-</span><span class="k">$(</span>date<span class="w"> </span>+%Y%m%d<span class="k">)</span><span class="s2">&quot;</span>
+
+<span class="c1"># 鍵の権限設定</span>
+chmod<span class="w"> </span><span class="m">400</span><span class="w"> </span>~/.ssh/id_ultra_secure
+chmod<span class="w"> </span><span class="m">444</span><span class="w"> </span>~/.ssh/id_ultra_secure.pub
+
+<span class="c1"># セキュア接続のテスト</span>
+ssh<span class="w"> </span>-i<span class="w"> </span>~/.ssh/id_ultra_secure<span class="w"> </span>-o<span class="w"> </span><span class="nv">StrictHostKeyChecking</span><span class="o">=</span>yes<span class="w"> </span>localhost<span class="w"> </span><span class="s2">&quot;echo &#39;Secure connection established&#39;&quot;</span>
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{security_fortress_built}</strong></p>
+</section>
+<section id="id15">
+<h3>ミッション5-2: ネットワーク診断マスター<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 複雑なネットワーク問題を診断・解決する技術を身につけよ。</p>
+<p><strong>クエスト</strong>: 総合的なネットワーク診断ツールの作成</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ネットワーク診断スクリプトの作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/network_diagnostics.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s">echo &quot;🔍 Robot Network Diagnostics Tool&quot;</span>
+<span class="s">echo &quot;==================================&quot;</span>
+
+<span class="s"># 基本的なネットワーク情報</span>
+<span class="s">echo &quot;📡 Network Interfaces:&quot;</span>
+<span class="s">ip addr show | grep -E &quot;(inet |inet6 )&quot; | awk &#39;{print &quot;  &quot; $2}&#39;</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;🌐 Routing Table:&quot;</span>
+<span class="s">ip route | head -5 | while read line; do echo &quot;  $line&quot;; done</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;📶 DNS Configuration:&quot;</span>
+<span class="s">cat /etc/resolv.conf | grep -v &quot;^#&quot; | while read line; do echo &quot;  $line&quot;; done</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;🏓 Connectivity Tests:&quot;</span>
+
+<span class="s"># 接続テスト対象</span>
+<span class="s">TARGETS=(&quot;8.8.8.8&quot; &quot;1.1.1.1&quot; &quot;google.com&quot; &quot;localhost&quot;)</span>
+
+<span class="s">for target in &quot;${TARGETS[@]}&quot;; do</span>
+<span class="s">    if ping -c 2 -W 3 &quot;$target&quot; &gt;/dev/null 2&gt;&amp;1; then</span>
+<span class="s">        RTT=$(ping -c 1 &quot;$target&quot; 2&gt;/dev/null | grep &quot;time=&quot; | grep -o &quot;time=[0-9.]*&quot; | cut -d= -f2)</span>
+<span class="s">        echo &quot;  ✅ $target (${RTT}ms)&quot;</span>
+<span class="s">    else</span>
+<span class="s">        echo &quot;  ❌ $target (unreachable)&quot;</span>
+<span class="s">    fi</span>
+<span class="s">done</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;🔐 SSH Service Status:&quot;</span>
+<span class="s">if systemctl is-active --quiet ssh || systemctl is-active --quiet sshd; then</span>
+<span class="s">    echo &quot;  ✅ SSH service is running&quot;</span>
+<span class="s">    echo &quot;  📊 Active SSH connections:&quot;</span>
+<span class="s">    who | grep -c &quot;pts&quot; | awk &#39;{print &quot;     Active sessions: &quot; $1}&#39;</span>
+<span class="s">else</span>
+<span class="s">    echo &quot;  ❌ SSH service is not running&quot;</span>
+<span class="s">fi</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;🔧 Network Performance:&quot;</span>
+<span class="s">echo &quot;  📈 Network statistics:&quot;</span>
+<span class="s">cat /proc/net/dev | grep -E &quot;(lo|eth|wlan)&quot; | while read line; do</span>
+<span class="s">    interface=$(echo $line | cut -d: -f1 | tr -d &#39; &#39;)</span>
+<span class="s">    rx_bytes=$(echo $line | awk &#39;{print $2}&#39;)</span>
+<span class="s">    tx_bytes=$(echo $line | awk &#39;{print $10}&#39;)</span>
+<span class="s">    rx_mb=$((rx_bytes / 1024 / 1024))</span>
+<span class="s">    tx_mb=$((tx_bytes / 1024 / 1024))</span>
+<span class="s">    echo &quot;     $interface: RX ${rx_mb}MB, TX ${tx_mb}MB&quot;</span>
+<span class="s">done</span>
+
+<span class="s">echo &quot;&quot;</span>
+<span class="s">echo &quot;🎯 Diagnostic Complete!&quot;</span>
+<span class="s">EOF</span>
+
+chmod<span class="w"> </span>+x<span class="w"> </span>~/network_diagnostics.sh
+~/network_diagnostics.sh
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{diagnostic_wizard}</strong></p>
+</section>
+<section id="id16">
+<h3>ミッション5-3: 緊急通信復旧システム<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: 通信障害時の緊急復旧手順を確立せよ。</p>
+<p><strong>クエスト</strong>: 自動復旧システムの構築</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 緊急復旧スクリプトの作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/emergency_recovery.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s">echo &quot;🚨 Emergency Network Recovery System&quot;</span>
+<span class="s">echo &quot;===================================&quot;</span>
+
+<span class="s">TARGETS=(&quot;8.8.8.8&quot; &quot;1.1.1.1&quot; &quot;localhost&quot;)</span>
+<span class="s">RECOVERY_LOG=&quot;/tmp/recovery_$(date +%Y%m%d_%H%M%S).log&quot;</span>
+
+<span class="s">log_action() {</span>
+<span class="s">    echo &quot;[$(date &#39;+%H:%M:%S&#39;)] $1&quot; | tee -a &quot;$RECOVERY_LOG&quot;</span>
+<span class="s">}</span>
+
+<span class="s">check_connectivity() {</span>
+<span class="s">    for target in &quot;${TARGETS[@]}&quot;; do</span>
+<span class="s">        if ping -c 2 -W 3 &quot;$target&quot; &gt;/dev/null 2&gt;&amp;1; then</span>
+<span class="s">            log_action &quot;✅ Connectivity to $target: OK&quot;</span>
+<span class="s">            return 0</span>
+<span class="s">        else</span>
+<span class="s">            log_action &quot;❌ Connectivity to $target: FAILED&quot;</span>
+<span class="s">        fi</span>
+<span class="s">    done</span>
+<span class="s">    return 1</span>
+<span class="s">}</span>
+
+<span class="s">recover_network() {</span>
+<span class="s">    log_action &quot;🔧 Starting network recovery procedures...&quot;</span>
+<span class="s">    </span>
+<span class="s">    # 1. ネットワークインターフェースの再起動</span>
+<span class="s">    log_action &quot;Restarting network interfaces...&quot;</span>
+<span class="s">    sudo ip link set lo down 2&gt;/dev/null || true</span>
+<span class="s">    sudo ip link set lo up 2&gt;/dev/null || true</span>
+<span class="s">    </span>
+<span class="s">    # 2. DNS設定の確認</span>
+<span class="s">    if [ ! -f &quot;/etc/resolv.conf&quot; ] || [ ! -s &quot;/etc/resolv.conf&quot; ]; then</span>
+<span class="s">        log_action &quot;Restoring DNS configuration...&quot;</span>
+<span class="s">        echo &quot;nameserver 8.8.8.8&quot; | sudo tee /etc/resolv.conf.recovery &gt;/dev/null</span>
+<span class="s">    fi</span>
+<span class="s">    </span>
+<span class="s">    # 3. SSH サービスの確認</span>
+<span class="s">    if ! systemctl is-active --quiet ssh &amp;&amp; ! systemctl is-active --quiet sshd; then</span>
+<span class="s">        log_action &quot;Attempting to restart SSH service...&quot;</span>
+<span class="s">        sudo systemctl start ssh 2&gt;/dev/null || sudo systemctl start sshd 2&gt;/dev/null || true</span>
+<span class="s">    fi</span>
+<span class="s">    </span>
+<span class="s">    log_action &quot;🔧 Recovery procedures completed&quot;</span>
+<span class="s">}</span>
+
+<span class="s">main() {</span>
+<span class="s">    log_action &quot;🚨 Emergency recovery system activated&quot;</span>
+<span class="s">    </span>
+<span class="s">    if check_connectivity; then</span>
+<span class="s">        log_action &quot;✅ Network connectivity is operational&quot;</span>
+<span class="s">    else</span>
+<span class="s">        log_action &quot;❌ Network connectivity issues detected&quot;</span>
+<span class="s">        recover_network</span>
+<span class="s">        </span>
+<span class="s">        # 再テスト</span>
+<span class="s">        sleep 5</span>
+<span class="s">        if check_connectivity; then</span>
+<span class="s">            log_action &quot;✅ Network recovery successful!&quot;</span>
+<span class="s">        else</span>
+<span class="s">            log_action &quot;❌ Network recovery failed - manual intervention required&quot;</span>
+<span class="s">        fi</span>
+<span class="s">    fi</span>
+<span class="s">    </span>
+<span class="s">    log_action &quot;📋 Recovery log saved to: $RECOVERY_LOG&quot;</span>
+<span class="s">    echo &quot;📋 Full log available at: $RECOVERY_LOG&quot;</span>
+<span class="s">}</span>
+
+<span class="s">main</span>
+<span class="s">EOF</span>
+
+chmod<span class="w"> </span>+x<span class="w"> </span>~/emergency_recovery.sh
+~/emergency_recovery.sh
+</pre></div>
+</div>
+<p>🏁 <strong>FLAG{emergency_recovery_online}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id17">
+<h2>🏆 最終ミッション: ロボット通信司令部の構築<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<section id="id18">
+<h3>最終チャレンジ: 統合通信システムの完成<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<p><strong>背景</strong>: すべての技術を結集し、完全なロボット通信管理システムを構築せよ。</p>
+<p><strong>クエスト</strong>: 統合通信管理ダッシュボードの作成</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 統合システム管理スクリプトの作成</span>
+cat<span class="w"> </span>&gt;<span class="w"> </span>~/robot_command_center.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s">#!/bin/bash</span>
+
+<span class="s"># ロボット通信司令部システム</span>
+<span class="s">ROBOTS_CONFIG=&quot;$HOME/.robot_fleet.conf&quot;</span>
+<span class="s">LOGS_DIR=&quot;$HOME/robot_logs&quot;</span>
+<span class="s">mkdir -p &quot;$LOGS_DIR&quot;</span>
+
+<span class="s"># 設定ファイルの初期化</span>
+<span class="s">if [ ! -f &quot;$ROBOTS_CONFIG&quot; ]; then</span>
+<span class="s">    cat &gt; &quot;$ROBOTS_CONFIG&quot; &lt;&lt; EOC</span>
+<span class="s"># Robot Fleet Configuration</span>
+<span class="s"># Format: name,ip,port,user,key_file</span>
+<span class="s">robot-alpha,127.0.0.1,22,$(whoami),~/.ssh/id_quest_robot</span>
+<span class="s">robot-beta,localhost,22,$(whoami),~/.ssh/id_quest_robot</span>
+<span class="s">robot-gamma,127.0.0.1,22,$(whoami),~/.ssh/id_ed25519</span>
+<span class="s">EOC</span>
+<span class="s">fi</span>
+
+<span class="s">show_menu() {</span>
+<span class="s">    clear</span>
+<span class="s">    echo &quot;🤖 ROBOT COMMUNICATION COMMAND CENTER 🤖&quot;</span>
+<span class="s">    echo &quot;==========================================&quot;</span>
+<span class="s">    echo &quot;1. 📡 Fleet Status Check&quot;</span>
+<span class="s">    echo &quot;2. 🔗 Connect to Robot&quot;</span>
+<span class="s">    echo &quot;3. 📁 File Transfer&quot;</span>
+<span class="s">    echo &quot;4. 📊 System Diagnostics&quot;</span>
+<span class="s">    echo &quot;5. 🚨 Emergency Recovery&quot;</span>
+<span class="s">    echo &quot;6. 📋 View Logs&quot;</span>
+<span class="s">    echo &quot;7. ⚙️  Fleet Configuration&quot;</span>
+<span class="s">    echo &quot;0. 🚪 Exit&quot;</span>
+<span class="s">    echo &quot;==========================================&quot;</span>
+<span class="s">    read -p &quot;Select option [0-7]: &quot; choice</span>
+<span class="s">}</span>
+
+<span class="s">fleet_status() {</span>
+<span class="s">    echo &quot;🔍 Checking fleet status...&quot;</span>
+<span class="s">    echo &quot;Robot Name       Status    Response Time&quot;</span>
+<span class="s">    echo &quot;----------------------------------------&quot;</span>
+<span class="s">    </span>
+<span class="s">    while IFS=&#39;,&#39; read -r name ip port user key; do</span>
+<span class="s">        if [[ $name =~ ^# ]] || [ -z &quot;$name&quot; ]; then continue; fi</span>
+<span class="s">        </span>
+<span class="s">        if ping -c 2 -W 3 &quot;$ip&quot; &gt;/dev/null 2&gt;&amp;1; then</span>
+<span class="s">            rtt=$(ping -c 1 &quot;$ip&quot; 2&gt;/dev/null | grep &quot;time=&quot; | grep -o &quot;time=[0-9.]*&quot; | cut -d= -f2)</span>
+<span class="s">            printf &quot;%-15s ✅ ONLINE   %s\n&quot; &quot;$name&quot; &quot;${rtt}ms&quot;</span>
+<span class="s">        else</span>
+<span class="s">            printf &quot;%-15s ❌ OFFLINE  ---\n&quot; &quot;$name&quot;</span>
+<span class="s">        fi</span>
+<span class="s">    done &lt; &quot;$ROBOTS_CONFIG&quot;</span>
+<span class="s">}</span>
+
+<span class="s">connect_robot() {</span>
+<span class="s">    echo &quot;🔗 Available robots:&quot;</span>
+<span class="s">    awk -F, &#39;!/^#/ &amp;&amp; NF&gt;1 {print NR-1 &quot;. &quot; $1}&#39; &quot;$ROBOTS_CONFIG&quot;</span>
+<span class="s">    read -p &quot;Select robot number: &quot; num</span>
+<span class="s">    </span>
+<span class="s">    robot_info=$(awk -F, -v n=$((num+1)) &#39;NR==n &amp;&amp; !/^#/ {print}&#39; &quot;$ROBOTS_CONFIG&quot;)</span>
+<span class="s">    if [ -n &quot;$robot_info&quot; ]; then</span>
+<span class="s">        name=$(echo &quot;$robot_info&quot; | cut -d, -f1)</span>
+<span class="s">        ip=$(echo &quot;$robot_info&quot; | cut -d, -f2)</span>
+<span class="s">        port=$(echo &quot;$robot_info&quot; | cut -d, -f3)</span>
+<span class="s">        user=$(echo &quot;$robot_info&quot; | cut -d, -f4)</span>
+<span class="s">        key=$(echo &quot;$robot_info&quot; | cut -d, -f5)</span>
+<span class="s">        </span>
+<span class="s">        echo &quot;Connecting to $name ($ip)...&quot;</span>
+<span class="s">        ssh -i &quot;${key/#\~/$HOME}&quot; -p &quot;$port&quot; &quot;$user@$ip&quot;</span>
+<span class="s">    else</span>
+<span class="s">        echo &quot;Invalid robot selection&quot;</span>
+<span class="s">    fi</span>
+<span class="s">}</span>
+
+<span class="s">file_transfer() {</span>
+<span class="s">    echo &quot;📁 File Transfer Options:&quot;</span>
+<span class="s">    echo &quot;1. Upload to robot&quot;</span>
+<span class="s">    echo &quot;2. Download from robot&quot;</span>
+<span class="s">    read -p &quot;Select option [1-2]: &quot; opt</span>
+<span class="s">    </span>
+<span class="s">    case $opt in</span>
+<span class="s">        1)</span>
+<span class="s">            read -p &quot;Local file path: &quot; local_file</span>
+<span class="s">            read -p &quot;Remote destination: &quot; remote_path</span>
+<span class="s">            echo &quot;🚀 Upload functionality would be implemented here&quot;</span>
+<span class="s">            ;;</span>
+<span class="s">        2)</span>
+<span class="s">            read -p &quot;Remote file path: &quot; remote_file</span>
+<span class="s">            read -p &quot;Local destination: &quot; local_path</span>
+<span class="s">            echo &quot;📥 Download functionality would be implemented here&quot;</span>
+<span class="s">            ;;</span>
+<span class="s">    esac</span>
+<span class="s">}</span>
+
+<span class="s">system_diagnostics() {</span>
+<span class="s">    echo &quot;📊 Running system diagnostics...&quot;</span>
+<span class="s">    ~/network_diagnostics.sh 2&gt;/dev/null || echo &quot;Diagnostics script not found&quot;</span>
+<span class="s">}</span>
+
+<span class="s">emergency_recovery() {</span>
+<span class="s">    echo &quot;🚨 Initiating emergency recovery...&quot;</span>
+<span class="s">    ~/emergency_recovery.sh 2&gt;/dev/null || echo &quot;Recovery script not found&quot;</span>
+<span class="s">}</span>
+
+<span class="s">view_logs() {</span>
+<span class="s">    echo &quot;📋 Recent log files:&quot;</span>
+<span class="s">    ls -lt &quot;$LOGS_DIR&quot;/ 2&gt;/dev/null | head -10 || echo &quot;No logs found&quot;</span>
+<span class="s">}</span>
+
+<span class="s">fleet_config() {</span>
+<span class="s">    echo &quot;⚙️ Fleet Configuration:&quot;</span>
+<span class="s">    echo &quot;Current robots:&quot;</span>
+<span class="s">    cat &quot;$ROBOTS_CONFIG&quot;</span>
+<span class="s">    echo &quot;&quot;</span>
+<span class="s">    echo &quot;Edit configuration? (y/n)&quot;</span>
+<span class="s">    read -r response</span>
+<span class="s">    if [[ $response =~ ^[Yy] ]]; then</span>
+<span class="s">        ${EDITOR:-nano} &quot;$ROBOTS_CONFIG&quot;</span>
+<span class="s">    fi</span>
+<span class="s">}</span>
+
+<span class="s">main() {</span>
+<span class="s">    while true; do</span>
+<span class="s">        show_menu</span>
+<span class="s">        case $choice in</span>
+<span class="s">            1) fleet_status; read -p &quot;Press Enter to continue...&quot;; ;;</span>
+<span class="s">            2) connect_robot; ;;</span>
+<span class="s">            3) file_transfer; read -p &quot;Press Enter to continue...&quot;; ;;</span>
+<span class="s">            4) system_diagnostics; read -p &quot;Press Enter to continue...&quot;; ;;</span>
+<span class="s">            5) emergency_recovery; read -p &quot;Press Enter to continue...&quot;; ;;</span>
+<span class="s">            6) view_logs; read -p &quot;Press Enter to continue...&quot;; ;;</span>
+<span class="s">            7) fleet_config; ;;</span>
+<span class="s">            0) echo &quot;👋 Shutting down command center...&quot;; exit 0; ;;</span>
+<span class="s">            *) echo &quot;Invalid option&quot;; sleep 1; ;;</span>
+<span class="s">        esac</span>
+<span class="s">    done</span>
+<span class="s">}</span>
+
+<span class="s">main</span>
+<span class="s">EOF</span>
+
+chmod<span class="w"> </span>+x<span class="w"> </span>~/robot_command_center.sh
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🎉 Robot Command Center is ready!&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🚀 Launch with: ~/robot_command_center.sh&quot;</span>
+
+<span class="c1"># デモ実行</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;🎬 Demo - Fleet Status Check:&quot;</span>
+~/robot_command_center.sh<span class="w"> </span><span class="s">&lt;&lt; &#39;DEMO&#39;</span>
+<span class="s">1</span>
+
+<span class="s">0</span>
+<span class="s">DEMO</span>
+</pre></div>
+</div>
+<p>🏁 <strong>ULTIMATE_FLAG{network_command_master_2024}</strong></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="network-quest">
+<h2>🎊 Network Quest 完全制覇！<a class="headerlink" href="#network-quest" title="Permalink to this heading">#</a></h2>
+<section id="id19">
+<h3>🏅 獲得したスキル<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <strong>ping マスタリー</strong>: ネットワーク疎通確認と品質分析</p></li>
+<li><p>✅ <strong>SSH エキスパート</strong>: 安全なリモートアクセスと認証</p></li>
+<li><p>✅ <strong>ファイル転送プロ</strong>: SCP/rsync による効率的なデータ管理</p></li>
+<li><p>✅ <strong>ポートフォワーディング</strong>: 複雑なネットワーク構成への対応</p></li>
+<li><p>✅ <strong>セキュリティ専門家</strong>: SSH強化とセキュリティ最適化</p></li>
+<li><p>✅ <strong>トラブルシューティング</strong>: 障害診断と緊急復旧</p></li>
+<li><p>✅ <strong>システム統合</strong>: 包括的な通信管理システム構築</p></li>
+</ul>
+</section>
+<section id="id20">
+<h3>🎯 実戦への応用<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<p>Network Quest をマスターした君は、もう実際のロボット開発で：</p>
+<ul class="simple">
+<li><p><strong>リモートロボット制御</strong>: 安全で確実な遠隔操作</p></li>
+<li><p><strong>データ収集システム</strong>: 効率的なセンサーデータ管理</p></li>
+<li><p><strong>チーム開発環境</strong>: 複数開発者での共同作業</p></li>
+<li><p><strong>トラブル対応</strong>: 迅速な問題解決と復旧</p></li>
+</ul>
+</section>
+<section id="id21">
+<h3>🚀 次のレベルへ<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
+<p>ネットワーク通信をマスターしたら、実際のロボットプログラミングで：</p>
+<ul class="simple">
+<li><p><strong><a class="reference internal" href="../ros-basics/index.html"><span class="std std-doc">🤖 ROSネットワーク通信</span></a></strong> でロボット間通信</p></li>
+<li><p><strong><a class="reference internal" href="../robot-control/index.html"><span class="std std-doc">⚡ リアルタイム制御</span></a></strong> での低遅延通信</p></li>
+<li><p><strong><a class="reference internal" href="#../arduino-basics/index.md"><span class="xref myst">🔧 IoTデバイス連携</span></a></strong> でのセンサーネットワーク</p></li>
+</ul>
+<p>君はもう立派なネットワーク通信マスターだ！ロボットたちとの完璧な通信を実現しよう！</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="git-quest.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="scoreboard.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🏆 Linux Command Quest スコアボード</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">ミッション概要</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ping-master">🔍 レベル1: 偵察ミッション - Ping Master</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">ミッション1-1: ネットワーク生存確認</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">ミッション1-2: 通信品質の分析</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">ミッション1-3: 失われた基地の発見</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ssh-infiltration">🔐 レベル2: 潜入ミッション - SSH Infiltration</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">ミッション2-1: ローカル侵入訓練</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">ミッション2-2: セキュア通信の確立</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ミッション2-3: 高度な接続テクニック</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#file-transfer-operations">📁 レベル3: データ回収ミッション - File Transfer Operations</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">ミッション3-1: 緊急データ救出</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">ミッション3-2: 高速大容量データ同期</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">ミッション3-3: 自動化バックアップシステム</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#advanced-networking">🌉 レベル4: 高度な通信技術 - Advanced Networking</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">ミッション4-1: ポートフォワーディング作戦</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">ミッション4-2: マルチホップ接続</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#x11">ミッション4-3: セッション管理とX11転送</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">🛡️ レベル5: セキュリティ・トラブルシューティング</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">ミッション5-1: セキュリティ強化作戦</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">ミッション5-2: ネットワーク診断マスター</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">ミッション5-3: 緊急通信復旧システム</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">🏆 最終ミッション: ロボット通信司令部の構築</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">最終チャレンジ: 統合通信システムの完成</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#network-quest">🎊 Network Quest 完全制覇！</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">🏅 獲得したスキル</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">🎯 実戦への応用</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">🚀 次のレベルへ</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/linux-tutorial/network-quest.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/linux-tutorial/network-quest.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

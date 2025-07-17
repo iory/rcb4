@@ -1,0 +1,1040 @@
+# 🤖 セッション2: ロボット制御プログラミング
+
+## このセッションで学ぶこと
+
+Pythonとscikit-robotライブラリを使って、ロボットの動きを自在にコントロールする方法を学びます。数学的な概念を視覚的に理解しながら、実際にロボットを動かしてみましょう！
+
+### 🎯 学習目標
+- **scikit-robot**の基本的な使い方をマスター
+- **3Dビューアー**でロボットを可視化
+- **順運動学**と**逆運動学**の概念を理解
+- **座標系**と**変換行列**の基礎
+- 実際のロボット制御プログラムを作成
+
+---
+
+## scikit-robotとは？
+
+**scikit-robot**は、Pythonで書かれたロボット制御ライブラリです。複雑な数学的計算を簡単なコードで実現でき、美しい3D可視化機能も備えています。
+
+### 🌟 なぜscikit-robotを使うの？
+
+1. **視覚的**: 3Dビューアーでロボットの動きが見える
+2. **学習しやすい**: Pythonの読みやすいコード
+3. **本格的**: 実際の研究・産業でも使用される技術
+4. **安全**: シミュレーション環境で実験可能
+
+---
+
+## 環境構築
+
+### インストール
+
+```bash
+# scikit-robotのインストール
+pip install scikit-robot[all]
+
+# 必要な依存関係（Ubuntu/Debian）
+sudo apt-get install libspatialindex-dev freeglut3-dev libsuitesparse-dev
+
+# 動作確認
+python -c "import skrobot; print('scikit-robot installed successfully!')"
+```
+
+### 初回テスト
+
+```python
+#!/usr/bin/env python3
+"""
+最初のロボットプログラム
+ロボットを画面に表示してみよう！
+"""
+import skrobot
+
+# ロボットを作成
+robot = skrobot.models.Kuka()
+print(f"ロボット作成完了: {robot}")
+
+# ビューアーを作成
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+
+# ロボットをシーンに追加
+viewer.add(robot)
+
+# 表示
+viewer.show()
+print("ロボットが表示されました！マウスで回転・ズームしてみてください")
+
+# しばらく待機
+input("Enterキーを押すと終了します...")
+```
+
+---
+
+## ロボットモデルの基礎
+
+### 🤖 利用可能なロボット
+
+```python
+import skrobot
+
+# 工業用ロボットアーム
+kuka = skrobot.models.Kuka()
+
+# 研究用ヒューマノイドロボット
+pr2 = skrobot.models.PR2()
+
+# 移動式マニピュレーター
+fetch = skrobot.models.Fetch()
+
+# 精密ロボットアーム
+panda = skrobot.models.Panda()
+
+print(f"Kukaのジョイント数: {len(kuka.joint_list)}")
+print(f"PR2のリンク数: {len(pr2.link_list)}")
+```
+
+### 🔍 ロボットの構造を調べる
+
+```python
+#!/usr/bin/env python3
+"""
+ロボットの構造探索プログラム
+"""
+import skrobot
+
+robot = skrobot.models.Kuka()
+
+print("=== ロボット情報 ===")
+print(f"名前: {robot.name}")
+print(f"ジョイント数: {len(robot.joint_list)}")
+print(f"リンク数: {len(robot.link_list)}")
+
+print("\n=== ジョイント一覧 ===")
+for i, joint in enumerate(robot.joint_list):
+    print(f"{i}: {joint.name} (タイプ: {type(joint).__name__})")
+
+print("\n=== リンク一覧 ===")
+for i, link in enumerate(robot.link_list):
+    print(f"{i}: {link.name}")
+
+# 現在のジョイント角度を表示
+angles = robot.angle_vector()
+print(f"\n現在のジョイント角度: {angles}")
+```
+
+---
+
+## 3Dビューアーの使い方
+
+### 基本的な可視化
+
+```python
+#!/usr/bin/env python3
+"""
+美しい3Dシーンの作成
+"""
+import skrobot
+import numpy as np
+
+# ロボットを作成
+robot = skrobot.models.Kuka()
+
+# ビューアーを作成
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(1024, 768))
+
+# 座標軸を追加（参考用）
+axes = skrobot.model.Axis(axis_length=0.3, axis_radius=0.01)
+viewer.add(axes)
+
+# 地面を追加
+ground = skrobot.model.Box(
+    extents=(2, 2, 0.02), 
+    face_colors=(0.8, 0.8, 0.8, 0.5)  # 半透明のグレー
+)
+ground.translate([0, 0, -0.01])  # 少し下に配置
+viewer.add(ground)
+
+# ロボットを追加
+viewer.add(robot)
+
+# カメラ位置を設定
+viewer.set_camera(
+    angles=[np.deg2rad(30), 0, np.deg2rad(45)], 
+    distance=2.0
+)
+
+# 表示
+viewer.show()
+
+# インタラクティブな操作
+print("=== ビューアー操作方法 ===")
+print("マウス左ドラッグ: 回転")
+print("マウス右ドラッグ: 平行移動")
+print("ホイール: ズーム")
+print("Escキー: 終了")
+
+input("Enterキーで続行...")
+```
+
+### オブジェクトの追加
+
+```python
+#!/usr/bin/env python3
+"""
+ロボットワークスペースの作成
+"""
+import skrobot
+import numpy as np
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+
+# ロボットを追加
+viewer.add(robot)
+
+# 作業対象のオブジェクトを作成
+target_box = skrobot.model.Box(
+    extents=(0.1, 0.1, 0.1),
+    face_colors=(1, 0, 0, 0.7)  # 半透明の赤
+)
+target_box.translate([0.5, 0.2, 0.3])  # 位置を設定
+viewer.add(target_box)
+
+# 球体オブジェクト
+sphere = skrobot.model.Sphere(
+    radius=0.05,
+    face_colors=(0, 1, 0, 0.7)  # 半透明の緑
+)
+sphere.translate([0.3, -0.3, 0.4])
+viewer.add(sphere)
+
+# 円柱オブジェクト
+cylinder = skrobot.model.Cylinder(
+    radius=0.03,
+    height=0.2,
+    face_colors=(0, 0, 1, 0.7)  # 半透明の青
+)
+cylinder.translate([0.6, 0, 0.1])
+viewer.add(cylinder)
+
+viewer.show()
+
+print("カラフルなワークスペースが完成しました！")
+input("Enterキーで続行...")
+```
+
+---
+
+## 順運動学（Forward Kinematics）
+
+**順運動学**は、「ジョイントの角度が分かっているとき、ロボットの手先がどこにあるか」を計算する技術です。
+
+### 🔧 基本的な順運動学
+
+```python
+#!/usr/bin/env python3
+"""
+順運動学の実演
+ジョイント角度 → 手先位置
+"""
+import skrobot
+import numpy as np
+import time
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+viewer.add(robot)
+
+# 座標軸を追加
+axes = skrobot.model.Axis(axis_length=0.2)
+viewer.add(axes)
+
+viewer.show()
+
+print("=== 順運動学デモンストレーション ===")
+
+# 初期姿勢
+robot.reset_manip_pose()
+viewer.redraw()
+print("初期姿勢")
+input("Enterキーで次へ...")
+
+# 様々なジョイント角度を試す
+test_angles = [
+    [0, 0, 0, 0, 0, 0, 0],                    # まっすぐ
+    [np.pi/4, 0, 0, -np.pi/2, 0, 0, 0],      # 肘を曲げる
+    [0, np.pi/4, 0, -np.pi/2, 0, np.pi/4, 0], # 複雑なポーズ
+    [np.pi/6, -np.pi/6, np.pi/4, -np.pi/3, np.pi/4, np.pi/6, 0]  # ダンスポーズ
+]
+
+pose_names = ["まっすぐポーズ", "肘曲げポーズ", "複雑ポーズ", "ダンスポーズ"]
+
+for i, angles in enumerate(test_angles):
+    print(f"\n{pose_names[i]}:")
+    print(f"ジョイント角度: {[f'{np.rad2deg(a):.1f}°' for a in angles]}")
+    
+    # ジョイント角度を設定
+    robot.angle_vector(angles)
+    
+    # 手先位置を取得
+    end_pos = robot.end_coords.worldpos()
+    print(f"手先位置: x={end_pos[0]:.3f}, y={end_pos[1]:.3f}, z={end_pos[2]:.3f}")
+    
+    # 画面を更新
+    viewer.redraw()
+    input("Enterキーで次へ...")
+
+print("\n順運動学のデモが完了しました！")
+```
+
+### 📊 軌跡の可視化
+
+```python
+#!/usr/bin/env python3
+"""
+ロボットの動作軌跡を可視化
+"""
+import skrobot
+import numpy as np
+import matplotlib.pyplot as plt
+
+robot = skrobot.models.Kuka()
+
+# 円運動のジョイント角度を生成
+def generate_circle_motion(robot, center, radius, num_points=50):
+    """円運動のための角度列を生成"""
+    angles_list = []
+    positions = []
+    
+    for i in range(num_points):
+        theta = 2 * np.pi * i / num_points
+        target_pos = center + np.array([
+            radius * np.cos(theta),
+            radius * np.sin(theta),
+            0
+        ])
+        
+        # 目標位置に対する逆運動学
+        target_coords = skrobot.coordinates.Coordinates(target_pos)
+        result = robot.inverse_kinematics(
+            target_coords,
+            move_target=robot.end_coords
+        )
+        
+        if result:
+            angles_list.append(robot.angle_vector().copy())
+            positions.append(robot.end_coords.worldpos().copy())
+    
+    return angles_list, positions
+
+# 円運動を生成
+center = np.array([0.5, 0, 0.5])
+radius = 0.2
+angles_list, positions = generate_circle_motion(robot, center, radius)
+
+print(f"軌跡点数: {len(positions)}")
+
+# 軌跡をプロット
+if positions:
+    positions = np.array(positions)
+    
+    fig = plt.figure(figsize=(10, 8))
+    
+    # 3D軌跡
+    ax1 = fig.add_subplot(221, projection='3d')
+    ax1.plot(positions[:, 0], positions[:, 1], positions[:, 2], 'b-', linewidth=2)
+    ax1.scatter(positions[0, 0], positions[0, 1], positions[0, 2], c='g', s=100, label='開始点')
+    ax1.scatter(positions[-1, 0], positions[-1, 1], positions[-1, 2], c='r', s=100, label='終了点')
+    ax1.set_xlabel('X [m]')
+    ax1.set_ylabel('Y [m]')
+    ax1.set_zlabel('Z [m]')
+    ax1.set_title('3D軌跡')
+    ax1.legend()
+    
+    # XY平面投影
+    ax2 = fig.add_subplot(222)
+    ax2.plot(positions[:, 0], positions[:, 1], 'b-', linewidth=2)
+    ax2.scatter(positions[0, 0], positions[0, 1], c='g', s=100)
+    ax2.scatter(positions[-1, 0], positions[-1, 1], c='r', s=100)
+    ax2.set_xlabel('X [m]')
+    ax2.set_ylabel('Y [m]')
+    ax2.set_title('XY平面投影')
+    ax2.grid(True)
+    ax2.axis('equal')
+    
+    # ジョイント角度の変化
+    if angles_list:
+        angles_array = np.array(angles_list)
+        ax3 = fig.add_subplot(223)
+        for i in range(min(4, angles_array.shape[1])):  # 最初の4関節
+            ax3.plot(np.rad2deg(angles_array[:, i]), label=f'Joint {i+1}')
+        ax3.set_xlabel('Time Step')
+        ax3.set_ylabel('Joint Angle [deg]')
+        ax3.set_title('ジョイント角度の変化')
+        ax3.legend()
+        ax3.grid(True)
+    
+    # 速度プロファイル
+    ax4 = fig.add_subplot(224)
+    velocities = np.diff(positions, axis=0)
+    speeds = np.linalg.norm(velocities, axis=1)
+    ax4.plot(speeds, 'r-', linewidth=2)
+    ax4.set_xlabel('Time Step')
+    ax4.set_ylabel('Speed [m/step]')
+    ax4.set_title('手先速度')
+    ax4.grid(True)
+    
+    plt.tight_layout()
+    plt.show()
+
+print("軌跡解析が完了しました！")
+```
+
+---
+
+## 逆運動学（Inverse Kinematics）
+
+**逆運動学**は、「ロボットの手先をここに動かしたい」というとき、「どのジョイント角度にすればよいか」を計算する技術です。
+
+### 🎯 基本的な逆運動学
+
+```python
+#!/usr/bin/env python3
+"""
+逆運動学の実演
+目標位置 → ジョイント角度
+"""
+import skrobot
+import numpy as np
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+
+# ロボットを表示
+viewer.add(robot)
+
+# 座標軸を追加
+axes = skrobot.model.Axis(axis_length=0.3)
+viewer.add(axes)
+
+viewer.show()
+
+print("=== 逆運動学デモンストレーション ===")
+
+# 目標位置を定義
+targets = [
+    [0.5, 0.3, 0.5],   # 右前
+    [0.3, -0.4, 0.6],  # 左前上
+    [0.6, 0.0, 0.3],   # 前下
+    [0.4, 0.2, 0.7],   # 右前上
+]
+
+target_names = ["右前", "左前上", "前下", "右前上"]
+
+for i, target_pos in enumerate(targets):
+    print(f"\n=== 目標 {i+1}: {target_names[i]} ===")
+    print(f"目標位置: x={target_pos[0]}, y={target_pos[1]}, z={target_pos[2]}")
+    
+    # 目標位置を可視化
+    if i > 0:  # 前の目標を削除
+        viewer.delete(target_sphere)
+    
+    target_sphere = skrobot.model.Sphere(
+        radius=0.03,
+        face_colors=(1, 0, 0, 0.8)
+    )
+    target_sphere.translate(target_pos)
+    viewer.add(target_sphere)
+    
+    # 目標座標を作成
+    target_coords = skrobot.coordinates.Coordinates(target_pos)
+    
+    # 逆運動学を実行
+    print("逆運動学を計算中...")
+    result = robot.inverse_kinematics(
+        target_coords,
+        move_target=robot.end_coords,
+        rotation_axis=True
+    )
+    
+    if result:
+        print("✅ 逆運動学成功！")
+        
+        # 結果のジョイント角度を表示
+        angles = robot.angle_vector()
+        print(f"解ジョイント角度: {[f'{np.rad2deg(a):.1f}°' for a in angles]}")
+        
+        # 実際の手先位置を確認
+        actual_pos = robot.end_coords.worldpos()
+        error = np.linalg.norm(np.array(target_pos) - actual_pos)
+        print(f"実際の手先位置: x={actual_pos[0]:.3f}, y={actual_pos[1]:.3f}, z={actual_pos[2]:.3f}")
+        print(f"位置誤差: {error:.4f} m")
+        
+    else:
+        print("❌ 逆運動学失敗 - 到達不可能な位置です")
+    
+    # 画面を更新
+    viewer.redraw()
+    input("Enterキーで次へ...")
+
+print("\n逆運動学のデモが完了しました！")
+```
+
+### 🔄 動的な逆運動学
+
+```python
+#!/usr/bin/env python3
+"""
+リアルタイム逆運動学
+マウスで目標位置を動かしてみよう！
+"""
+import skrobot
+import numpy as np
+import time
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+viewer.add(robot)
+
+# 目標球を作成
+target = skrobot.model.Sphere(radius=0.05, face_colors=(1, 0, 0, 0.8))
+viewer.add(target)
+
+viewer.show()
+
+print("=== リアルタイム逆運動学 ===")
+print("目標を様々な位置に動かして、ロボットの追従を観察しましょう")
+
+# 円軌道で目標を動かす
+center = np.array([0.5, 0, 0.5])
+radius = 0.3
+duration = 10  # 秒
+steps = 200
+
+for i in range(steps):
+    # 現在時刻での目標位置を計算
+    t = i / steps * 2 * np.pi
+    target_pos = center + radius * np.array([
+        np.cos(t),
+        np.sin(t * 0.7),  # Y軸は少し違う周波数
+        0.3 * np.sin(t * 1.3)  # Z軸はさらに違う周波数
+    ])
+    
+    # 目標球を移動
+    target.newcoords(skrobot.coordinates.Coordinates(target_pos))
+    
+    # 逆運動学でロボットを追従させる
+    target_coords = skrobot.coordinates.Coordinates(target_pos)
+    result = robot.inverse_kinematics(
+        target_coords,
+        move_target=robot.end_coords,
+        rotation_axis=True
+    )
+    
+    # 画面を更新
+    viewer.redraw()
+    
+    # 少し待機
+    time.sleep(0.05)
+    
+    # 進捗表示
+    if i % 20 == 0:
+        print(f"進捗: {i/steps*100:.1f}%")
+
+print("リアルタイム逆運動学のデモが完了しました！")
+```
+
+---
+
+## 座標系と変換
+
+### 🌐 座標系の理解
+
+```python
+#!/usr/bin/env python3
+"""
+座標系と変換の可視化
+"""
+import skrobot
+import numpy as np
+
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(900, 700))
+
+# ワールド座標系
+world_axes = skrobot.model.Axis(axis_length=0.5, axis_radius=0.02)
+viewer.add(world_axes)
+
+# 複数の座標系を作成
+coords_list = []
+colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1), (1, 1, 0), (1, 0, 1)]
+
+for i in range(5):
+    # 新しい座標系を作成
+    coords = skrobot.coordinates.Coordinates()
+    
+    # 位置を設定
+    position = [
+        0.5 * np.cos(2 * np.pi * i / 5),
+        0.5 * np.sin(2 * np.pi * i / 5),
+        0.2 * i
+    ]
+    coords.translate(position)
+    
+    # 回転を設定
+    coords.rotate(np.pi / 4 * i, 'z')
+    coords.rotate(np.pi / 6, 'x')
+    
+    # 座標軸を可視化
+    axes = skrobot.model.Axis(axis_length=0.2, axis_radius=0.01)
+    axes.newcoords(coords)
+    viewer.add(axes)
+    
+    # 原点にマーカーを追加
+    marker = skrobot.model.Sphere(radius=0.03, face_colors=colors[i % len(colors)])
+    marker.translate(position)
+    viewer.add(marker)
+    
+    coords_list.append(coords)
+
+viewer.show()
+
+print("=== 座標系と変換 ===")
+print("複数の座標系が表示されています")
+print("色付きの球が各座標系の原点を示しています")
+
+# 座標変換の計算例
+print("\n=== 座標変換の計算 ===")
+for i, coords in enumerate(coords_list):
+    print(f"\n座標系 {i+1}:")
+    print(f"  位置: {coords.worldpos()}")
+    print(f"  回転行列:\n{coords.worldrot()}")
+    
+    # ローカル座標での点をワールド座標に変換
+    local_point = np.array([0.1, 0.1, 0.1])
+    world_point = coords.transform_vector(local_point)
+    print(f"  ローカル点 {local_point} → ワールド点 {world_point}")
+
+input("Enterキーで終了...")
+```
+
+### 🔄 動的な変換
+
+```python
+#!/usr/bin/env python3
+"""
+動的座標変換の可視化
+"""
+import skrobot
+import numpy as np
+import time
+
+viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+
+# 基準座標系
+base_axes = skrobot.model.Axis(axis_length=0.3, axis_radius=0.02)
+viewer.add(base_axes)
+
+# 動く座標系
+moving_coords = skrobot.coordinates.Coordinates()
+moving_axes = skrobot.model.Axis(axis_length=0.2, axis_radius=0.015)
+viewer.add(moving_axes)
+
+# 軌跡を記録するための点群
+trail_points = []
+max_trail_points = 50
+
+viewer.show()
+
+print("=== 動的座標変換 ===")
+print("座標系が動きながら変換を可視化します")
+
+for i in range(200):
+    t = i * 0.05
+    
+    # 複雑な軌道を計算
+    x = 0.5 * np.cos(t)
+    y = 0.5 * np.sin(t * 1.3)
+    z = 0.3 + 0.2 * np.sin(t * 0.7)
+    
+    # 座標系を更新
+    moving_coords.newcoords(skrobot.coordinates.Coordinates([x, y, z]))
+    moving_coords.rotate(t * 0.1, 'z')
+    moving_coords.rotate(t * 0.05, 'x')
+    
+    # 軌跡点を追加
+    trail_points.append([x, y, z])
+    if len(trail_points) > max_trail_points:
+        trail_points.pop(0)
+    
+    # 軌跡を可視化
+    for j, point in enumerate(trail_points):
+        alpha = j / len(trail_points)  # 透明度を調整
+        trail_sphere = skrobot.model.Sphere(
+            radius=0.01, 
+            face_colors=(0, 1, 1, alpha)
+        )
+        trail_sphere.translate(point)
+        # 注意: 実際の実装では効率のため軌跡の描画方法を最適化する必要があります
+    
+    # 座標軸の位置を更新
+    moving_axes.newcoords(moving_coords)
+    
+    # ローカル座標での固定点をワールド座標に変換
+    local_points = [
+        [0.1, 0, 0],    # X軸方向
+        [0, 0.1, 0],    # Y軸方向
+        [0, 0, 0.1]     # Z軸方向
+    ]
+    
+    colors = [(1, 0, 0), (0, 1, 0), (0, 0, 1)]
+    
+    for local_point, color in zip(local_points, colors):
+        world_point = moving_coords.transform_vector(local_point)
+        point_sphere = skrobot.model.Sphere(radius=0.02, face_colors=color)
+        point_sphere.translate(world_point)
+        # 注意: 実際の実装では点の管理を最適化する必要があります
+    
+    # 画面を更新
+    viewer.redraw()
+    time.sleep(0.05)
+    
+    if i % 40 == 0:
+        print(f"進捗: {i/200*100:.1f}%")
+
+print("動的座標変換のデモが完了しました！")
+```
+
+---
+
+## キーボード制御プログラム
+
+### ⌨️ インタラクティブ制御
+
+```python
+#!/usr/bin/env python3
+"""
+キーボードでロボットを制御
+元のkeyboard-ik-sample.lをPythonで再実装
+"""
+import skrobot
+import numpy as np
+import threading
+import time
+import sys
+import select
+import termios
+import tty
+
+class KeyboardRobotController:
+    def __init__(self):
+        self.robot = skrobot.models.Kuka()
+        self.viewer = skrobot.viewers.TrimeshSceneViewer(resolution=(800, 600))
+        
+        # ロボットを表示
+        self.viewer.add(self.robot)
+        
+        # 座標軸を追加
+        axes = skrobot.model.Axis(axis_length=0.3)
+        self.viewer.add(axes)
+        
+        # 目標位置を表示する球
+        self.target_sphere = skrobot.model.Sphere(
+            radius=0.03, 
+            face_colors=(1, 0, 0, 0.7)
+        )
+        self.viewer.add(self.target_sphere)
+        
+        # 制御パラメータ
+        self.step_size = 0.05  # 1回の移動量 [m]
+        self.angle_step = np.deg2rad(10)  # 1回の回転量 [rad]
+        
+        # 現在の目標位置
+        self.target_pos = np.array([0.5, 0, 0.5])
+        self.target_rot = np.eye(3)
+        
+        # 初期設定
+        self.update_target()
+        self.robot.reset_manip_pose()
+        
+        self.viewer.show()
+        
+        # キーボード設定
+        self.old_settings = termios.tcgetattr(sys.stdin)
+        tty.setraw(sys.stdin.fileno())
+        
+        self.running = True
+    
+    def update_target(self):
+        """目標位置の表示を更新"""
+        self.target_sphere.newcoords(
+            skrobot.coordinates.Coordinates(self.target_pos, self.target_rot)
+        )
+        self.viewer.redraw()
+    
+    def move_to_target(self):
+        """目標位置に逆運動学で移動"""
+        target_coords = skrobot.coordinates.Coordinates(self.target_pos, self.target_rot)
+        
+        result = self.robot.inverse_kinematics(
+            target_coords,
+            move_target=self.robot.end_coords,
+            rotation_axis=True
+        )
+        
+        if result:
+            current_pos = self.robot.end_coords.worldpos()
+            error = np.linalg.norm(self.target_pos - current_pos)
+            print(f"移動完了 - 誤差: {error:.4f}m")
+        else:
+            print("⚠️  到達不可能な位置です")
+        
+        self.viewer.redraw()
+    
+    def get_key(self):
+        """ノンブロッキングでキー入力を取得"""
+        if select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], []):
+            return sys.stdin.read(1)
+        return None
+    
+    def print_help(self):
+        """操作方法を表示"""
+        print("\n" + "="*50)
+        print("🤖 キーボードロボット制御")
+        print("="*50)
+        print("移動操作:")
+        print("  w/s : X軸方向 前進/後退")
+        print("  a/d : Y軸方向 左/右")
+        print("  q/e : Z軸方向 上昇/下降")
+        print("\n回転操作:")
+        print("  i/k : X軸周りの回転")
+        print("  j/l : Y軸周りの回転")
+        print("  u/o : Z軸周りの回転")
+        print("\nその他:")
+        print("  r   : 初期姿勢にリセット")
+        print("  h   : ヘルプ表示")
+        print("  ESC : 終了")
+        print("="*50)
+    
+    def run(self):
+        """メインループ"""
+        self.print_help()
+        
+        try:
+            while self.running:
+                key = self.get_key()
+                
+                if key:
+                    moved = False
+                    
+                    # 移動コマンド
+                    if key == 'w':  # 前進
+                        self.target_pos[0] += self.step_size
+                        moved = True
+                        print("→ 前進")
+                    elif key == 's':  # 後退
+                        self.target_pos[0] -= self.step_size
+                        moved = True
+                        print("← 後退")
+                    elif key == 'a':  # 左
+                        self.target_pos[1] += self.step_size
+                        moved = True
+                        print("← 左移動")
+                    elif key == 'd':  # 右
+                        self.target_pos[1] -= self.step_size
+                        moved = True
+                        print("→ 右移動")
+                    elif key == 'q':  # 上昇
+                        self.target_pos[2] += self.step_size
+                        moved = True
+                        print("↑ 上昇")
+                    elif key == 'e':  # 下降
+                        self.target_pos[2] -= self.step_size
+                        moved = True
+                        print("↓ 下降")
+                    
+                    # 回転コマンド
+                    elif key == 'i':  # X軸+回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(self.angle_step, 'x')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 X軸+回転")
+                    elif key == 'k':  # X軸-回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(-self.angle_step, 'x')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 X軸-回転")
+                    elif key == 'j':  # Y軸+回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(self.angle_step, 'y')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 Y軸+回転")
+                    elif key == 'l':  # Y軸-回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(-self.angle_step, 'y')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 Y軸-回転")
+                    elif key == 'u':  # Z軸+回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(self.angle_step, 'z')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 Z軸+回転")
+                    elif key == 'o':  # Z軸-回転
+                        rot_mat = skrobot.coordinates.rotation_matrix(-self.angle_step, 'z')
+                        self.target_rot = self.target_rot.dot(rot_mat)
+                        moved = True
+                        print("🔄 Z軸-回転")
+                    
+                    # その他のコマンド
+                    elif key == 'r':  # リセット
+                        self.robot.reset_manip_pose()
+                        self.target_pos = self.robot.end_coords.worldpos().copy()
+                        self.target_rot = self.robot.end_coords.worldrot().copy()
+                        self.update_target()
+                        print("🔄 初期姿勢にリセット")
+                    elif key == 'h':  # ヘルプ
+                        self.print_help()
+                    elif key == '\x1b':  # ESC
+                        print("\n👋 終了します")
+                        self.running = False
+                        break
+                    
+                    # 移動があった場合は実行
+                    if moved:
+                        self.update_target()
+                        self.move_to_target()
+                        
+                        # 現在位置を表示
+                        pos = self.target_pos
+                        print(f"目標位置: x={pos[0]:.3f}, y={pos[1]:.3f}, z={pos[2]:.3f}")
+                
+                time.sleep(0.01)  # CPU負荷軽減
+                
+        finally:
+            # キーボード設定を復元
+            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, self.old_settings)
+
+if __name__ == "__main__":
+    print("キーボードロボット制御を開始します...")
+    controller = KeyboardRobotController()
+    controller.run()
+```
+
+---
+
+## 🎮 演習課題
+
+### 課題1: 基本的なロボット操作
+
+```python
+#!/usr/bin/env python3
+"""
+課題1: ロボットに様々なポーズをとらせよう
+"""
+import skrobot
+import numpy as np
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer()
+viewer.add(robot)
+viewer.show()
+
+# TODO: 以下の課題を実装してください
+
+# 1. ロボットを初期姿勢にする
+
+# 2. 3つの異なるポーズを作成し、5秒間隔で実行
+
+# 3. 各ポーズで手先位置と各ジョイント角度を表示
+
+# 4. 最後に初期姿勢に戻る
+
+print("課題1を完成させてください！")
+```
+
+### 課題2: 軌跡生成
+
+```python
+#!/usr/bin/env python3
+"""
+課題2: ロボットに図形を描かせよう
+"""
+import skrobot
+import numpy as np
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer()
+viewer.add(robot)
+viewer.show()
+
+# TODO: 以下の課題を実装してください
+
+# 1. 正方形の軌跡を生成する関数を作成
+
+# 2. 三角形の軌跡を生成する関数を作成
+
+# 3. 星形（五芒星）の軌跡を生成する関数を作成
+
+# 4. 各図形をロボットに実行させる
+
+# 5. 軌跡をmatplotlibで可視化
+
+print("課題2を完成させてください！")
+```
+
+### 課題3: 障害物回避
+
+```python
+#!/usr/bin/env python3
+"""
+課題3: 障害物を避けながら目標に到達しよう
+"""
+import skrobot
+import numpy as np
+
+robot = skrobot.models.Kuka()
+viewer = skrobot.viewers.TrimeshSceneViewer()
+viewer.add(robot)
+
+# 障害物を配置
+obstacle = skrobot.model.Box(extents=(0.2, 0.2, 0.4))
+obstacle.translate([0.4, 0, 0.2])
+viewer.add(obstacle)
+
+viewer.show()
+
+# TODO: 以下の課題を実装してください
+
+# 1. 開始位置と目標位置を設定
+
+# 2. 障害物との衝突判定関数を作成
+
+# 3. 障害物を避けるパスプランニング
+
+# 4. 生成したパスをロボットに実行させる
+
+print("課題3を完成させてください！")
+```
+
+---
+
+## 🎓 まとめ
+
+このセッションでは、scikit-robotを使ったロボット制御の基礎を学びました：
+
+### 🎯 習得したスキル
+- ✅ **ロボットモデルの操作**: 読み込み、表示、基本操作
+- ✅ **3D可視化**: ビューアーの使用、オブジェクトの追加
+- ✅ **順運動学**: ジョイント角度から手先位置の計算
+- ✅ **逆運動学**: 目標位置からジョイント角度の計算
+- ✅ **座標変換**: 3D空間での位置・姿勢の表現
+- ✅ **リアルタイム制御**: キーボードでの対話的操作
+
+### 🚀 次のステップ
+
+ロボット制御の基礎をマスターしたら：
+1. **[🌐 ROSとの連携](../ros-basics/index.md)** - 実際のロボットとの通信
+2. **[🎯 最終プロジェクト](../projects/index.md)** - 総合的なロボットシステム
+3. **高度な制御技術** - 動力学、制御理論の応用
+
+これで君もロボット制御の専門家だ！科学技術の力で、ロボットに生命を吹き込もう！

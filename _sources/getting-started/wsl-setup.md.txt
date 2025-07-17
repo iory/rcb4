@@ -1,0 +1,197 @@
+---
+title: WSLでLinux環境を手に入れよう！
+weight: 1
+---
+
+# WSLでLinux環境を手に入れよう！🐧
+
+Windows PCでLinux環境を使えるようにする魔法のツール「WSL」をインストールしていきます！
+
+## その前に...「OS」って何？🤔
+
+**OS（オペレーティングシステム）** は、コンピュータを動かすための基本ソフトウェアです。
+
+みんなが知っているOS：
+- 💻 **Windows**: Microsoftが作った、世界で一番使われているPC用OS
+- 🍎 **macOS**: Appleが作った、Mac専用のOS
+- 🤖 **Android**: Googleが作った、スマホ用OS
+- 📱 **iOS**: Appleが作った、iPhone用OS
+- 🐧 **Linux**: 無料で使えるオープンソースのOS
+
+今回は、Windowsの中にLinuxをインストールします。マトリョーシカ人形みたいですね！
+
+## WSLって何？🤔
+
+**Windows Subsystem for Linux (WSL)** は、WindowsでLinuxを動かせるようにする便利な機能です。
+
+### WSLの良いところ
+- 🚀 Virtual Boxなどの仮想マシンが不要
+- 💾 デュアルブートも不要
+- 🎮 WindowsとLinuxを同時に使える
+- 📦 複数のLinux環境を作れる
+- 🎁 環境をまるごと配布できる
+
+## 事前準備 - Windows側の設定確認
+
+### Windows 11の場合
+Windows 11なら基本的に準備完了！でも念のため確認しましょう。
+
+### Windows 10の場合
+以下の手順で確認が必要です：
+
+1. **Windowsキー + R** を押して「実行」を開く
+2. `winver` と入力してEnter
+3. バージョンが **1903以上**（ビルド18362以上）であることを確認
+
+### WSLの前提条件を確認
+
+[Microsoftの公式ドキュメント](https://learn.microsoft.com/ja-jp/windows/wsl/install#prerequisites)で前提条件を満たしているか確認してください。
+
+⚠️ **前提条件を満たしていない場合**は、[手動インストールガイド](https://learn.microsoft.com/ja-jp/windows/wsl/install-manual)に従ってセットアップを行ってください。
+
+## ステップ1: Windows Terminalを準備しよう
+
+### ターミナルって何？💻
+
+「ターミナル」って聞いたことありますか？映画でスーパーハッカーが使っている、あの黒い画面に緑の文字が流れるかっこいいやつです！
+
+実は、ターミナルはコンピュータと「文字で会話」するためのツールです。マウスでクリックする代わりに、コマンド（命令）をタイプしてコンピュータを操作します。
+
+### Windows Terminalのインストール
+1. Microsoft Storeを開く
+2. 「Windows Terminal」を検索
+3. インストールボタンをクリック
+
+### Windows Terminalを起動
+スタートメニューから「Windows Terminal」を探して起動します。
+
+## ステップ2: WSLのインストール
+
+### 現在の状態を確認
+Windows Terminalで以下のコマンドを実行：
+
+```powershell
+wsl -l -v
+```
+
+Ubuntu-20.04がまだインストールされていないことを確認します。
+
+### Ubuntu 20.04をインストール
+
+```powershell
+wsl --install -d Ubuntu-20.04
+```
+
+インストール中に：
+- 👤 ユーザー名を設定（英数字で！）
+- 🔑 パスワードを設定（忘れないように！）
+
+### インストールの確認
+
+```powershell
+wsl -l -v
+```
+
+Ubuntu-20.04のVERSIONが「2」になっていればOK！
+
+## ステップ3: ROSのインストール
+
+いよいよロボット制御の準備！WSLで起動したUbuntu-20.04で以下のコマンドを実行します。
+
+
+
+### 必要なツールをインストール
+
+```bash
+sudo apt install curl
+```
+
+### ROSのセットアップ
+
+```bash
+# キーリングディレクトリを作成
+sudo mkdir -p /etc/apt/keyrings
+
+# ROSの公開鍵を追加
+curl -fsSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | sudo gpg --dearmor -o /etc/apt/keyrings/ros-archive-keyring.gpg
+
+# ROSのリポジトリを追加
+echo "deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros/ubuntu focal main" | sudo tee /etc/apt/sources.list.d/ros-latest.list > /dev/null
+
+# パッケージリストを更新
+sudo apt update
+
+# ROS Noeticをインストール（時間がかかります☕）
+sudo apt install ros-noetic-desktop
+```
+
+### ROSビルドツールのインストール
+
+```bash
+# ビルドに必要なツールをインストール
+sudo apt install python3-vcstool python3-catkin-tools python3-rosdep
+
+# rosdepの初期化
+sudo apt update
+sudo rosdep init
+rosdep update
+```
+
+## ステップ4: Visual Studio Codeのインストール
+
+プログラムを書くために便利なエディタ「Visual Studio Code」をインストールしましょう！
+
+### Windows側にVS Codeをインストール
+
+1. [Visual Studio Codeの公式サイト](https://code.visualstudio.com/)にアクセス
+2. 「Download for Windows」をクリック
+3. ダウンロードしたインストーラーを実行
+4. インストール時に以下のオプションをチェック：
+   - ✅ PATHに追加する（再起動後に使用可能）
+   - ✅ エクスプローラーのファイルコンテキストメニューに「Codeで開く」を追加
+   - ✅ エクスプローラーのディレクトリコンテキストメニューに「Codeで開く」を追加
+
+### WSL拡張機能をインストール
+
+1. VS Codeを起動
+2. 左側の拡張機能アイコン（四角が4つ）をクリック
+3. 「WSL」を検索してインストール
+
+### WSLからVS Codeを使う
+
+WSLのターミナルで以下のコマンドを実行すると、VS Codeでファイルやフォルダを開けます：
+
+```bash
+# 現在のディレクトリをVS Codeで開く
+code .
+
+# 特定のファイルを編集
+code ファイル名.py
+
+# 新しいファイルを作成して編集
+code 新しいファイル.md
+```
+
+💡 **便利な使い方**：
+- `code .`で現在のフォルダ全体をVS Codeで開ける
+- WSL内のファイルをWindowsのVS Codeで直接編集できる
+- ターミナルはWSL、エディタはWindowsという快適な開発環境！
+
+## 🎉 おめでとう！
+
+WSL環境の構築が完了しました！これでWindowsでLinuxとROSが使えるようになりました。
+
+### 次のステップ
+- [Linux基本コマンドを学ぼう](../linux-tutorial/basics.md)
+- [ROSの基礎を学ぼう](../ros-basics/index.md)
+
+### トラブルシューティング
+
+#### WSLが起動しない場合
+1. Windows Updateを確認
+2. BIOSで仮想化機能が有効になっているか確認
+
+#### エラーメッセージが出る場合
+- `wsl --update` でWSLを最新版に更新
+- Windows Terminalを管理者権限で実行してみる
+

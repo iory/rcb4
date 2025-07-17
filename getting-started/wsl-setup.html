@@ -1,0 +1,859 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>WSLでLinux環境を手に入れよう！🐧 &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting-started/wsl-setup';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🐧 Linuxチュートリアル - ロボットプログラミングの第一歩" href="../linux-tutorial/index.html" />
+    <link rel="prev" title="準備編：冒険に必要な道具を揃えよう！" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../python-basics.html">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../python-basics.html">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">WSLでLinux環境を手に入れよう！🐧</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">準備編：冒険に必要な道具を揃えよう！</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">WSLでLinux環境を手に入れよう！🐧</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="wsllinux">
+<h1>WSLでLinux環境を手に入れよう！🐧<a class="headerlink" href="#wsllinux" title="Permalink to this heading">#</a></h1>
+<p>Windows PCでLinux環境を使えるようにする魔法のツール「WSL」をインストールしていきます！</p>
+<section id="os">
+<h2>その前に…「OS」って何？🤔<a class="headerlink" href="#os" title="Permalink to this heading">#</a></h2>
+<p><strong>OS（オペレーティングシステム）</strong> は、コンピュータを動かすための基本ソフトウェアです。</p>
+<p>みんなが知っているOS：</p>
+<ul class="simple">
+<li><p>💻 <strong>Windows</strong>: Microsoftが作った、世界で一番使われているPC用OS</p></li>
+<li><p>🍎 <strong>macOS</strong>: Appleが作った、Mac専用のOS</p></li>
+<li><p>🤖 <strong>Android</strong>: Googleが作った、スマホ用OS</p></li>
+<li><p>📱 <strong>iOS</strong>: Appleが作った、iPhone用OS</p></li>
+<li><p>🐧 <strong>Linux</strong>: 無料で使えるオープンソースのOS</p></li>
+</ul>
+<p>今回は、Windowsの中にLinuxをインストールします。マトリョーシカ人形みたいですね！</p>
+</section>
+<section id="wsl">
+<h2>WSLって何？🤔<a class="headerlink" href="#wsl" title="Permalink to this heading">#</a></h2>
+<p><strong>Windows Subsystem for Linux (WSL)</strong> は、WindowsでLinuxを動かせるようにする便利な機能です。</p>
+<section id="id1">
+<h3>WSLの良いところ<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>🚀 Virtual Boxなどの仮想マシンが不要</p></li>
+<li><p>💾 デュアルブートも不要</p></li>
+<li><p>🎮 WindowsとLinuxを同時に使える</p></li>
+<li><p>📦 複数のLinux環境を作れる</p></li>
+<li><p>🎁 環境をまるごと配布できる</p></li>
+</ul>
+</section>
+</section>
+<section id="windows">
+<h2>事前準備 - Windows側の設定確認<a class="headerlink" href="#windows" title="Permalink to this heading">#</a></h2>
+<section id="windows-11">
+<h3>Windows 11の場合<a class="headerlink" href="#windows-11" title="Permalink to this heading">#</a></h3>
+<p>Windows 11なら基本的に準備完了！でも念のため確認しましょう。</p>
+</section>
+<section id="windows-10">
+<h3>Windows 10の場合<a class="headerlink" href="#windows-10" title="Permalink to this heading">#</a></h3>
+<p>以下の手順で確認が必要です：</p>
+<ol class="arabic simple">
+<li><p><strong>Windowsキー + R</strong> を押して「実行」を開く</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">winver</span></code> と入力してEnter</p></li>
+<li><p>バージョンが <strong>1903以上</strong>（ビルド18362以上）であることを確認</p></li>
+</ol>
+</section>
+<section id="id2">
+<h3>WSLの前提条件を確認<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<p><a class="reference external" href="https://learn.microsoft.com/ja-jp/windows/wsl/install#prerequisites">Microsoftの公式ドキュメント</a>で前提条件を満たしているか確認してください。</p>
+<p>⚠️ <strong>前提条件を満たしていない場合</strong>は、<a class="reference external" href="https://learn.microsoft.com/ja-jp/windows/wsl/install-manual">手動インストールガイド</a>に従ってセットアップを行ってください。</p>
+</section>
+</section>
+<section id="windows-terminal">
+<h2>ステップ1: Windows Terminalを準備しよう<a class="headerlink" href="#windows-terminal" title="Permalink to this heading">#</a></h2>
+<section id="id3">
+<h3>ターミナルって何？💻<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<p>「ターミナル」って聞いたことありますか？映画でスーパーハッカーが使っている、あの黒い画面に緑の文字が流れるかっこいいやつです！</p>
+<p>実は、ターミナルはコンピュータと「文字で会話」するためのツールです。マウスでクリックする代わりに、コマンド（命令）をタイプしてコンピュータを操作します。</p>
+</section>
+<section id="id4">
+<h3>Windows Terminalのインストール<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Microsoft Storeを開く</p></li>
+<li><p>「Windows Terminal」を検索</p></li>
+<li><p>インストールボタンをクリック</p></li>
+</ol>
+</section>
+<section id="id5">
+<h3>Windows Terminalを起動<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<p>スタートメニューから「Windows Terminal」を探して起動します。</p>
+</section>
+</section>
+<section id="id6">
+<h2>ステップ2: WSLのインストール<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h2>
+<section id="id7">
+<h3>現在の状態を確認<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<p>Windows Terminalで以下のコマンドを実行：</p>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">wsl</span> <span class="n">-l</span> <span class="n">-v</span>
+</pre></div>
+</div>
+<p>Ubuntu-20.04がまだインストールされていないことを確認します。</p>
+</section>
+<section id="ubuntu-20-04">
+<h3>Ubuntu 20.04をインストール<a class="headerlink" href="#ubuntu-20-04" title="Permalink to this heading">#</a></h3>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">wsl</span> <span class="p">-</span><span class="n">-install</span> <span class="n">-d</span> <span class="n">Ubuntu</span><span class="p">-</span><span class="n">20</span><span class="p">.</span><span class="n">04</span>
+</pre></div>
+</div>
+<p>インストール中に：</p>
+<ul class="simple">
+<li><p>👤 ユーザー名を設定（英数字で！）</p></li>
+<li><p>🔑 パスワードを設定（忘れないように！）</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>インストールの確認<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<div class="highlight-powershell notranslate"><div class="highlight"><pre><span></span><span class="n">wsl</span> <span class="n">-l</span> <span class="n">-v</span>
+</pre></div>
+</div>
+<p>Ubuntu-20.04のVERSIONが「2」になっていればOK！</p>
+</section>
+</section>
+<section id="ros">
+<h2>ステップ3: ROSのインストール<a class="headerlink" href="#ros" title="Permalink to this heading">#</a></h2>
+<p>いよいよロボット制御の準備！WSLで起動したUbuntu-20.04で以下のコマンドを実行します。</p>
+<section id="id9">
+<h3>必要なツールをインストール<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>curl
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>ROSのセットアップ<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># キーリングディレクトリを作成</span>
+sudo<span class="w"> </span>mkdir<span class="w"> </span>-p<span class="w"> </span>/etc/apt/keyrings
+
+<span class="c1"># ROSの公開鍵を追加</span>
+curl<span class="w"> </span>-fsSL<span class="w"> </span>https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc<span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>gpg<span class="w"> </span>--dearmor<span class="w"> </span>-o<span class="w"> </span>/etc/apt/keyrings/ros-archive-keyring.gpg
+
+<span class="c1"># ROSのリポジトリを追加</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;deb [signed-by=/etc/apt/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros/ubuntu focal main&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>sudo<span class="w"> </span>tee<span class="w"> </span>/etc/apt/sources.list.d/ros-latest.list<span class="w"> </span>&gt;<span class="w"> </span>/dev/null
+
+<span class="c1"># パッケージリストを更新</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+
+<span class="c1"># ROS Noeticをインストール（時間がかかります☕）</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>ros-noetic-desktop
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>ROSビルドツールのインストール<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ビルドに必要なツールをインストール</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>python3-vcstool<span class="w"> </span>python3-catkin-tools<span class="w"> </span>python3-rosdep
+
+<span class="c1"># rosdepの初期化</span>
+sudo<span class="w"> </span>apt<span class="w"> </span>update
+sudo<span class="w"> </span>rosdep<span class="w"> </span>init
+rosdep<span class="w"> </span>update
+</pre></div>
+</div>
+</section>
+</section>
+<section id="visual-studio-code">
+<h2>ステップ4: Visual Studio Codeのインストール<a class="headerlink" href="#visual-studio-code" title="Permalink to this heading">#</a></h2>
+<p>プログラムを書くために便利なエディタ「Visual Studio Code」をインストールしましょう！</p>
+<section id="windowsvs-code">
+<h3>Windows側にVS Codeをインストール<a class="headerlink" href="#windowsvs-code" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://code.visualstudio.com/">Visual Studio Codeの公式サイト</a>にアクセス</p></li>
+<li><p>「Download for Windows」をクリック</p></li>
+<li><p>ダウンロードしたインストーラーを実行</p></li>
+<li><p>インストール時に以下のオプションをチェック：</p>
+<ul class="simple">
+<li><p>✅ PATHに追加する（再起動後に使用可能）</p></li>
+<li><p>✅ エクスプローラーのファイルコンテキストメニューに「Codeで開く」を追加</p></li>
+<li><p>✅ エクスプローラーのディレクトリコンテキストメニューに「Codeで開く」を追加</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id12">
+<h3>WSL拡張機能をインストール<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>VS Codeを起動</p></li>
+<li><p>左側の拡張機能アイコン（四角が4つ）をクリック</p></li>
+<li><p>「WSL」を検索してインストール</p></li>
+</ol>
+</section>
+<section id="wslvs-code">
+<h3>WSLからVS Codeを使う<a class="headerlink" href="#wslvs-code" title="Permalink to this heading">#</a></h3>
+<p>WSLのターミナルで以下のコマンドを実行すると、VS Codeでファイルやフォルダを開けます：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 現在のディレクトリをVS Codeで開く</span>
+code<span class="w"> </span>.
+
+<span class="c1"># 特定のファイルを編集</span>
+code<span class="w"> </span>ファイル名.py
+
+<span class="c1"># 新しいファイルを作成して編集</span>
+code<span class="w"> </span>新しいファイル.md
+</pre></div>
+</div>
+<p>💡 <strong>便利な使い方</strong>：</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">code</span> <span class="pre">.</span></code>で現在のフォルダ全体をVS Codeで開ける</p></li>
+<li><p>WSL内のファイルをWindowsのVS Codeで直接編集できる</p></li>
+<li><p>ターミナルはWSL、エディタはWindowsという快適な開発環境！</p></li>
+</ul>
+</section>
+</section>
+<section id="id13">
+<h2>🎉 おめでとう！<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<p>WSL環境の構築が完了しました！これでWindowsでLinuxとROSが使えるようになりました。</p>
+<section id="id14">
+<h3>次のステップ<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference internal" href="../linux-tutorial/basics.html"><span class="std std-doc">Linux基本コマンドを学ぼう</span></a></p></li>
+<li><p><a class="reference internal" href="../ros-basics/index.html"><span class="std std-doc">ROSの基礎を学ぼう</span></a></p></li>
+</ul>
+</section>
+<section id="id15">
+<h3>トラブルシューティング<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<section id="id16">
+<h4>WSLが起動しない場合<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h4>
+<ol class="arabic simple">
+<li><p>Windows Updateを確認</p></li>
+<li><p>BIOSで仮想化機能が有効になっているか確認</p></li>
+</ol>
+</section>
+<section id="id17">
+<h4>エラーメッセージが出る場合<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wsl</span> <span class="pre">--update</span></code> でWSLを最新版に更新</p></li>
+<li><p>Windows Terminalを管理者権限で実行してみる</p></li>
+</ul>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">準備編：冒険に必要な道具を揃えよう！</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../linux-tutorial/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🐧 Linuxチュートリアル - ロボットプログラミングの第一歩</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#os">その前に…「OS」って何？🤔</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#wsl">WSLって何？🤔</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">WSLの良いところ</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#windows">事前準備 - Windows側の設定確認</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windows-11">Windows 11の場合</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windows-10">Windows 10の場合</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">WSLの前提条件を確認</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#windows-terminal">ステップ1: Windows Terminalを準備しよう</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">ターミナルって何？💻</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">Windows Terminalのインストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Windows Terminalを起動</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">ステップ2: WSLのインストール</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">現在の状態を確認</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ubuntu-20-04">Ubuntu 20.04をインストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">インストールの確認</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ros">ステップ3: ROSのインストール</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">必要なツールをインストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">ROSのセットアップ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">ROSビルドツールのインストール</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visual-studio-code">ステップ4: Visual Studio Codeのインストール</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#windowsvs-code">Windows側にVS Codeをインストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">WSL拡張機能をインストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#wslvs-code">WSLからVS Codeを使う</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">🎉 おめでとう！</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">次のステップ</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">トラブルシューティング</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">WSLが起動しない場合</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">エラーメッセージが出る場合</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/getting-started/wsl-setup.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/getting-started/wsl-setup.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

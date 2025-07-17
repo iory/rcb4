@@ -1,0 +1,1654 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>🤖 セッション2: ロボット制御プログラミング &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'robot-control/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🎯 最終プロジェクト - 統合チャレンジ" href="../projects/index.html" />
+    <link rel="prev" title="セッション1: ロボットとの出会い - ROS入門" href="../ros-basics/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🤖 セッション2: ロボット制御プログラミング</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>🤖 セッション2: ロボット制御プログラミング<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h1>
+<section id="id2">
+<h2>このセッションで学ぶこと<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<p>Pythonとscikit-robotライブラリを使って、ロボットの動きを自在にコントロールする方法を学びます。数学的な概念を視覚的に理解しながら、実際にロボットを動かしてみましょう！</p>
+<section id="id3">
+<h3>🎯 学習目標<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>scikit-robot</strong>の基本的な使い方をマスター</p></li>
+<li><p><strong>3Dビューアー</strong>でロボットを可視化</p></li>
+<li><p><strong>順運動学</strong>と<strong>逆運動学</strong>の概念を理解</p></li>
+<li><p><strong>座標系</strong>と<strong>変換行列</strong>の基礎</p></li>
+<li><p>実際のロボット制御プログラムを作成</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="scikit-robot">
+<h2>scikit-robotとは？<a class="headerlink" href="#scikit-robot" title="Permalink to this heading">#</a></h2>
+<p><strong>scikit-robot</strong>は、Pythonで書かれたロボット制御ライブラリです。複雑な数学的計算を簡単なコードで実現でき、美しい3D可視化機能も備えています。</p>
+<section id="id4">
+<h3>🌟 なぜscikit-robotを使うの？<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>視覚的</strong>: 3Dビューアーでロボットの動きが見える</p></li>
+<li><p><strong>学習しやすい</strong>: Pythonの読みやすいコード</p></li>
+<li><p><strong>本格的</strong>: 実際の研究・産業でも使用される技術</p></li>
+<li><p><strong>安全</strong>: シミュレーション環境で実験可能</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id5">
+<h2>環境構築<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h2>
+<section id="id6">
+<h3>インストール<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># scikit-robotのインストール</span>
+pip<span class="w"> </span>install<span class="w"> </span>scikit-robot<span class="o">[</span>all<span class="o">]</span>
+
+<span class="c1"># 必要な依存関係（Ubuntu/Debian）</span>
+sudo<span class="w"> </span>apt-get<span class="w"> </span>install<span class="w"> </span>libspatialindex-dev<span class="w"> </span>freeglut3-dev<span class="w"> </span>libsuitesparse-dev
+
+<span class="c1"># 動作確認</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import skrobot; print(&#39;scikit-robot installed successfully!&#39;)&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>初回テスト<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">最初のロボットプログラム</span>
+<span class="sd">ロボットを画面に表示してみよう！</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+
+<span class="c1"># ロボットを作成</span>
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ロボット作成完了: </span><span class="si">{</span><span class="n">robot</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># ビューアーを作成</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+
+<span class="c1"># ロボットをシーンに追加</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 表示</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ロボットが表示されました！マウスで回転・ズームしてみてください&quot;</span><span class="p">)</span>
+
+<span class="c1"># しばらく待機</span>
+<span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーを押すと終了します...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id8">
+<h2>ロボットモデルの基礎<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h2>
+<section id="id9">
+<h3>🤖 利用可能なロボット<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+
+<span class="c1"># 工業用ロボットアーム</span>
+<span class="n">kuka</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+
+<span class="c1"># 研究用ヒューマノイドロボット</span>
+<span class="n">pr2</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">PR2</span><span class="p">()</span>
+
+<span class="c1"># 移動式マニピュレーター</span>
+<span class="n">fetch</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Fetch</span><span class="p">()</span>
+
+<span class="c1"># 精密ロボットアーム</span>
+<span class="n">panda</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Panda</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Kukaのジョイント数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">kuka</span><span class="o">.</span><span class="n">joint_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PR2のリンク数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pr2</span><span class="o">.</span><span class="n">link_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>🔍 ロボットの構造を調べる<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ロボットの構造探索プログラム</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== ロボット情報 ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;名前: </span><span class="si">{</span><span class="n">robot</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ジョイント数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">joint_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;リンク数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">link_list</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== ジョイント一覧 ===&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">joint</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">joint_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">joint</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> (タイプ: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">joint</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== リンク一覧 ===&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">link</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">link_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">link</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 現在のジョイント角度を表示</span>
+<span class="n">angles</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">現在のジョイント角度: </span><span class="si">{</span><span class="n">angles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="d">
+<h2>3Dビューアーの使い方<a class="headerlink" href="#d" title="Permalink to this heading">#</a></h2>
+<section id="id11">
+<h3>基本的な可視化<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">美しい3Dシーンの作成</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># ロボットを作成</span>
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+
+<span class="c1"># ビューアーを作成</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">1024</span><span class="p">,</span> <span class="mi">768</span><span class="p">))</span>
+
+<span class="c1"># 座標軸を追加（参考用）</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">axis_radius</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="c1"># 地面を追加</span>
+<span class="n">ground</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
+    <span class="n">extents</span><span class="o">=</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mf">0.02</span><span class="p">),</span> 
+    <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># 半透明のグレー</span>
+<span class="p">)</span>
+<span class="n">ground</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.01</span><span class="p">])</span>  <span class="c1"># 少し下に配置</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">ground</span><span class="p">)</span>
+
+<span class="c1"># ロボットを追加</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># カメラ位置を設定</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">set_camera</span><span class="p">(</span>
+    <span class="n">angles</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">30</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">45</span><span class="p">)],</span> 
+    <span class="n">distance</span><span class="o">=</span><span class="mf">2.0</span>
+<span class="p">)</span>
+
+<span class="c1"># 表示</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># インタラクティブな操作</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== ビューアー操作方法 ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;マウス左ドラッグ: 回転&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;マウス右ドラッグ: 平行移動&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;ホイール: ズーム&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Escキー: 終了&quot;</span><span class="p">)</span>
+
+<span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで続行...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>オブジェクトの追加<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ロボットワークスペースの作成</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+
+<span class="c1"># ロボットを追加</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 作業対象のオブジェクトを作成</span>
+<span class="n">target_box</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span>
+    <span class="n">extents</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">),</span>
+    <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 半透明の赤</span>
+<span class="p">)</span>
+<span class="n">target_box</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">])</span>  <span class="c1"># 位置を設定</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target_box</span><span class="p">)</span>
+
+<span class="c1"># 球体オブジェクト</span>
+<span class="n">sphere</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 半透明の緑</span>
+<span class="p">)</span>
+<span class="n">sphere</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">])</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">sphere</span><span class="p">)</span>
+
+<span class="c1"># 円柱オブジェクト</span>
+<span class="n">cylinder</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Cylinder</span><span class="p">(</span>
+    <span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+    <span class="n">height</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>
+    <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>  <span class="c1"># 半透明の青</span>
+<span class="p">)</span>
+<span class="n">cylinder</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.6</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">cylinder</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;カラフルなワークスペースが完成しました！&quot;</span><span class="p">)</span>
+<span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで続行...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="forward-kinematics">
+<h2>順運動学（Forward Kinematics）<a class="headerlink" href="#forward-kinematics" title="Permalink to this heading">#</a></h2>
+<p><strong>順運動学</strong>は、「ジョイントの角度が分かっているとき、ロボットの手先がどこにあるか」を計算する技術です。</p>
+<section id="id13">
+<h3>🔧 基本的な順運動学<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">順運動学の実演</span>
+<span class="sd">ジョイント角度 → 手先位置</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 座標軸を追加</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 順運動学デモンストレーション ===&quot;</span><span class="p">)</span>
+
+<span class="c1"># 初期姿勢</span>
+<span class="n">robot</span><span class="o">.</span><span class="n">reset_manip_pose</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;初期姿勢&quot;</span><span class="p">)</span>
+<span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで次へ...&quot;</span><span class="p">)</span>
+
+<span class="c1"># 様々なジョイント角度を試す</span>
+<span class="n">test_angles</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>                    <span class="c1"># まっすぐ</span>
+    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>      <span class="c1"># 肘を曲げる</span>
+    <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="c1"># 複雑なポーズ</span>
+    <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">3</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">4</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">6</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>  <span class="c1"># ダンスポーズ</span>
+<span class="p">]</span>
+
+<span class="n">pose_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;まっすぐポーズ&quot;</span><span class="p">,</span> <span class="s2">&quot;肘曲げポーズ&quot;</span><span class="p">,</span> <span class="s2">&quot;複雑ポーズ&quot;</span><span class="p">,</span> <span class="s2">&quot;ダンスポーズ&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">angles</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">test_angles</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="si">{</span><span class="n">pose_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;ジョイント角度: </span><span class="si">{</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">°&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">angles</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># ジョイント角度を設定</span>
+    <span class="n">robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">angles</span><span class="p">)</span>
+    
+    <span class="c1"># 手先位置を取得</span>
+    <span class="n">end_pos</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;手先位置: x=</span><span class="si">{</span><span class="n">end_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, y=</span><span class="si">{</span><span class="n">end_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, z=</span><span class="si">{</span><span class="n">end_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 画面を更新</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで次へ...&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">順運動学のデモが完了しました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h3>📊 軌跡の可視化<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">ロボットの動作軌跡を可視化</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+
+<span class="c1"># 円運動のジョイント角度を生成</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_circle_motion</span><span class="p">(</span><span class="n">robot</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">radius</span><span class="p">,</span> <span class="n">num_points</span><span class="o">=</span><span class="mi">50</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;円運動のための角度列を生成&quot;&quot;&quot;</span>
+    <span class="n">angles_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="p">[]</span>
+    
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_points</span><span class="p">):</span>
+        <span class="n">theta</span> <span class="o">=</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="n">num_points</span>
+        <span class="n">target_pos</span> <span class="o">=</span> <span class="n">center</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+            <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">theta</span><span class="p">),</span>
+            <span class="mi">0</span>
+        <span class="p">])</span>
+        
+        <span class="c1"># 目標位置に対する逆運動学</span>
+        <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span>
+            <span class="n">target_coords</span><span class="p">,</span>
+            <span class="n">move_target</span><span class="o">=</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">angles_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+            <span class="n">positions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">())</span>
+    
+    <span class="k">return</span> <span class="n">angles_list</span><span class="p">,</span> <span class="n">positions</span>
+
+<span class="c1"># 円運動を生成</span>
+<span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">radius</span> <span class="o">=</span> <span class="mf">0.2</span>
+<span class="n">angles_list</span><span class="p">,</span> <span class="n">positions</span> <span class="o">=</span> <span class="n">generate_circle_motion</span><span class="p">(</span><span class="n">robot</span><span class="p">,</span> <span class="n">center</span><span class="p">,</span> <span class="n">radius</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;軌跡点数: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># 軌跡をプロット</span>
+<span class="k">if</span> <span class="n">positions</span><span class="p">:</span>
+    <span class="n">positions</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+    
+    <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+    
+    <span class="c1"># 3D軌跡</span>
+    <span class="n">ax1</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">221</span><span class="p">,</span> <span class="n">projection</span><span class="o">=</span><span class="s1">&#39;3d&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">positions</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;開始点&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;終了点&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X [m]&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y [m]&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_zlabel</span><span class="p">(</span><span class="s1">&#39;Z [m]&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;3D軌跡&#39;</span><span class="p">)</span>
+    <span class="n">ax1</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    
+    <span class="c1"># XY平面投影</span>
+    <span class="n">ax2</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">222</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">positions</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">],</span> <span class="s1">&#39;b-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">positions</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;X [m]&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Y [m]&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;XY平面投影&#39;</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">ax2</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s1">&#39;equal&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># ジョイント角度の変化</span>
+    <span class="k">if</span> <span class="n">angles_list</span><span class="p">:</span>
+        <span class="n">angles_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">angles_list</span><span class="p">)</span>
+        <span class="n">ax3</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">223</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">angles_array</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])):</span>  <span class="c1"># 最初の4関節</span>
+            <span class="n">ax3</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">angles_array</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]),</span> <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Joint </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time Step&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Joint Angle [deg]&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;ジョイント角度の変化&#39;</span><span class="p">)</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+        <span class="n">ax3</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="c1"># 速度プロファイル</span>
+    <span class="n">ax4</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="mi">224</span><span class="p">)</span>
+    <span class="n">velocities</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">positions</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">speeds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">velocities</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">speeds</span><span class="p">,</span> <span class="s1">&#39;r-&#39;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">&#39;Time Step&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">&#39;Speed [m/step]&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s1">&#39;手先速度&#39;</span><span class="p">)</span>
+    <span class="n">ax4</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;軌跡解析が完了しました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="inverse-kinematics">
+<h2>逆運動学（Inverse Kinematics）<a class="headerlink" href="#inverse-kinematics" title="Permalink to this heading">#</a></h2>
+<p><strong>逆運動学</strong>は、「ロボットの手先をここに動かしたい」というとき、「どのジョイント角度にすればよいか」を計算する技術です。</p>
+<section id="id15">
+<h3>🎯 基本的な逆運動学<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">逆運動学の実演</span>
+<span class="sd">目標位置 → ジョイント角度</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+
+<span class="c1"># ロボットを表示</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 座標軸を追加</span>
+<span class="n">axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 逆運動学デモンストレーション ===&quot;</span><span class="p">)</span>
+
+<span class="c1"># 目標位置を定義</span>
+<span class="n">targets</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],</span>   <span class="c1"># 右前</span>
+    <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="o">-</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">],</span>  <span class="c1"># 左前上</span>
+    <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>   <span class="c1"># 前下</span>
+    <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">],</span>   <span class="c1"># 右前上</span>
+<span class="p">]</span>
+
+<span class="n">target_names</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;右前&quot;</span><span class="p">,</span> <span class="s2">&quot;左前上&quot;</span><span class="p">,</span> <span class="s2">&quot;前下&quot;</span><span class="p">,</span> <span class="s2">&quot;右前上&quot;</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">target_pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">targets</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 目標 </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">target_names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2"> ===&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;目標位置: x=</span><span class="si">{</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">, y=</span><span class="si">{</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">, z=</span><span class="si">{</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 目標位置を可視化</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 前の目標を削除</span>
+        <span class="n">viewer</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">target_sphere</span><span class="p">)</span>
+    
+    <span class="n">target_sphere</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span>
+        <span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span>
+        <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">target_sphere</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target_sphere</span><span class="p">)</span>
+    
+    <span class="c1"># 目標座標を作成</span>
+    <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+    
+    <span class="c1"># 逆運動学を実行</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;逆運動学を計算中...&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span>
+        <span class="n">target_coords</span><span class="p">,</span>
+        <span class="n">move_target</span><span class="o">=</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ 逆運動学成功！&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 結果のジョイント角度を表示</span>
+        <span class="n">angles</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;解ジョイント角度: </span><span class="si">{</span><span class="p">[</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">rad2deg</span><span class="p">(</span><span class="n">a</span><span class="p">)</span><span class="si">:</span><span class="s1">.1f</span><span class="si">}</span><span class="s1">°&#39;</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">angles</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 実際の手先位置を確認</span>
+        <span class="n">actual_pos</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span> <span class="o">-</span> <span class="n">actual_pos</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;実際の手先位置: x=</span><span class="si">{</span><span class="n">actual_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, y=</span><span class="si">{</span><span class="n">actual_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, z=</span><span class="si">{</span><span class="n">actual_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;位置誤差: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> m&quot;</span><span class="p">)</span>
+        
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ 逆運動学失敗 - 到達不可能な位置です&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 画面を更新</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで次へ...&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">逆運動学のデモが完了しました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h3>🔄 動的な逆運動学<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">リアルタイム逆運動学</span>
+<span class="sd">マウスで目標位置を動かしてみよう！</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 目標球を作成</span>
+<span class="n">target</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.8</span><span class="p">))</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== リアルタイム逆運動学 ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;目標を様々な位置に動かして、ロボットの追従を観察しましょう&quot;</span><span class="p">)</span>
+
+<span class="c1"># 円軌道で目標を動かす</span>
+<span class="n">center</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+<span class="n">radius</span> <span class="o">=</span> <span class="mf">0.3</span>
+<span class="n">duration</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># 秒</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>
+    <span class="c1"># 現在時刻での目標位置を計算</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="n">steps</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+    <span class="n">target_pos</span> <span class="o">=</span> <span class="n">center</span> <span class="o">+</span> <span class="n">radius</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">),</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">),</span>  <span class="c1"># Y軸は少し違う周波数</span>
+        <span class="mf">0.3</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">1.3</span><span class="p">)</span>  <span class="c1"># Z軸はさらに違う周波数</span>
+    <span class="p">])</span>
+    
+    <span class="c1"># 目標球を移動</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">newcoords</span><span class="p">(</span><span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">target_pos</span><span class="p">))</span>
+    
+    <span class="c1"># 逆運動学でロボットを追従させる</span>
+    <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span>
+        <span class="n">target_coords</span><span class="p">,</span>
+        <span class="n">move_target</span><span class="o">=</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="p">,</span>
+        <span class="n">rotation_axis</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># 画面を更新</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    
+    <span class="c1"># 少し待機</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    
+    <span class="c1"># 進捗表示</span>
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">20</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;進捗: </span><span class="si">{</span><span class="n">i</span><span class="o">/</span><span class="n">steps</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;リアルタイム逆運動学のデモが完了しました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id17">
+<h2>座標系と変換<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h2>
+<section id="id18">
+<h3>🌐 座標系の理解<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">座標系と変換の可視化</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">900</span><span class="p">,</span> <span class="mi">700</span><span class="p">))</span>
+
+<span class="c1"># ワールド座標系</span>
+<span class="n">world_axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">axis_radius</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">world_axes</span><span class="p">)</span>
+
+<span class="c1"># 複数の座標系を作成</span>
+<span class="n">coords_list</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">colors</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="c1"># 新しい座標系を作成</span>
+    <span class="n">coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">()</span>
+    
+    <span class="c1"># 位置を設定</span>
+    <span class="n">position</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">i</span> <span class="o">/</span> <span class="mi">5</span><span class="p">),</span>
+        <span class="mf">0.2</span> <span class="o">*</span> <span class="n">i</span>
+    <span class="p">]</span>
+    <span class="n">coords</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+    
+    <span class="c1"># 回転を設定</span>
+    <span class="n">coords</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">i</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)</span>
+    <span class="n">coords</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">6</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># 座標軸を可視化</span>
+    <span class="n">axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">axis_radius</span><span class="o">=</span><span class="mf">0.01</span><span class="p">)</span>
+    <span class="n">axes</span><span class="o">.</span><span class="n">newcoords</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+    
+    <span class="c1"># 原点にマーカーを追加</span>
+    <span class="n">marker</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">face_colors</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)])</span>
+    <span class="n">marker</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">position</span><span class="p">)</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">marker</span><span class="p">)</span>
+    
+    <span class="n">coords_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coords</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 座標系と変換 ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;複数の座標系が表示されています&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;色付きの球が各座標系の原点を示しています&quot;</span><span class="p">)</span>
+
+<span class="c1"># 座標変換の計算例</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== 座標変換の計算 ===&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">coords</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">coords_list</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">座標系 </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  位置: </span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  回転行列:</span><span class="se">\n</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">worldrot</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># ローカル座標での点をワールド座標に変換</span>
+    <span class="n">local_point</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">])</span>
+    <span class="n">world_point</span> <span class="o">=</span> <span class="n">coords</span><span class="o">.</span><span class="n">transform_vector</span><span class="p">(</span><span class="n">local_point</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  ローカル点 </span><span class="si">{</span><span class="n">local_point</span><span class="si">}</span><span class="s2"> → ワールド点 </span><span class="si">{</span><span class="n">world_point</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Enterキーで終了...&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id19">
+<h3>🔄 動的な変換<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">動的座標変換の可視化</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+
+<span class="c1"># 基準座標系</span>
+<span class="n">base_axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.3</span><span class="p">,</span> <span class="n">axis_radius</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">base_axes</span><span class="p">)</span>
+
+<span class="c1"># 動く座標系</span>
+<span class="n">moving_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">()</span>
+<span class="n">moving_axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">axis_radius</span><span class="o">=</span><span class="mf">0.015</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">moving_axes</span><span class="p">)</span>
+
+<span class="c1"># 軌跡を記録するための点群</span>
+<span class="n">trail_points</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_trail_points</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== 動的座標変換 ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;座標系が動きながら変換を可視化します&quot;</span><span class="p">)</span>
+
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">200</span><span class="p">):</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="n">i</span> <span class="o">*</span> <span class="mf">0.05</span>
+    
+    <span class="c1"># 複雑な軌道を計算</span>
+    <span class="n">x</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">1.3</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="mf">0.3</span> <span class="o">+</span> <span class="mf">0.2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">)</span>
+    
+    <span class="c1"># 座標系を更新</span>
+    <span class="n">moving_coords</span><span class="o">.</span><span class="n">newcoords</span><span class="p">(</span><span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">]))</span>
+    <span class="n">moving_coords</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)</span>
+    <span class="n">moving_coords</span><span class="o">.</span><span class="n">rotate</span><span class="p">(</span><span class="n">t</span> <span class="o">*</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+    
+    <span class="c1"># 軌跡点を追加</span>
+    <span class="n">trail_points</span><span class="o">.</span><span class="n">append</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">])</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">trail_points</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">max_trail_points</span><span class="p">:</span>
+        <span class="n">trail_points</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># 軌跡を可視化</span>
+    <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">trail_points</span><span class="p">):</span>
+        <span class="n">alpha</span> <span class="o">=</span> <span class="n">j</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">trail_points</span><span class="p">)</span>  <span class="c1"># 透明度を調整</span>
+        <span class="n">trail_sphere</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span>
+            <span class="n">radius</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> 
+            <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">trail_sphere</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">point</span><span class="p">)</span>
+        <span class="c1"># 注意: 実際の実装では効率のため軌跡の描画方法を最適化する必要があります</span>
+    
+    <span class="c1"># 座標軸の位置を更新</span>
+    <span class="n">moving_axes</span><span class="o">.</span><span class="n">newcoords</span><span class="p">(</span><span class="n">moving_coords</span><span class="p">)</span>
+    
+    <span class="c1"># ローカル座標での固定点をワールド座標に変換</span>
+    <span class="n">local_points</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>    <span class="c1"># X軸方向</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>    <span class="c1"># Y軸方向</span>
+        <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]</span>     <span class="c1"># Z軸方向</span>
+    <span class="p">]</span>
+    
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
+    
+    <span class="k">for</span> <span class="n">local_point</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">local_points</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
+        <span class="n">world_point</span> <span class="o">=</span> <span class="n">moving_coords</span><span class="o">.</span><span class="n">transform_vector</span><span class="p">(</span><span class="n">local_point</span><span class="p">)</span>
+        <span class="n">point_sphere</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span><span class="n">radius</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">face_colors</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
+        <span class="n">point_sphere</span><span class="o">.</span><span class="n">translate</span><span class="p">(</span><span class="n">world_point</span><span class="p">)</span>
+        <span class="c1"># 注意: 実際の実装では点の管理を最適化する必要があります</span>
+    
+    <span class="c1"># 画面を更新</span>
+    <span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.05</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">40</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;進捗: </span><span class="si">{</span><span class="n">i</span><span class="o">/</span><span class="mi">200</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;動的座標変換のデモが完了しました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id20">
+<h2>キーボード制御プログラム<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h2>
+<section id="id21">
+<h3>⌨️ インタラクティブ制御<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">キーボードでロボットを制御</span>
+<span class="sd">元のkeyboard-ik-sample.lをPythonで再実装</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">select</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">termios</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tty</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">KeyboardRobotController</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">(</span><span class="n">resolution</span><span class="o">=</span><span class="p">(</span><span class="mi">800</span><span class="p">,</span> <span class="mi">600</span><span class="p">))</span>
+        
+        <span class="c1"># ロボットを表示</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="p">)</span>
+        
+        <span class="c1"># 座標軸を追加</span>
+        <span class="n">axes</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Axis</span><span class="p">(</span><span class="n">axis_length</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">axes</span><span class="p">)</span>
+        
+        <span class="c1"># 目標位置を表示する球</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_sphere</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Sphere</span><span class="p">(</span>
+            <span class="n">radius</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> 
+            <span class="n">face_colors</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_sphere</span><span class="p">)</span>
+        
+        <span class="c1"># 制御パラメータ</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span> <span class="o">=</span> <span class="mf">0.05</span>  <span class="c1"># 1回の移動量 [m]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>  <span class="c1"># 1回の回転量 [rad]</span>
+        
+        <span class="c1"># 現在の目標位置</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+        
+        <span class="c1"># 初期設定</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update_target</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">reset_manip_pose</span><span class="p">()</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+        
+        <span class="c1"># キーボード設定</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">old_settings</span> <span class="o">=</span> <span class="n">termios</span><span class="o">.</span><span class="n">tcgetattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">)</span>
+        <span class="n">tty</span><span class="o">.</span><span class="n">setraw</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">fileno</span><span class="p">())</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">True</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;目標位置の表示を更新&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_sphere</span><span class="o">.</span><span class="n">newcoords</span><span class="p">(</span>
+            <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">move_to_target</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;目標位置に逆運動学で移動&quot;&quot;&quot;</span>
+        <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="p">)</span>
+        
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span>
+            <span class="n">target_coords</span><span class="p">,</span>
+            <span class="n">move_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="p">,</span>
+            <span class="n">rotation_axis</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="n">current_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span>
+            <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span> <span class="o">-</span> <span class="n">current_pos</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;移動完了 - 誤差: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠️  到達不可能な位置です&quot;</span><span class="p">)</span>
+        
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span><span class="o">.</span><span class="n">redraw</span><span class="p">()</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_key</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ノンブロッキングでキー入力を取得&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">select</span><span class="o">.</span><span class="n">select</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[],</span> <span class="mi">0</span><span class="p">)</span> <span class="o">==</span> <span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">],</span> <span class="p">[],</span> <span class="p">[]):</span>
+            <span class="k">return</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;操作方法を表示&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🤖 キーボードロボット制御&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;移動操作:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  w/s : X軸方向 前進/後退&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  a/d : Y軸方向 左/右&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  q/e : Z軸方向 上昇/下降&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">回転操作:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  i/k : X軸周りの回転&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  j/l : Y軸周りの回転&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  u/o : Z軸周りの回転&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">その他:&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  r   : 初期姿勢にリセット&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  h   : ヘルプ表示&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  ESC : 終了&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span><span class="o">*</span><span class="mi">50</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;メインループ&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+        
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">running</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_key</span><span class="p">()</span>
+                
+                <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+                    <span class="n">moved</span> <span class="o">=</span> <span class="kc">False</span>
+                    
+                    <span class="c1"># 移動コマンド</span>
+                    <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>  <span class="c1"># 前進</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;→ 前進&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;s&#39;</span><span class="p">:</span>  <span class="c1"># 後退</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;← 後退&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;a&#39;</span><span class="p">:</span>  <span class="c1"># 左</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;← 左移動&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;d&#39;</span><span class="p">:</span>  <span class="c1"># 右</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;→ 右移動&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;q&#39;</span><span class="p">:</span>  <span class="c1"># 上昇</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;↑ 上昇&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;e&#39;</span><span class="p">:</span>  <span class="c1"># 下降</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;↓ 下降&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># 回転コマンド</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span><span class="p">:</span>  <span class="c1"># X軸+回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 X軸+回転&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;k&#39;</span><span class="p">:</span>  <span class="c1"># X軸-回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 X軸-回転&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;j&#39;</span><span class="p">:</span>  <span class="c1"># Y軸+回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 Y軸+回転&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;l&#39;</span><span class="p">:</span>  <span class="c1"># Y軸-回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 Y軸-回転&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;u&#39;</span><span class="p">:</span>  <span class="c1"># Z軸+回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 Z軸+回転&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;o&#39;</span><span class="p">:</span>  <span class="c1"># Z軸-回転</span>
+                        <span class="n">rot_mat</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">rotation_matrix</span><span class="p">(</span><span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">angle_step</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span><span class="o">.</span><span class="n">dot</span><span class="p">(</span><span class="n">rot_mat</span><span class="p">)</span>
+                        <span class="n">moved</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 Z軸-回転&quot;</span><span class="p">)</span>
+                    
+                    <span class="c1"># その他のコマンド</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;r&#39;</span><span class="p">:</span>  <span class="c1"># リセット</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">reset_manip_pose</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">target_rot</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldrot</span><span class="p">()</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">update_target</span><span class="p">()</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔄 初期姿勢にリセット&quot;</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;h&#39;</span><span class="p">:</span>  <span class="c1"># ヘルプ</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
+                    <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="se">\x1b</span><span class="s1">&#39;</span><span class="p">:</span>  <span class="c1"># ESC</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">👋 終了します&quot;</span><span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">running</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">break</span>
+                    
+                    <span class="c1"># 移動があった場合は実行</span>
+                    <span class="k">if</span> <span class="n">moved</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">update_target</span><span class="p">()</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">move_to_target</span><span class="p">()</span>
+                        
+                        <span class="c1"># 現在位置を表示</span>
+                        <span class="n">pos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_pos</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;目標位置: x=</span><span class="si">{</span><span class="n">pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, y=</span><span class="si">{</span><span class="n">pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, z=</span><span class="si">{</span><span class="n">pos</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                
+                <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.01</span><span class="p">)</span>  <span class="c1"># CPU負荷軽減</span>
+                
+        <span class="k">finally</span><span class="p">:</span>
+            <span class="c1"># キーボード設定を復元</span>
+            <span class="n">termios</span><span class="o">.</span><span class="n">tcsetattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdin</span><span class="p">,</span> <span class="n">termios</span><span class="o">.</span><span class="n">TCSADRAIN</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">old_settings</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;キーボードロボット制御を開始します...&quot;</span><span class="p">)</span>
+    <span class="n">controller</span> <span class="o">=</span> <span class="n">KeyboardRobotController</span><span class="p">()</span>
+    <span class="n">controller</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id22">
+<h2>🎮 演習課題<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h2>
+<section id="id23">
+<h3>課題1: 基本的なロボット操作<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">課題1: ロボットに様々なポーズをとらせよう</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># TODO: 以下の課題を実装してください</span>
+
+<span class="c1"># 1. ロボットを初期姿勢にする</span>
+
+<span class="c1"># 2. 3つの異なるポーズを作成し、5秒間隔で実行</span>
+
+<span class="c1"># 3. 各ポーズで手先位置と各ジョイント角度を表示</span>
+
+<span class="c1"># 4. 最後に初期姿勢に戻る</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;課題1を完成させてください！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id24">
+<h3>課題2: 軌跡生成<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">課題2: ロボットに図形を描かせよう</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># TODO: 以下の課題を実装してください</span>
+
+<span class="c1"># 1. 正方形の軌跡を生成する関数を作成</span>
+
+<span class="c1"># 2. 三角形の軌跡を生成する関数を作成</span>
+
+<span class="c1"># 3. 星形（五芒星）の軌跡を生成する関数を作成</span>
+
+<span class="c1"># 4. 各図形をロボットに実行させる</span>
+
+<span class="c1"># 5. 軌跡をmatplotlibで可視化</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;課題2を完成させてください！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id25">
+<h3>課題3: 障害物回避<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">課題3: 障害物を避けながら目標に到達しよう</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+<span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">()</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">robot</span><span class="p">)</span>
+
+<span class="c1"># 障害物を配置</span>
+<span class="n">obstacle</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">Box</span><span class="p">(</span><span class="n">extents</span><span class="o">=</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">))</span>
+<span class="n">obstacle</span><span class="o">.</span><span class="n">translate</span><span class="p">([</span><span class="mf">0.4</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="n">viewer</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">obstacle</span><span class="p">)</span>
+
+<span class="n">viewer</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># TODO: 以下の課題を実装してください</span>
+
+<span class="c1"># 1. 開始位置と目標位置を設定</span>
+
+<span class="c1"># 2. 障害物との衝突判定関数を作成</span>
+
+<span class="c1"># 3. 障害物を避けるパスプランニング</span>
+
+<span class="c1"># 4. 生成したパスをロボットに実行させる</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;課題3を完成させてください！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id26">
+<h2>🎓 まとめ<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h2>
+<p>このセッションでは、scikit-robotを使ったロボット制御の基礎を学びました：</p>
+<section id="id27">
+<h3>🎯 習得したスキル<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>✅ <strong>ロボットモデルの操作</strong>: 読み込み、表示、基本操作</p></li>
+<li><p>✅ <strong>3D可視化</strong>: ビューアーの使用、オブジェクトの追加</p></li>
+<li><p>✅ <strong>順運動学</strong>: ジョイント角度から手先位置の計算</p></li>
+<li><p>✅ <strong>逆運動学</strong>: 目標位置からジョイント角度の計算</p></li>
+<li><p>✅ <strong>座標変換</strong>: 3D空間での位置・姿勢の表現</p></li>
+<li><p>✅ <strong>リアルタイム制御</strong>: キーボードでの対話的操作</p></li>
+</ul>
+</section>
+<section id="id28">
+<h3>🚀 次のステップ<a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h3>
+<p>ロボット制御の基礎をマスターしたら：</p>
+<ol class="arabic simple">
+<li><p><strong><a class="reference internal" href="../ros-basics/index.html"><span class="std std-doc">🌐 ROSとの連携</span></a></strong> - 実際のロボットとの通信</p></li>
+<li><p><strong><a class="reference internal" href="../projects/index.html"><span class="std std-doc">🎯 最終プロジェクト</span></a></strong> - 総合的なロボットシステム</p></li>
+<li><p><strong>高度な制御技術</strong> - 動力学、制御理論の応用</p></li>
+</ol>
+<p>これで君もロボット制御の専門家だ！科学技術の力で、ロボットに生命を吹き込もう！</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../ros-basics/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">セッション1: ロボットとの出会い - ROS入門</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../projects/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🎯 最終プロジェクト - 統合チャレンジ</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">このセッションで学ぶこと</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">🎯 学習目標</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#scikit-robot">scikit-robotとは？</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">🌟 なぜscikit-robotを使うの？</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">環境構築</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">インストール</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">初回テスト</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">ロボットモデルの基礎</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">🤖 利用可能なロボット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">🔍 ロボットの構造を調べる</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d">3Dビューアーの使い方</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">基本的な可視化</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">オブジェクトの追加</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#forward-kinematics">順運動学（Forward Kinematics）</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">🔧 基本的な順運動学</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">📊 軌跡の可視化</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inverse-kinematics">逆運動学（Inverse Kinematics）</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">🎯 基本的な逆運動学</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">🔄 動的な逆運動学</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">座標系と変換</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">🌐 座標系の理解</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">🔄 動的な変換</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">キーボード制御プログラム</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">⌨️ インタラクティブ制御</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">🎮 演習課題</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">課題1: 基本的なロボット操作</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">課題2: 軌跡生成</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">課題3: 障害物回避</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">🎓 まとめ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">🎯 習得したスキル</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">🚀 次のステップ</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/robot-control/index.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/robot-control/index.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1153 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>ロボットプログラミングの基本：条件で動くロボット &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/sphinx_highlight.js"></script>
+    <script src="_static/clipboard.min.js"></script>
+    <script src="_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'robot-programming-basics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="🐧 Linuxチュートリアル - ロボットプログラミングの第一歩" href="linux-tutorial/index.html" />
+    <link rel="prev" title="WSLでLinux環境を手に入れよう！🐧" href="getting-started/wsl-setup.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    ロボットプログラミングの基本：条件で動くロボット
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-basics.html">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+            <li class="nav-item dropdown">
+                <button class="btn dropdown-toggle nav-item" type="button"
+                data-bs-toggle="dropdown" aria-expanded="false"
+                aria-controls="pst-nav-more-links">
+                    More
+                </button>
+                <ul id="pst-nav-more-links" class="dropdown-menu">
+                    
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class=" ">
+  <a class="nav-link dropdown-item nav-internal" href="projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+                </ul>
+            </li>
+            
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    ロボットプログラミングの基本：条件で動くロボット
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-basics.html">
+    Python基礎プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="python-robot-examples.html">
+    Python ロボット制御実践例
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">ロボットプログラミングの基本：条件で動くロボット</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>ロボットプログラミングの基本：条件で動くロボット<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h1>
+<section id="id2">
+<h2>この章で学ぶこと<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<p>ロボットプログラミングは、人間の思考プロセスをコードで表現することです。「もし〜なら」「何回も繰り返し」「〜まで待つ」といった条件や繰り返しを使って、ロボットに知的な行動をさせます。</p>
+</section>
+<section id="id3">
+<h2>1. ロボットプログラミングの基本的な考え方<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<section id="id4">
+<h3>🤖 ロボットの思考プロセス<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h3>
+<p>人間が行動するときの思考プロセスを考えてみましょう：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>人間の思考：
+1. 「お疲れ様」と言われたか？
+   → はい → 「お疲れ様でした」と返す
+   → いいえ → 聞き続ける
+
+2. 手を振る動作を3回繰り返す
+
+3. 相手が「ありがとう」と言うまで待つ
+</pre></div>
+</div>
+<p>これをプログラムで表現すると：</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 条件分岐（if文）</span>
+<span class="k">if</span> <span class="n">音声認識結果</span> <span class="o">==</span> <span class="s2">&quot;お疲れ様&quot;</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;お疲れ様でした&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. 繰り返し（for文）</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">手を振る動作</span><span class="p">()</span>
+
+<span class="c1"># 3. 待機ループ（while文）</span>
+<span class="k">while</span> <span class="n">音声認識結果</span> <span class="o">!=</span> <span class="s2">&quot;ありがとう&quot;</span><span class="p">:</span>
+    <span class="n">待機</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="robot-model-vs-ri">
+<h2>2. 実機制御の基本：robot_model vs ri<a class="headerlink" href="#robot-model-vs-ri" title="Permalink to this heading">#</a></h2>
+<section id="vs">
+<h3>シミュレーション vs 実機<a class="headerlink" href="#vs" title="Permalink to this heading">#</a></h3>
+<p>ロボットプログラミングでは、2つの重要な概念があります：</p>
+<section id="robot-model">
+<h4>🖥️ robot_model（シミュレーション）<a class="headerlink" href="#robot-model" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>PC内のモデル</strong>：コンピュータの中だけで動く</p></li>
+<li><p><strong>設計図のようなもの</strong>：動かしても実際のロボットは動かない</p></li>
+<li><p><strong>計算や確認用</strong>：「このポーズは可能か？」を事前チェック</p></li>
+</ul>
+</section>
+<section id="ri-robot-interface">
+<h4>🤖 ri（Robot Interface）<a class="headerlink" href="#ri-robot-interface" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>実機との橋渡し</strong>：実際のロボットに指令を送る</p></li>
+<li><p><strong>ri.angle_vector()</strong>：実機の関節を実際に動かす</p></li>
+<li><p><strong>危険も伴う</strong>：実際に動くので注意が必要</p></li>
+</ul>
+</section>
+</section>
+<section id="id5">
+<h3>実際のコード例<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. robot_modelで動作を計算（実機は動かない）</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>  <span class="c1"># 首を40度回転</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;計算完了！でも実機はまだ動いていません&quot;</span><span class="p">)</span>
+
+<span class="c1"># 2. riを使って実機に送信（実機が動く！）</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>  <span class="c1"># 実機に姿勢を送信</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>  <span class="c1"># 動作完了まで待機</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;実機が動きました！&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="if">
+<h2>3. 条件分岐（if文）：ロボットの判断力<a class="headerlink" href="#if" title="Permalink to this heading">#</a></h2>
+<section id="id6">
+<h3>基本的なif文<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 音声認識の結果によって反応を変える</span>
+<span class="k">if</span> <span class="n">音声認識結果</span> <span class="o">==</span> <span class="s2">&quot;こんにちは&quot;</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;こんにちは&quot;</span><span class="p">)</span>
+    <span class="c1"># 首を縦に振る（うなずく）</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id7">
+<h3>ランダムな選択で個性を演出<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">random</span>
+
+<span class="n">choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+<span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s1">&#39;いいよ&#39;</span><span class="p">)</span>
+    <span class="c1"># 首を縦に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_module1_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s1">&#39;嫌だよ&#39;</span><span class="p">)</span>
+    <span class="c1"># 首を横に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>複数の条件を組み合わせる<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 時間帯によって挨拶を変える</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">now</span><span class="o">.</span><span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;おはようございます&quot;</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">now</span><span class="o">.</span><span class="n">hour</span> <span class="o">&lt;</span> <span class="mi">18</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;こんにちは&quot;</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;こんばんは&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="for">
+<h2>4. 繰り返し（for文）：ロボットの反復動作<a class="headerlink" href="#for" title="Permalink to this heading">#</a></h2>
+<section id="id9">
+<h3>同じ動作を繰り返す<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 首を5回左右に振る</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="c1"># 左に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1秒で動作</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="c1"># 右に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+
+<span class="c1"># 最後に正面に戻す</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id10">
+<h3>段階的に動作を変える<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># だんだん大きく手を振る</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+    <span class="n">angle</span> <span class="o">=</span> <span class="mi">30</span> <span class="o">*</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 30度, 60度, 90度</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">rarm_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">angle</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="while">
+<h2>5. 待機ループ（while文）：ロボットの忍耐力<a class="headerlink" href="#while" title="Permalink to this heading">#</a></h2>
+<section id="id11">
+<h3>条件が満たされるまで待機<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 特定の言葉を言われるまで待つ</span>
+<span class="n">target_word</span> <span class="o">=</span> <span class="s2">&quot;ありがとう&quot;</span>
+<span class="n">word_detected</span> <span class="o">=</span> <span class="kc">False</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">word_detected</span><span class="p">:</span>
+    <span class="c1"># 音声認識の結果をチェック</span>
+    <span class="k">if</span> <span class="n">音声認識結果</span> <span class="o">==</span> <span class="n">target_word</span><span class="p">:</span>
+        <span class="n">word_detected</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;どういたしまして&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># 待機中の動作（首を傾げる）</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="ros">
+<h3>ROSを使った実用的な待機<a class="headerlink" href="#ros" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">rospy</span>
+
+<span class="c1"># ROSのRate機能を使った待機</span>
+<span class="n">rate</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Rate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 2Hz = 0.5秒間隔</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+    <span class="k">if</span> <span class="n">detector</span><span class="o">.</span><span class="n">is_found</span><span class="p">():</span>  <span class="c1"># 目標の言葉が見つかった</span>
+        <span class="k">break</span>
+    
+    <span class="c1"># 待機中の動作</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>  <span class="c1"># 指定した間隔で待機</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="sample-py">
+<h2>6. 実際のロボット制御：sample.pyの詳細解説<a class="headerlink" href="#sample-py" title="Permalink to this heading">#</a></h2>
+<section id="id12">
+<h3>実際のロボット制御プログラムを見てみよう<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<p>実際のロボット制御では、以下のような流れでプログラムが動作します：</p>
+<section id="id13">
+<h4>1. 音声認識による条件分岐<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 「お願いを聞いて」という言葉を待つ</span>
+<span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;お願いを聞いて&quot;</span>
+<span class="k">if</span> <span class="n">wait_for_speech_rate</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mf">30.0</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ &#39;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&#39;を認識しました！&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># ランダムに反応を決める</span>
+    <span class="n">choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+    <span class="k">if</span> <span class="n">choice</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">speak_jp</span><span class="p">(</span><span class="s1">&#39;いいよ&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># 首を縦に振る（うなずく）</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>  <span class="c1"># 現在姿勢を取得</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">head_module1_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>  <span class="c1"># 首を下げる</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>  <span class="c1"># 実機に送信</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>  <span class="c1"># 動作完了まで待機</span>
+        
+        <span class="c1"># 元の位置に戻す</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">head_module1_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">speak_jp</span><span class="p">(</span><span class="s1">&#39;嫌だよ&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># 首を横に振る</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>  <span class="c1"># 首を横に振る</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+        
+        <span class="c1"># 元の位置に戻す</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id14">
+<h4>2. for文による繰り返し動作<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 首を5回左右に振る</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>  <span class="c1"># 現在姿勢を同期</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="p">):</span>
+    <span class="c1"># 左に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 1秒で動作</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="c1"># 右に振る</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+
+<span class="c1"># 最後に正面に戻す</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h4>3. while文による待機ループ<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 特定の言葉を待ちながら動作を続ける</span>
+<span class="n">target</span> <span class="o">=</span> <span class="s2">&quot;お願いを聞いてあげる&quot;</span>
+<span class="n">detector</span> <span class="o">=</span> <span class="n">WordDetector</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+<span class="n">detector</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+
+<span class="n">rate</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Rate</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># 2Hz = 0.5秒間隔</span>
+
+<span class="k">while</span> <span class="ow">not</span> <span class="n">rospy</span><span class="o">.</span><span class="n">is_shutdown</span><span class="p">():</span>
+    <span class="c1"># 単語が見つかったかチェック</span>
+    <span class="k">if</span> <span class="n">detector</span><span class="o">.</span><span class="n">is_found</span><span class="p">():</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="s2">&quot;ターゲット単語を検出したため、ループを終了します。&quot;</span><span class="p">)</span>
+        <span class="k">break</span>
+    
+    <span class="c1"># 待機中の動作（首を左右に振る）</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">40</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.8</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="n">rate</span><span class="o">.</span><span class="n">sleep</span><span class="p">()</span>  <span class="c1"># 指定した間隔で待機</span>
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h4>4. 複雑な感情表現<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">if</span> <span class="n">detector</span><span class="o">.</span><span class="n">is_found</span><span class="p">():</span>
+    <span class="c1"># 首を正面に戻す</span>
+    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+    
+    <span class="c1"># 「やったー！」と発話</span>
+    <span class="n">speak_jp</span><span class="p">(</span><span class="s1">&#39;やったー&#39;</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    
+    <span class="c1"># 3回手を上げる喜びの表現</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+        <span class="c1"># 両手を上げる詳細な設定</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">rarm_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>      <span class="c1"># 右腕を上げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">rarm_module1_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>  <span class="c1"># 右肘を曲げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">rarm_module2_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>   <span class="c1"># 右手首を曲げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">right_hand_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>                <span class="c1"># 右手を開く</span>
+        
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">larm_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>       <span class="c1"># 左腕を上げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">larm_module1_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>  <span class="c1"># 左肘を曲げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">larm_module2_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">90</span><span class="p">))</span>  <span class="c1"># 左手首を曲げる</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">left_hand_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="mf">0.7</span><span class="p">)</span>                 <span class="c1"># 左手を開く</span>
+        
+        <span class="k">if</span> <span class="n">first</span><span class="p">:</span>
+            <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mi">2</span><span class="p">)</span>  <span class="c1"># 最初は2秒かけて</span>
+            <span class="n">first</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.1</span><span class="p">)</span>  <span class="c1"># 以降は素早く</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+        
+        <span class="c1"># 手を握る</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">right_hand_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">robot_model</span><span class="o">.</span><span class="n">left_hand_joint1</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="o">-</span><span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.1</span><span class="p">)</span>
+        <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id17">
+<h3>制御の流れのポイント<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>必ず現在姿勢を取得</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>モデル内で計算</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>実機に送信</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>動作完了を待つ</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>  <span class="c1"># これを忘れると危険！</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="id18">
+<h3>対話的な行動<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">interactive_behavior</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;対話的な行動を行う関数&quot;&quot;&quot;</span>
+    
+    <span class="c1"># 1. 挨拶を待つ</span>
+    <span class="k">if</span> <span class="n">wait_for_speech</span><span class="p">(</span><span class="s2">&quot;こんにちは&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+        <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;こんにちは&quot;</span><span class="p">)</span>
+        
+        <span class="c1"># 2. お願いを聞く</span>
+        <span class="k">if</span> <span class="n">wait_for_speech</span><span class="p">(</span><span class="s2">&quot;お願いを聞いて&quot;</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">):</span>
+            
+            <span class="c1"># 3. ランダムに反応を決める</span>
+            <span class="n">choice</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">([</span><span class="kc">True</span><span class="p">,</span> <span class="kc">False</span><span class="p">])</span>
+            
+            <span class="k">if</span> <span class="n">choice</span><span class="p">:</span>
+                <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;いいよ&quot;</span><span class="p">)</span>
+                <span class="n">express_joy</span><span class="p">()</span>  <span class="c1"># 喜びの表現</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">speak</span><span class="p">(</span><span class="s2">&quot;嫌だよ&quot;</span><span class="p">)</span>
+                <span class="c1"># 首を横に振る</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">))</span>
+                    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">)</span>
+                    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+                    
+                    <span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">30</span><span class="p">))</span>
+                    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">0.5</span><span class="p">)</span>
+                    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id19">
+<h2>7. プログラミングの流れ<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h2>
+<section id="id20">
+<h3>基本的な手順<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>初期化</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># ROSノードの初期化</span>
+<span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s2">&quot;robot_controller&quot;</span><span class="p">)</span>
+
+<span class="c1"># ロボットモデルの読み込み</span>
+<span class="n">robot_model</span> <span class="o">=</span> <span class="n">RobotModel</span><span class="p">()</span>
+<span class="n">ri</span> <span class="o">=</span> <span class="n">KXRROSRobotInterface</span><span class="p">(</span><span class="n">robot_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>現在姿勢の取得</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 実機の現在姿勢をモデルに同期</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>動作の計算</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># モデル内で次の姿勢を計算</span>
+<span class="n">robot_model</span><span class="o">.</span><span class="n">head_joint0</span><span class="o">.</span><span class="n">joint_angle</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>実機への送信</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 計算した姿勢を実機に送信</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="id21">
+<h2>8. 安全な制御のために<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h2>
+<section id="id22">
+<h3>必ず守るべきルール<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>段階的な動作</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 急激な動作は避ける</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(),</span> <span class="mf">2.0</span><span class="p">)</span>  <span class="c1"># 2秒かけて動作</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>動作完了の確認</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 動作完了を必ず待つ</span>
+<span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>例外処理</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">try</span><span class="p">:</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">robot_model</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">())</span>
+    <span class="n">ri</span><span class="o">.</span><span class="n">wait_interpolation</span><span class="p">()</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;エラーが発生しました: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># 安全な姿勢に戻す処理</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+</section>
+<section id="id23">
+<h2>9. 練習問題<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h2>
+<section id="id24">
+<h3>問題1：条件分岐の基本<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
+<p>音声認識で「右」と言われたら右を向き、「左」と言われたら左を向くプログラムを作成してください。</p>
+</section>
+<section id="id25">
+<h3>問題2：繰り返し動作<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h3>
+<p>手を振る動作を5回繰り返すプログラムを作成してください。</p>
+</section>
+<section id="id26">
+<h3>問題3：待機ループ<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h3>
+<p>「終了」という言葉が認識されるまで、1秒間隔で「待機中です」と発話するプログラムを作成してください。</p>
+</section>
+</section>
+<section id="id27">
+<h2>10. 次のステップ<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h2>
+<p>この基本的な制御構造を理解したら、次は：</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="python-basics.html"><span class="std std-doc">Python基礎</span></a>で詳しい文法を学ぶ</p></li>
+<li><p><a class="reference internal" href="python-robot-examples.html"><span class="std std-doc">Python実践例</span></a>で応用テクニックを習得</p></li>
+<li><p><a class="reference internal" href="ros-basics/index.html"><span class="std std-doc">ROS基礎</span></a>でロボット通信を学ぶ</p></li>
+</ul>
+<hr class="docutils" />
+<p><strong>💡 重要なポイント</strong>：
+ロボットプログラミングは、人間の思考プロセスをif文、for文、while文で表現することです。条件を正しく設定し、安全に動作させることが最も重要です！</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="getting-started/wsl-setup.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">WSLでLinux環境を手に入れよう！🐧</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="linux-tutorial/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🐧 Linuxチュートリアル - ロボットプログラミングの第一歩</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">この章で学ぶこと</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">1. ロボットプログラミングの基本的な考え方</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">🤖 ロボットの思考プロセス</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#robot-model-vs-ri">2. 実機制御の基本：robot_model vs ri</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#vs">シミュレーション vs 実機</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#robot-model">🖥️ robot_model（シミュレーション）</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#ri-robot-interface">🤖 ri（Robot Interface）</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">実際のコード例</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#if">3. 条件分岐（if文）：ロボットの判断力</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">基本的なif文</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">ランダムな選択で個性を演出</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">複数の条件を組み合わせる</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#for">4. 繰り返し（for文）：ロボットの反復動作</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">同じ動作を繰り返す</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">段階的に動作を変える</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#while">5. 待機ループ（while文）：ロボットの忍耐力</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">条件が満たされるまで待機</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#ros">ROSを使った実用的な待機</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sample-py">6. 実際のロボット制御：sample.pyの詳細解説</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">実際のロボット制御プログラムを見てみよう</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">1. 音声認識による条件分岐</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">2. for文による繰り返し動作</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">3. while文による待機ループ</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">4. 複雑な感情表現</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">制御の流れのポイント</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">対話的な行動</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">7. プログラミングの流れ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">基本的な手順</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">8. 安全な制御のために</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">必ず守るべきルール</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">9. 練習問題</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">問題1：条件分岐の基本</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">問題2：繰り返し動作</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">問題3：待機ループ</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">10. 次のステップ</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/robot-programming-basics.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/robot-programming-basics.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

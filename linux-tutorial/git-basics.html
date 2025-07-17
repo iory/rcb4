@@ -1,0 +1,1085 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>🔧 Git入門 - ロボットプログラミングのバージョン管理 &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'linux-tutorial/git-basics';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="🌐 ネットワーク基礎 - ロボットとの通信術" href="network-basics.html" />
+    <link rel="prev" title="🐧 Linux基礎講座 - ターミナルの世界へようこそ" href="basics.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../projects/index.html">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="basics.html">🐧 Linux基礎講座 - ターミナルの世界へようこそ</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">🔧 Git入門 - ロボットプログラミングのバージョン管理</a></li>
+<li class="toctree-l1"><a class="reference internal" href="network-basics.html">🌐 ネットワーク基礎 - ロボットとの通信術</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quest.html">🏴‍☠️ Linux Command Quest - ターミナルマスターへの挑戦</a></li>
+<li class="toctree-l1"><a class="reference internal" href="git-quest.html">🏴‍☠️ Git Command Quest - バージョン管理マスターへの挑戦</a></li>
+
+
+
+
+<li class="toctree-l1"><a class="reference internal" href="network-quest.html">🏴‍☠️ Network Command Quest - リモート通信マスターへの挑戦</a></li>
+<li class="toctree-l1"><a class="reference internal" href="scoreboard.html">🏆 Linux Command Quest スコアボード</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bonus/easter_eggs.html">🥚 イースターエッグ &amp; ボーナスチャレンジ</a></li>
+</ul>
+</div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    
+    <li class="breadcrumb-item"><a href="index.html" class="nav-link">🐧 Linuxチュートリアル - ロボットプログラミングの第一歩</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🔧 Git入門 - ロボットプログラミングのバージョン管理</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="git">
+<h1>🔧 Git入門 - ロボットプログラミングのバージョン管理<a class="headerlink" href="#git" title="Permalink to this heading">#</a></h1>
+<section id="id1">
+<h2>Gitって何？<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p><strong>Git</strong>は、プログラムのソースコードの変更履歴を管理するための「バージョン管理システム」です。ロボットプログラミングでは、以下の理由で必須のツールです：</p>
+<section id="id2">
+<h3>なぜロボットプログラミングでGitが重要？<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>バックアップ</strong>: プログラムが壊れても安心</p></li>
+<li><p><strong>チーム開発</strong>: 複数人で同じプログラムを開発</p></li>
+<li><p><strong>変更履歴</strong>: いつ、誰が、何を変更したかを記録</p></li>
+<li><p><strong>実験</strong>: 新機能を安全にテスト</p></li>
+<li><p><strong>配布</strong>: 作ったプログラムを他の人と共有</p></li>
+</ol>
+</section>
+<section id="id3">
+<h3>Gitの基本概念<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>リポジトリ</strong>: プロジェクトのフォルダ（変更履歴付き）</p></li>
+<li><p><strong>コミット</strong>: 変更の記録を保存すること</p></li>
+<li><p><strong>ブランチ</strong>: 並行して開発を進める仕組み</p></li>
+<li><p><strong>リモート</strong>: ネット上の共有リポジトリ（GitHubなど）</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>基本的なGitコマンド<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<section id="id5">
+<h3>📥 他の人のプロジェクトを入手<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<section id="git-clone">
+<h4>git clone: プロジェクトをダウンロード<a class="headerlink" href="#git-clone" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># GitHubからロボットプログラムをダウンロード</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/username/robot-project.git
+
+<span class="c1"># SSH鍵を設定済みの場合</span>
+git<span class="w"> </span>clone<span class="w"> </span>git@github.com:username/robot-project.git
+
+<span class="c1"># 特定のディレクトリ名でクローン</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/username/robot-project.git<span class="w"> </span>my-robot
+</pre></div>
+</div>
+<p><strong>実践例</strong>: 演習用リポジトリのクローン</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ロボットプログラミング演習のコードを取得</span>
+<span class="nb">cd</span><span class="w"> </span>~/ros/enshu_ws/src
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/iory/robot-programming.git
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id6">
+<h3>🔍 リポジトリの状態確認<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<section id="git-status">
+<h4>git status: 現在の状態をチェック<a class="headerlink" href="#git-status" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>status
+</pre></div>
+</div>
+<p><strong>表示される内容</strong>:</p>
+<ul class="simple">
+<li><p>変更されたファイル</p></li>
+<li><p>追加されたファイル</p></li>
+<li><p>コミット待ちのファイル</p></li>
+</ul>
+</section>
+<section id="git-log">
+<h4>git log: 変更履歴を確認<a class="headerlink" href="#git-log" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>log<span class="w">                    </span><span class="c1"># 詳細な履歴</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w">         </span><span class="c1"># 簡潔な履歴</span>
+git<span class="w"> </span>log<span class="w"> </span>--graph<span class="w">           </span><span class="c1"># ブランチ構造を表示</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id7">
+<h3>📝 変更の記録<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<section id="git-add">
+<h4>git add: 変更をステージング<a class="headerlink" href="#git-add" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>filename.py<span class="w">       </span><span class="c1"># 特定のファイルを追加</span>
+git<span class="w"> </span>add<span class="w"> </span>.<span class="w">                 </span><span class="c1"># すべての変更を追加</span>
+git<span class="w"> </span>add<span class="w"> </span>*.py<span class="w">             </span><span class="c1"># Pythonファイルのみ追加</span>
+</pre></div>
+</div>
+</section>
+<section id="git-commit">
+<h4>git commit: 変更を記録<a class="headerlink" href="#git-commit" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># メッセージ付きでコミット</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ロボットの移動機能を追加&quot;</span>
+
+<span class="c1"># より詳細なメッセージ</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: ロボットの移動機能を追加</span>
+
+<span class="s2">- キーボード入力による移動制御</span>
+<span class="s2">- 安全停止機能</span>
+<span class="s2">- 速度制限の実装&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="id8">
+<h3>🌐 リモートリポジトリとの同期<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<section id="git-pull">
+<h4>git pull: 最新の変更を取得<a class="headerlink" href="#git-pull" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>pull<span class="w">                  </span><span class="c1"># 現在のブランチを更新</span>
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main<span class="w">      </span><span class="c1"># mainブランチから更新</span>
+</pre></div>
+</div>
+</section>
+<section id="git-push">
+<h4>git push: 変更をアップロード<a class="headerlink" href="#git-push" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w">                  </span><span class="c1"># 現在のブランチをプッシュ</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>main<span class="w">      </span><span class="c1"># mainブランチにプッシュ</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id9">
+<h2>実践演習<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h2>
+<section id="id10">
+<h3>🎯 演習1: リポジトリのクローンと確認<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 演習用ディレクトリに移動</span>
+<span class="nb">cd</span><span class="w"> </span>~
+mkdir<span class="w"> </span>git_practice<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>git_practice
+
+<span class="c1"># 2. サンプルリポジトリをクローン</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/octocat/Hello-World.git
+
+<span class="c1"># 3. クローンしたディレクトリに移動</span>
+<span class="nb">cd</span><span class="w"> </span>Hello-World
+
+<span class="c1"># 4. リポジトリの状態を確認</span>
+git<span class="w"> </span>status
+git<span class="w"> </span>log<span class="w"> </span>--oneline
+
+<span class="c1"># 5. ファイル一覧を確認</span>
+ls<span class="w"> </span>-la
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>🎯 演習2: 初めての変更とコミット<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 新しいファイルを作成</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Hello Robot Programming!&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>robot_hello.txt
+
+<span class="c1"># 2. 状態を確認</span>
+git<span class="w"> </span>status
+
+<span class="c1"># 3. ファイルをステージング</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_hello.txt
+
+<span class="c1"># 4. 再度状態を確認</span>
+git<span class="w"> </span>status
+
+<span class="c1"># 5. コミットを作成</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Add robot greeting message&quot;</span>
+
+<span class="c1"># 6. ログを確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline
+</pre></div>
+</div>
+</section>
+<section id="id12">
+<h3>🎯 演習3: ファイルの変更と履歴追跡<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. 既存ファイルを編集</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Version 2: Advanced Robot Programming!&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>robot_hello.txt
+
+<span class="c1"># 2. 変更を確認</span>
+git<span class="w"> </span>status
+git<span class="w"> </span>diff<span class="w"> </span>robot_hello.txt
+
+<span class="c1"># 3. 変更をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>robot_hello.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Update robot greeting to version 2&quot;</span>
+
+<span class="c1"># 4. 変更履歴を確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline
+git<span class="w"> </span>show<span class="w"> </span>HEAD<span class="w">  </span><span class="c1"># 最新のコミット内容を表示</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id13">
+<h2>ロボットプログラミングでの実践的なGit活用<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h2>
+<section id="id14">
+<h3>🤖 プロジェクト構成例<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h3>
+<p>典型的なロボットプロジェクトのGit管理：</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>robot_project/
+├── .git/                 # Git管理ファイル（自動生成）
+├── .gitignore           # 管理しないファイルを指定
+├── README.md            # プロジェクト説明
+├── src/                 # ソースコード
+│   ├── robot_control.py
+│   └── sensors.py
+├── config/              # 設定ファイル
+│   └── robot_config.yaml
+├── launch/              # ROSランチファイル
+│   └── robot.launch
+└── docs/               # ドキュメント
+    └── manual.md
+</pre></div>
+</div>
+</section>
+<section id="gitignore">
+<h3>📋 .gitignoreの設定<a class="headerlink" href="#gitignore" title="Permalink to this heading">#</a></h3>
+<p>以下のファイルはGitで管理しない：</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># .gitignore ファイルの内容</span>
+<span class="c1"># コンパイル結果</span>
+*.pyc
+__pycache__/
+build/
+devel/
+
+<span class="c1"># ログファイル</span>
+*.log
+logs/
+
+<span class="c1"># 一時ファイル</span>
+*~
+.DS_Store
+
+<span class="c1"># 個人設定</span>
+.vscode/
+.idea/
+
+<span class="c1"># ROSファイル</span>
+/devel/
+/build/
+</pre></div>
+</div>
+</section>
+<section id="id15">
+<h3>🏷️ 良いコミットメッセージの書き方<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 悪い例</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;update&quot;</span>
+
+<span class="c1"># 良い例</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: ロボットの左右移動の方向を修正&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: 障害物回避機能を追加&quot;</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: READMEにセットアップ手順を追加&quot;</span>
+</pre></div>
+</div>
+<p><strong>コミットメッセージの種類</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">feat:</span></code> 新機能追加</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">fix:</span></code> バグ修正</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">docs:</span></code> ドキュメント更新</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">refactor:</span></code> コードの整理</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">test:</span></code> テスト追加</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id16">
+<h2>ブランチの基本<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h2>
+<section id="id17">
+<h3>🌿 ブランチとは？<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<p>ブランチは、メインの開発ラインから分岐して、独立して開発を進める仕組みです。</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 現在のブランチを確認</span>
+git<span class="w"> </span>branch
+
+<span class="c1"># 新しいブランチを作成</span>
+git<span class="w"> </span>branch<span class="w"> </span>feature/obstacle-avoidance
+
+<span class="c1"># ブランチを切り替え</span>
+git<span class="w"> </span>checkout<span class="w"> </span>feature/obstacle-avoidance
+
+<span class="c1"># ブランチ作成と切り替えを同時に</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/new-sensor
+
+<span class="c1"># ブランチ一覧を確認</span>
+git<span class="w"> </span>branch<span class="w"> </span>-a
+</pre></div>
+</div>
+</section>
+<section id="id18">
+<h3>🔄 ブランチのマージ<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># mainブランチに切り替え</span>
+git<span class="w"> </span>checkout<span class="w"> </span>main
+
+<span class="c1"># 開発ブランチをマージ</span>
+git<span class="w"> </span>merge<span class="w"> </span>feature/obstacle-avoidance
+
+<span class="c1"># 不要になったブランチを削除</span>
+git<span class="w"> </span>branch<span class="w"> </span>-d<span class="w"> </span>feature/obstacle-avoidance
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id19">
+<h2>チーム開発での活用<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h2>
+<section id="id20">
+<h3>👥 典型的なワークフロー<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<ol class="arabic">
+<li><p><strong>プロジェクトをクローン</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/team/robot-project.git
+</pre></div>
+</div>
+</li>
+<li><p><strong>最新の変更を取得</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</li>
+<li><p><strong>新機能用のブランチを作成</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/my-new-feature
+</pre></div>
+</div>
+</li>
+<li><p><strong>開発・テスト・コミット</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 開発作業</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: 新機能を実装&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>リモートにプッシュ</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/my-new-feature
+</pre></div>
+</div>
+</li>
+<li><p><strong>Pull Request作成</strong> (GitHub上で)</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id21">
+<h2>よくあるトラブルと対処法<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h2>
+<section id="id22">
+<h3>🚨 コンフリクト（競合）の解決<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># マージ時にコンフリクトが発生</span>
+git<span class="w"> </span>merge<span class="w"> </span>feature-branch
+
+<span class="c1"># コンフリクトしたファイルを手動で編集</span>
+<span class="c1"># &lt;&lt;&lt;&lt;&lt;&lt;&lt;, =======, &gt;&gt;&gt;&gt;&gt;&gt;&gt; の部分を修正</span>
+
+<span class="c1"># 解決後にコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>conflicted_file.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;resolve: マージコンフリクトを解決&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id23">
+<h3>🔄 間違ったコミットの取り消し<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 最新のコミットを取り消し（ファイルは残す）</span>
+git<span class="w"> </span>reset<span class="w"> </span>--soft<span class="w"> </span>HEAD~1
+
+<span class="c1"># 最新のコミットを完全に取り消し</span>
+git<span class="w"> </span>reset<span class="w"> </span>--hard<span class="w"> </span>HEAD~1
+
+<span class="c1"># 特定のコミットの変更を打ち消し</span>
+git<span class="w"> </span>revert<span class="w"> </span>commit_hash
+</pre></div>
+</div>
+</section>
+<section id="id24">
+<h3>💾 変更の一時保存<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 作業中の変更を一時保存</span>
+git<span class="w"> </span>stash
+
+<span class="c1"># 一時保存した変更を復元</span>
+git<span class="w"> </span>stash<span class="w"> </span>pop
+
+<span class="c1"># 一時保存の一覧を確認</span>
+git<span class="w"> </span>stash<span class="w"> </span>list
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id25">
+<h2>ロボットプログラミング演習での実践<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h2>
+<section id="id26">
+<h3>📚 演習用リポジトリの取得<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># ワークスペースに移動</span>
+<span class="nb">cd</span><span class="w"> </span>~/ros/enshu_ws/src
+
+<span class="c1"># 演習用コードをクローン</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/iory/robot-programming.git
+
+<span class="c1"># 最新の演習資料を取得</span>
+<span class="nb">cd</span><span class="w"> </span>robot-programming
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+</pre></div>
+</div>
+</section>
+<section id="id27">
+<h3>🔄 演習中の更新手順<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 演習開始前に必ず実行</span>
+<span class="nb">cd</span><span class="w"> </span>~/ros/enshu_ws/src/robot-programming
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+
+<span class="c1"># 自分の変更を別ブランチで管理</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>my-work-session1
+</pre></div>
+</div>
+</section>
+<section id="id28">
+<h3>💾 作業の保存<a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 作業内容をコミット</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;session1: キーボード制御プログラムを実装&quot;</span>
+
+<span class="c1"># 必要に応じてリモートにバックアップ</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>my-work-session1
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id29">
+<h2>🎓 まとめ<a class="headerlink" href="#id29" title="Permalink to this heading">#</a></h2>
+<section id="id30">
+<h3>覚えておくべき基本コマンド<a class="headerlink" href="#id30" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 取得・確認</span>
+git<span class="w"> </span>clone<span class="w"> </span>&lt;URL&gt;<span class="w">          </span><span class="c1"># プロジェクトのダウンロード</span>
+git<span class="w"> </span>status<span class="w">               </span><span class="c1"># 現在の状態確認</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w">        </span><span class="c1"># 変更履歴確認</span>
+
+<span class="c1"># 変更の記録</span>
+git<span class="w"> </span>add<span class="w"> </span>&lt;file&gt;<span class="w">           </span><span class="c1"># ファイルをステージング</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;message&quot;</span><span class="w">  </span><span class="c1"># 変更をコミット</span>
+
+<span class="c1"># 同期</span>
+git<span class="w"> </span>pull<span class="w">                 </span><span class="c1"># 最新の変更を取得</span>
+git<span class="w"> </span>push<span class="w">                 </span><span class="c1"># 変更をアップロード</span>
+
+<span class="c1"># ブランチ</span>
+git<span class="w"> </span>branch<span class="w">               </span><span class="c1"># ブランチ一覧</span>
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>&lt;name&gt;<span class="w">   </span><span class="c1"># 新ブランチ作成・切り替え</span>
+</pre></div>
+</div>
+</section>
+<section id="id31">
+<h3>次のステップ<a class="headerlink" href="#id31" title="Permalink to this heading">#</a></h3>
+<p>Gitの基本をマスターしたら：</p>
+<ol class="arabic simple">
+<li><p><strong>GitHub</strong>の使い方を学習</p></li>
+<li><p><strong>Pull Request</strong>でのコードレビュー</p></li>
+<li><p><strong>GitHub Actions</strong>での自動テスト</p></li>
+<li><p><strong>Issue</strong>でのプロジェクト管理</p></li>
+</ol>
+<p>これで君も立派なGitユーザーだ！ロボットプログラミングでGitを活用して、安全で効率的な開発を進めよう！</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="basics.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🐧 Linux基礎講座 - ターミナルの世界へようこそ</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="network-basics.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">🌐 ネットワーク基礎 - ロボットとの通信術</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Gitって何？</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">なぜロボットプログラミングでGitが重要？</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Gitの基本概念</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">基本的なGitコマンド</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">📥 他の人のプロジェクトを入手</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-clone">git clone: プロジェクトをダウンロード</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">🔍 リポジトリの状態確認</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-status">git status: 現在の状態をチェック</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-log">git log: 変更履歴を確認</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">📝 変更の記録</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-add">git add: 変更をステージング</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-commit">git commit: 変更を記録</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">🌐 リモートリポジトリとの同期</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-pull">git pull: 最新の変更を取得</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#git-push">git push: 変更をアップロード</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">実践演習</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">🎯 演習1: リポジトリのクローンと確認</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">🎯 演習2: 初めての変更とコミット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">🎯 演習3: ファイルの変更と履歴追跡</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">ロボットプログラミングでの実践的なGit活用</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">🤖 プロジェクト構成例</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#gitignore">📋 .gitignoreの設定</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">🏷️ 良いコミットメッセージの書き方</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">ブランチの基本</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">🌿 ブランチとは？</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">🔄 ブランチのマージ</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">チーム開発での活用</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">👥 典型的なワークフロー</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">よくあるトラブルと対処法</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">🚨 コンフリクト（競合）の解決</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">🔄 間違ったコミットの取り消し</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">💾 変更の一時保存</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">ロボットプログラミング演習での実践</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">📚 演習用リポジトリの取得</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">🔄 演習中の更新手順</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">💾 作業の保存</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">🎓 まとめ</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">覚えておくべき基本コマンド</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">次のステップ</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/linux-tutorial/git-basics.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/linux-tutorial/git-basics.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

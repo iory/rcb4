@@ -1,0 +1,464 @@
+# ロボットプログラミングの基本：条件で動くロボット
+
+## この章で学ぶこと
+
+ロボットプログラミングは、人間の思考プロセスをコードで表現することです。「もし〜なら」「何回も繰り返し」「〜まで待つ」といった条件や繰り返しを使って、ロボットに知的な行動をさせます。
+
+## 1. ロボットプログラミングの基本的な考え方
+
+### 🤖 ロボットの思考プロセス
+
+人間が行動するときの思考プロセスを考えてみましょう：
+
+```
+人間の思考：
+1. 「お疲れ様」と言われたか？
+   → はい → 「お疲れ様でした」と返す
+   → いいえ → 聞き続ける
+
+2. 手を振る動作を3回繰り返す
+
+3. 相手が「ありがとう」と言うまで待つ
+```
+
+これをプログラムで表現すると：
+
+```python
+# 1. 条件分岐（if文）
+if 音声認識結果 == "お疲れ様":
+    speak("お疲れ様でした")
+
+# 2. 繰り返し（for文）
+for i in range(3):
+    手を振る動作()
+
+# 3. 待機ループ（while文）
+while 音声認識結果 != "ありがとう":
+    待機()
+```
+
+## 2. 実機制御の基本：robot_model vs ri
+
+### シミュレーション vs 実機
+
+ロボットプログラミングでは、2つの重要な概念があります：
+
+#### 🖥️ robot_model（シミュレーション）
+- **PC内のモデル**：コンピュータの中だけで動く
+- **設計図のようなもの**：動かしても実際のロボットは動かない
+- **計算や確認用**：「このポーズは可能か？」を事前チェック
+
+#### 🤖 ri（Robot Interface）
+- **実機との橋渡し**：実際のロボットに指令を送る
+- **ri.angle_vector()**：実機の関節を実際に動かす
+- **危険も伴う**：実際に動くので注意が必要
+
+### 実際のコード例
+
+```python
+# 1. robot_modelで動作を計算（実機は動かない）
+robot_model.head_joint0.joint_angle(np.deg2rad(40))  # 首を40度回転
+print("計算完了！でも実機はまだ動いていません")
+
+# 2. riを使って実機に送信（実機が動く！）
+ri.angle_vector(robot_model.angle_vector())  # 実機に姿勢を送信
+ri.wait_interpolation()  # 動作完了まで待機
+print("実機が動きました！")
+```
+
+## 3. 条件分岐（if文）：ロボットの判断力
+
+### 基本的なif文
+
+```python
+# 音声認識の結果によって反応を変える
+if 音声認識結果 == "こんにちは":
+    speak("こんにちは")
+    # 首を縦に振る（うなずく）
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector())
+    ri.wait_interpolation()
+```
+
+### ランダムな選択で個性を演出
+
+```python
+import random
+
+choice = random.choice([True, False])
+if choice == True:
+    speak('いいよ')
+    # 首を縦に振る
+    robot_model.head_module1_joint1.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector())
+    ri.wait_interpolation()
+else:
+    speak('嫌だよ')
+    # 首を横に振る
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector())
+    ri.wait_interpolation()
+```
+
+### 複数の条件を組み合わせる
+
+```python
+# 時間帯によって挨拶を変える
+import datetime
+now = datetime.datetime.now()
+
+if now.hour < 12:
+    speak("おはようございます")
+elif now.hour < 18:
+    speak("こんにちは")
+else:
+    speak("こんばんは")
+```
+
+## 4. 繰り返し（for文）：ロボットの反復動作
+
+### 同じ動作を繰り返す
+
+```python
+# 首を5回左右に振る
+for i in range(5):
+    # 左に振る
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector(), 1)  # 1秒で動作
+    ri.wait_interpolation()
+    
+    # 右に振る
+    robot_model.head_joint0.joint_angle(np.deg2rad(40))
+    ri.angle_vector(robot_model.angle_vector(), 1)
+    ri.wait_interpolation()
+
+# 最後に正面に戻す
+robot_model.head_joint0.joint_angle(np.deg2rad(0))
+ri.angle_vector(robot_model.angle_vector(), 1)
+ri.wait_interpolation()
+```
+
+### 段階的に動作を変える
+
+```python
+# だんだん大きく手を振る
+for i in range(3):
+    angle = 30 * (i + 1)  # 30度, 60度, 90度
+    robot_model.rarm_joint0.joint_angle(np.deg2rad(angle))
+    ri.angle_vector(robot_model.angle_vector(), 1)
+    ri.wait_interpolation()
+```
+
+## 5. 待機ループ（while文）：ロボットの忍耐力
+
+### 条件が満たされるまで待機
+
+```python
+# 特定の言葉を言われるまで待つ
+target_word = "ありがとう"
+word_detected = False
+
+while not word_detected:
+    # 音声認識の結果をチェック
+    if 音声認識結果 == target_word:
+        word_detected = True
+        speak("どういたしまして")
+    else:
+        # 待機中の動作（首を傾げる）
+        robot_model.head_joint0.joint_angle(np.deg2rad(20))
+        ri.angle_vector(robot_model.angle_vector(), 0.5)
+        ri.wait_interpolation()
+```
+
+### ROSを使った実用的な待機
+
+```python
+import rospy
+
+# ROSのRate機能を使った待機
+rate = rospy.Rate(2)  # 2Hz = 0.5秒間隔
+
+while not rospy.is_shutdown():
+    if detector.is_found():  # 目標の言葉が見つかった
+        break
+    
+    # 待機中の動作
+    robot_model.head_joint0.joint_angle(np.deg2rad(40))
+    ri.angle_vector(robot_model.angle_vector(), 0.8)
+    ri.wait_interpolation()
+    
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector(), 0.8)
+    ri.wait_interpolation()
+    
+    rate.sleep()  # 指定した間隔で待機
+```
+
+## 6. 実際のロボット制御：sample.pyの詳細解説
+
+### 実際のロボット制御プログラムを見てみよう
+
+実際のロボット制御では、以下のような流れでプログラムが動作します：
+
+#### 1. 音声認識による条件分岐
+
+```python
+# 「お願いを聞いて」という言葉を待つ
+target = "お願いを聞いて"
+if wait_for_speech_rate(target, timeout=30.0):
+    print(f"✅ '{target}'を認識しました！")
+    
+    # ランダムに反応を決める
+    choice = random.choice([True, False])
+    if choice == True:
+        speak_jp('いいよ', wait=False)
+        # 首を縦に振る（うなずく）
+        robot_model.angle_vector(ri.angle_vector())  # 現在姿勢を取得
+        robot_model.head_module1_joint1.joint_angle(np.deg2rad(-40))  # 首を下げる
+        ri.angle_vector(robot_model.angle_vector())  # 実機に送信
+        ri.wait_interpolation()  # 動作完了まで待機
+        
+        # 元の位置に戻す
+        robot_model.head_module1_joint1.joint_angle(np.deg2rad(0))
+        ri.angle_vector(robot_model.angle_vector())
+        ri.wait_interpolation()
+    else:
+        speak_jp('嫌だよ', wait=False)
+        # 首を横に振る
+        robot_model.angle_vector(ri.angle_vector())
+        robot_model.head_joint0.joint_angle(np.deg2rad(-40))  # 首を横に振る
+        ri.angle_vector(robot_model.angle_vector())
+        ri.wait_interpolation()
+        
+        # 元の位置に戻す
+        robot_model.head_joint0.joint_angle(np.deg2rad(0))
+        ri.angle_vector(robot_model.angle_vector())
+        ri.wait_interpolation()
+```
+
+#### 2. for文による繰り返し動作
+
+```python
+# 首を5回左右に振る
+robot_model.angle_vector(ri.angle_vector())  # 現在姿勢を同期
+for i in range(5):
+    # 左に振る
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector(), 1)  # 1秒で動作
+    ri.wait_interpolation()
+    
+    # 右に振る
+    robot_model.head_joint0.joint_angle(np.deg2rad(40))
+    ri.angle_vector(robot_model.angle_vector(), 1)
+    ri.wait_interpolation()
+
+# 最後に正面に戻す
+robot_model.head_joint0.joint_angle(np.deg2rad(0))
+ri.angle_vector(robot_model.angle_vector(), 1)
+ri.wait_interpolation()
+```
+
+#### 3. while文による待機ループ
+
+```python
+# 特定の言葉を待ちながら動作を続ける
+target = "お願いを聞いてあげる"
+detector = WordDetector(target)
+detector.start()
+
+rate = rospy.Rate(2)  # 2Hz = 0.5秒間隔
+
+while not rospy.is_shutdown():
+    # 単語が見つかったかチェック
+    if detector.is_found():
+        rospy.loginfo("ターゲット単語を検出したため、ループを終了します。")
+        break
+    
+    # 待機中の動作（首を左右に振る）
+    robot_model.head_joint0.joint_angle(np.deg2rad(40))
+    ri.angle_vector(robot_model.angle_vector(), time=0.8)
+    ri.wait_interpolation()
+    
+    robot_model.head_joint0.joint_angle(np.deg2rad(-40))
+    ri.angle_vector(robot_model.angle_vector(), time=0.8)
+    ri.wait_interpolation()
+    
+    rate.sleep()  # 指定した間隔で待機
+```
+
+#### 4. 複雑な感情表現
+
+```python
+if detector.is_found():
+    # 首を正面に戻す
+    robot_model.head_joint0.joint_angle(np.deg2rad(0))
+    ri.angle_vector(robot_model.angle_vector(), time=0.5)
+    ri.wait_interpolation()
+    
+    # 「やったー！」と発話
+    speak_jp('やったー', wait=False)
+    
+    # 3回手を上げる喜びの表現
+    first = True
+    for i in range(3):
+        # 両手を上げる詳細な設定
+        robot_model.rarm_joint0.joint_angle(-np.deg2rad(90))      # 右腕を上げる
+        robot_model.rarm_module1_joint1.joint_angle(-np.deg2rad(90))  # 右肘を曲げる
+        robot_model.rarm_module2_joint1.joint_angle(np.deg2rad(90))   # 右手首を曲げる
+        robot_model.right_hand_joint1.joint_angle(0.7)                # 右手を開く
+        
+        robot_model.larm_joint0.joint_angle(np.deg2rad(90))       # 左腕を上げる
+        robot_model.larm_module1_joint1.joint_angle(-np.deg2rad(90))  # 左肘を曲げる
+        robot_model.larm_module2_joint1.joint_angle(-np.deg2rad(90))  # 左手首を曲げる
+        robot_model.left_hand_joint1.joint_angle(0.7)                 # 左手を開く
+        
+        if first:
+            ri.angle_vector(robot_model.angle_vector(), 2)  # 最初は2秒かけて
+            first = False
+        else:
+            ri.angle_vector(robot_model.angle_vector(), 0.1)  # 以降は素早く
+        ri.wait_interpolation()
+        
+        # 手を握る
+        robot_model.right_hand_joint1.joint_angle(-0.1)
+        robot_model.left_hand_joint1.joint_angle(-0.1)
+        ri.angle_vector(robot_model.angle_vector(), 0.1)
+        ri.wait_interpolation()
+```
+
+### 制御の流れのポイント
+
+1. **必ず現在姿勢を取得**
+   ```python
+   robot_model.angle_vector(ri.angle_vector())
+   ```
+
+2. **モデル内で計算**
+   ```python
+   robot_model.head_joint0.joint_angle(np.deg2rad(40))
+   ```
+
+3. **実機に送信**
+   ```python
+   ri.angle_vector(robot_model.angle_vector())
+   ri.wait_interpolation()
+   ```
+
+4. **動作完了を待つ**
+   ```python
+   ri.wait_interpolation()  # これを忘れると危険！
+   ```
+
+### 対話的な行動
+
+```python
+def interactive_behavior():
+    """対話的な行動を行う関数"""
+    
+    # 1. 挨拶を待つ
+    if wait_for_speech("こんにちは", timeout=30):
+        speak("こんにちは")
+        
+        # 2. お願いを聞く
+        if wait_for_speech("お願いを聞いて", timeout=30):
+            
+            # 3. ランダムに反応を決める
+            choice = random.choice([True, False])
+            
+            if choice:
+                speak("いいよ")
+                express_joy()  # 喜びの表現
+            else:
+                speak("嫌だよ")
+                # 首を横に振る
+                for i in range(3):
+                    robot_model.head_joint0.joint_angle(np.deg2rad(-30))
+                    ri.angle_vector(robot_model.angle_vector(), 0.5)
+                    ri.wait_interpolation()
+                    
+                    robot_model.head_joint0.joint_angle(np.deg2rad(30))
+                    ri.angle_vector(robot_model.angle_vector(), 0.5)
+                    ri.wait_interpolation()
+```
+
+## 7. プログラミングの流れ
+
+### 基本的な手順
+
+1. **初期化**
+   ```python
+   # ROSノードの初期化
+   rospy.init_node("robot_controller")
+   
+   # ロボットモデルの読み込み
+   robot_model = RobotModel()
+   ri = KXRROSRobotInterface(robot_model)
+   ```
+
+2. **現在姿勢の取得**
+   ```python
+   # 実機の現在姿勢をモデルに同期
+   robot_model.angle_vector(ri.angle_vector())
+   ```
+
+3. **動作の計算**
+   ```python
+   # モデル内で次の姿勢を計算
+   robot_model.head_joint0.joint_angle(np.deg2rad(40))
+   ```
+
+4. **実機への送信**
+   ```python
+   # 計算した姿勢を実機に送信
+   ri.angle_vector(robot_model.angle_vector())
+   ri.wait_interpolation()
+   ```
+
+## 8. 安全な制御のために
+
+### 必ず守るべきルール
+
+1. **段階的な動作**
+   ```python
+   # 急激な動作は避ける
+   ri.angle_vector(robot_model.angle_vector(), 2.0)  # 2秒かけて動作
+   ```
+
+2. **動作完了の確認**
+   ```python
+   # 動作完了を必ず待つ
+   ri.wait_interpolation()
+   ```
+
+3. **例外処理**
+   ```python
+   try:
+       ri.angle_vector(robot_model.angle_vector())
+       ri.wait_interpolation()
+   except Exception as e:
+       print(f"エラーが発生しました: {e}")
+       # 安全な姿勢に戻す処理
+   ```
+
+## 9. 練習問題
+
+### 問題1：条件分岐の基本
+音声認識で「右」と言われたら右を向き、「左」と言われたら左を向くプログラムを作成してください。
+
+### 問題2：繰り返し動作
+手を振る動作を5回繰り返すプログラムを作成してください。
+
+### 問題3：待機ループ
+「終了」という言葉が認識されるまで、1秒間隔で「待機中です」と発話するプログラムを作成してください。
+
+## 10. 次のステップ
+
+この基本的な制御構造を理解したら、次は：
+- [Python基礎](python-basics.md)で詳しい文法を学ぶ
+- [Python実践例](python-robot-examples.md)で応用テクニックを習得
+- [ROS基礎](ros-basics/index.md)でロボット通信を学ぶ
+
+---
+
+**💡 重要なポイント**：
+ロボットプログラミングは、人間の思考プロセスをif文、for文、while文で表現することです。条件を正しく設定し、安全に動作させることが最も重要です！

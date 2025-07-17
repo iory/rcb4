@@ -1,0 +1,1042 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>🎯 最終プロジェクト - 統合チャレンジ &#8212; ロボットプログラミング演習 1.0.0 documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.4cbf315f70debaebd550c87a6162cf0f.min.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/css/custom.css" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'projects/index';</script>
+    <script>
+        DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
+        DOCUMENTATION_OPTIONS.theme_switcher_json_url = '_static/version_switcher.json';
+        DOCUMENTATION_OPTIONS.theme_switcher_version_match = 'v1.0.0';
+        DOCUMENTATION_OPTIONS.show_version_warning_banner =
+            false;
+        </script>
+    <link rel="icon" href="../_static/option2_shadow_1.png"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="🤖 セッション2: ロボット制御プログラミング" href="../robot-control/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="1.0.0" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search the docs ..."
+         aria-label="Search the docs ..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-3 navbar-header-items__start">
+    
+      <div class="navbar-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/bigger_text.png" class="logo__image only-light" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+    <img src="../_static/bigger_text_white.png" class="logo__image only-dark pst-js-only" alt="ロボットプログラミング演習 1.0.0 documentation - Home"/>
+  
+  
+</a></div>
+    
+  </div>
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    <div class="me-auto navbar-header-items__center">
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
+        <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+      
+    </div>
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+        <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+      <div class="sidebar-header-items__center">
+        
+          
+          
+            <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+          
+        
+          
+          
+            <div class="navbar-item">
+<nav>
+  <ul class="bd-navbar-elements navbar-nav">
+    
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../getting-started/index.html">
+    準備編：冒険に必要な道具を揃えよう！
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../linux-tutorial/index.html">
+    🐧 Linuxチュートリアル - ロボットプログラミングの第一歩
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../ros-basics/index.html">
+    セッション1: ロボットとの出会い - ROS入門
+  </a>
+</li>
+
+
+<li class="nav-item ">
+  <a class="nav-link nav-internal" href="../robot-control/index.html">
+    🤖 セッション2: ロボット制御プログラミング
+  </a>
+</li>
+
+
+<li class="nav-item current active">
+  <a class="nav-link nav-internal" href="#">
+    🎯 最終プロジェクト - 統合チャレンジ
+  </a>
+</li>
+
+  </ul>
+</nav></div>
+          
+        
+      </div>
+    
+    
+    
+      <div class="sidebar-header-items__end">
+        
+          <div class="navbar-item">
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button></div>
+        
+      </div>
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+<nav class="bd-docs-nav bd-links"
+     aria-label="Section Navigation">
+  <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
+  <div class="bd-toc-item navbar-nav"></div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item">
+
+<nav aria-label="Breadcrumb" class="d-print-none">
+  <ul class="bd-breadcrumbs">
+    
+    <li class="breadcrumb-item breadcrumb-home">
+      <a href="../index.html" class="nav-link" aria-label="Home">
+        <i class="fa-solid fa-home"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">🎯 最終プロジェクト - 統合チャレンジ</span></li>
+  </ul>
+</nav>
+</div>
+      
+    </div>
+  
+  
+</div>
+</div>
+              
+              
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="id1">
+<h1>🎯 最終プロジェクト - 統合チャレンジ<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h1>
+<section id="id2">
+<h2>このセッションで挑戦すること<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<p>これまでに学んだすべてのスキルを結集して、オリジナルのロボットプロジェクトに挑戦します。チームワークを活かし、創造性を発揮して、世界に一つだけのロボットシステムを構築しましょう！</p>
+<section id="id3">
+<h3>🎯 学習目標<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>これまでの知識を統合・応用</p></li>
+<li><p>チームでの協調開発</p></li>
+<li><p>問題解決とデバッグスキル</p></li>
+<li><p>プレゼンテーションとドキュメント作成</p></li>
+<li><p>実際のJEDYロボットとの連携</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id4">
+<h2>プロジェクト例<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<section id="id5">
+<h3>🤖 プロジェクト1: スマートアシスタントロボット<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<p><strong>目標</strong>: 音声認識と画像認識を組み合わせた、生活支援ロボット</p>
+<p><strong>必要なスキル</strong>:</p>
+<ul class="simple">
+<li><p>ROSでの音声・画像処理</p></li>
+<li><p>scikit-robotでの動作制御</p></li>
+<li><p>Linux/Pythonプログラミング</p></li>
+</ul>
+<p><strong>実装例</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">スマートアシスタントロボット</span>
+<span class="sd">音声コマンドで物体を認識・操作</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rospy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sensor_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Image</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">speech_recognition</span><span class="w"> </span><span class="kn">import</span> <span class="n">Recognizer</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SmartAssistantRobot</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s1">&#39;smart_assistant&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># ロボット制御</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">Kuka</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">viewer</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">viewers</span><span class="o">.</span><span class="n">TrimeshSceneViewer</span><span class="p">()</span>
+        
+        <span class="c1"># 音声認識</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">recognizer</span> <span class="o">=</span> <span class="n">Recognizer</span><span class="p">()</span>
+        
+        <span class="c1"># 画像認識</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">image_sub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/camera/image_raw&#39;</span><span class="p">,</span> <span class="n">Image</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">image_callback</span><span class="p">)</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">listen_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;音声コマンドを認識&quot;&quot;&quot;</span>
+        <span class="c1"># 実装してください</span>
+        <span class="k">pass</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">detect_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;物体検出&quot;&quot;&quot;</span>
+        <span class="c1"># 実装してください</span>
+        <span class="k">pass</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">move_to_object</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">object_position</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;物体の位置にロボットを移動&quot;&quot;&quot;</span>
+        <span class="c1"># 実装してください</span>
+        <span class="k">pass</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">robot</span> <span class="o">=</span> <span class="n">SmartAssistantRobot</span><span class="p">()</span>
+    <span class="n">robot</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="id6">
+<h3>🎨 プロジェクト2: アーティストロボット<a class="headerlink" href="#id6" title="Permalink to this heading">#</a></h3>
+<p><strong>目標</strong>: 指定されたパターンや文字を描画するロボット</p>
+<p><strong>必要なスキル</strong>:</p>
+<ul class="simple">
+<li><p>軌跡計画アルゴリズム</p></li>
+<li><p>逆運動学の応用</p></li>
+<li><p>視覚的フィードバック</p></li>
+</ul>
+</section>
+<section id="id7">
+<h3>🏭 プロジェクト3: 自動組立ロボット<a class="headerlink" href="#id7" title="Permalink to this heading">#</a></h3>
+<p><strong>目標</strong>: 複数のパーツを組み立てる産業用ロボット</p>
+<p><strong>必要なスキル</strong>:</p>
+<ul class="simple">
+<li><p>精密な位置制御</p></li>
+<li><p>力覚センサーの活用</p></li>
+<li><p>工程管理システム</p></li>
+</ul>
+</section>
+<section id="id8">
+<h3>🎮 プロジェクト4: ゲームプレイロボット<a class="headerlink" href="#id8" title="Permalink to this heading">#</a></h3>
+<p><strong>目標</strong>: ゲーム（将棋、囲碁、パズル等）をプレイするロボット</p>
+<p><strong>必要なスキル</strong>:</p>
+<ul class="simple">
+<li><p>AI/機械学習アルゴリズム</p></li>
+<li><p>画像認識</p></li>
+<li><p>戦略的思考の実装</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id9">
+<h2>チーム編成とプロジェクト管理<a class="headerlink" href="#id9" title="Permalink to this heading">#</a></h2>
+<section id="id10">
+<h3>👥 チーム構成（3-4人推奨）<a class="headerlink" href="#id10" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>プロジェクトマネージャー</strong>: 全体統括、スケジュール管理</p></li>
+<li><p><strong>ハードウェアエンジニア</strong>: ロボット制御、センサー統合</p></li>
+<li><p><strong>ソフトウェアエンジニア</strong>: アルゴリズム実装、UI開発</p></li>
+<li><p><strong>テストエンジニア</strong>: 品質保証、デバッグ</p></li>
+</ul>
+</section>
+<section id="id11">
+<h3>📅 開発スケジュール（例：2週間）<a class="headerlink" href="#id11" title="Permalink to this heading">#</a></h3>
+<section id="id12">
+<h4>第1週<a class="headerlink" href="#id12" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Day 1-2</strong>: アイデア出し、プロジェクト定義</p></li>
+<li><p><strong>Day 3-4</strong>: システム設計、タスク分担</p></li>
+<li><p><strong>Day 5-7</strong>: 基本機能の実装</p></li>
+</ul>
+</section>
+<section id="id13">
+<h4>第2週<a class="headerlink" href="#id13" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p><strong>Day 8-10</strong>: 機能統合、テスト</p></li>
+<li><p><strong>Day 11-12</strong>: デバッグ、改良</p></li>
+<li><p><strong>Day 13-14</strong>: ドキュメント作成、発表準備</p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id14">
+<h2>開発ツールとワークフロー<a class="headerlink" href="#id14" title="Permalink to this heading">#</a></h2>
+<section id="id15">
+<h3>🔧 推奨ツールセット<a class="headerlink" href="#id15" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># バージョン管理</span>
+git<span class="w"> </span>init<span class="w"> </span>robot_project
+git<span class="w"> </span>remote<span class="w"> </span>add<span class="w"> </span>origin<span class="w"> </span>https://github.com/team/robot_project.git
+
+<span class="c1"># 仮想環境</span>
+python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </span>robot_env
+<span class="nb">source</span><span class="w"> </span>robot_env/bin/activate
+pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
+
+<span class="c1"># 依存関係管理</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">scikit-robot[all]</span>
+<span class="s2">rospy</span>
+<span class="s2">opencv-python</span>
+<span class="s2">numpy</span>
+<span class="s2">matplotlib</span>
+<span class="s2">speech_recognition</span>
+<span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>requirements.txt
+</pre></div>
+</div>
+</section>
+<section id="id16">
+<h3>📁 プロジェクト構造<a class="headerlink" href="#id16" title="Permalink to this heading">#</a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>robot_project/
+├── README.md                 # プロジェクト概要
+├── requirements.txt          # Python依存関係
+├── src/                      # ソースコード
+│   ├── main.py              # メインプログラム
+│   ├── robot_control/       # ロボット制御モジュール
+│   ├── vision/              # 画像処理モジュール
+│   ├── audio/               # 音声処理モジュール
+│   └── utils/               # ユーティリティ
+├── config/                   # 設定ファイル
+├── tests/                    # テストコード
+├── docs/                     # ドキュメント
+└── launch/                   # ROSランチファイル
+</pre></div>
+</div>
+</section>
+<section id="id17">
+<h3>🤝 協調開発ワークフロー<a class="headerlink" href="#id17" title="Permalink to this heading">#</a></h3>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 毎朝の開発開始時</span>
+git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feature/my-new-feature
+
+<span class="c1"># 開発作業</span>
+<span class="c1"># ... コーディング ...</span>
+
+<span class="c1"># 夕方の作業終了時</span>
+git<span class="w"> </span>add<span class="w"> </span>.
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: 新機能を実装&quot;</span>
+git<span class="w"> </span>push<span class="w"> </span>origin<span class="w"> </span>feature/my-new-feature
+
+<span class="c1"># プルリクエスト作成（GitHub上）</span>
+<span class="c1"># チームレビュー</span>
+<span class="c1"># マージ</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="jedy">
+<h2>JEDYロボットとの連携<a class="headerlink" href="#jedy" title="Permalink to this heading">#</a></h2>
+<section id="id18">
+<h3>🤖 実機との接続<a class="headerlink" href="#id18" title="Permalink to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">JEDYロボット連携の基本テンプレート</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">rospy</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">skrobot</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">geometry_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Twist</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sensor_msgs.msg</span><span class="w"> </span><span class="kn">import</span> <span class="n">JointState</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">JEDYController</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">init_node</span><span class="p">(</span><span class="s1">&#39;jedy_controller&#39;</span><span class="p">)</span>
+        
+        <span class="c1"># シミュレーション用ロボット</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">models</span><span class="o">.</span><span class="n">urdf</span><span class="o">.</span><span class="n">RobotModelFromURDF</span><span class="p">(</span>
+            <span class="n">urdf_file</span><span class="o">=</span><span class="s2">&quot;path/to/jedy.urdf&quot;</span>  <span class="c1"># JEDYのURDFファイル</span>
+        <span class="p">)</span>
+        
+        <span class="c1"># 実機との通信</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_vel_pub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Publisher</span><span class="p">(</span><span class="s1">&#39;/cmd_vel&#39;</span><span class="p">,</span> <span class="n">Twist</span><span class="p">,</span> <span class="n">queue_size</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">joint_sub</span> <span class="o">=</span> <span class="n">rospy</span><span class="o">.</span><span class="n">Subscriber</span><span class="p">(</span><span class="s1">&#39;/joint_states&#39;</span><span class="p">,</span> <span class="n">JointState</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">joint_callback</span><span class="p">)</span>
+        
+        <span class="c1"># 現在の関節状態</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_joints</span> <span class="o">=</span> <span class="kc">None</span>
+        
+    <span class="k">def</span><span class="w"> </span><span class="nf">joint_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">msg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;実機の関節状態を受信&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_joints</span> <span class="o">=</span> <span class="n">msg</span>
+        
+        <span class="c1"># シミュレーションロボットに反映</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span><span class="o">.</span><span class="n">joint_list</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">position</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">move_base</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">linear_x</span><span class="p">,</span> <span class="n">angular_z</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;ベース移動コマンド送信&quot;&quot;&quot;</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">Twist</span><span class="p">()</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">linear</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">linear_x</span>
+        <span class="n">cmd</span><span class="o">.</span><span class="n">angular</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">angular_z</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_vel_pub</span><span class="o">.</span><span class="n">publish</span><span class="p">(</span><span class="n">cmd</span><span class="p">)</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">plan_and_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_pos</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;シミュレーションで計画し、実機で実行&quot;&quot;&quot;</span>
+        <span class="c1"># シミュレーションで逆運動学</span>
+        <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">(</span><span class="n">target_pos</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span>
+            <span class="n">target_coords</span><span class="p">,</span>
+            <span class="n">move_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span><span class="o">.</span><span class="n">end_coords</span>
+        <span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="c1"># 計画した関節角度を実機に送信</span>
+            <span class="n">planned_angles</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sim_robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">send_joint_commands</span><span class="p">(</span><span class="n">planned_angles</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    
+    <span class="k">def</span><span class="w"> </span><span class="nf">send_joint_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">joint_angles</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;関節角度コマンドを実機に送信&quot;&quot;&quot;</span>
+        <span class="c1"># TODO: 実機への関節角度送信を実装</span>
+        <span class="n">rospy</span><span class="o">.</span><span class="n">loginfo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Sending joint angles: </span><span class="si">{</span><span class="n">joint_angles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">controller</span> <span class="o">=</span> <span class="n">JEDYController</span><span class="p">()</span>
+    <span class="n">rospy</span><span class="o">.</span><span class="n">spin</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id19">
+<h2>プロジェクト評価基準<a class="headerlink" href="#id19" title="Permalink to this heading">#</a></h2>
+<section id="id20">
+<h3>📊 評価項目<a class="headerlink" href="#id20" title="Permalink to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>項目</p></th>
+<th class="head"><p>重み</p></th>
+<th class="head"><p>評価ポイント</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>技術実装</strong></p></td>
+<td><p>40%</p></td>
+<td><p>機能の完成度、コードの品質、創造性</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>チームワーク</strong></p></td>
+<td><p>20%</p></td>
+<td><p>役割分担、協調開発、コミュニケーション</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>ドキュメント</strong></p></td>
+<td><p>20%</p></td>
+<td><p>README、コメント、設計書の質</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>プレゼンテーション</strong></p></td>
+<td><p>20%</p></td>
+<td><p>発表内容、デモの成功、質疑応答</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="id21">
+<h3>🏆 優秀プロジェクトの特徴<a class="headerlink" href="#id21" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>明確な目標設定</strong>: 何を作るか、なぜ作るかが明確</p></li>
+<li><p><strong>適切な技術選択</strong>: 目標に対して最適な技術・手法を選択</p></li>
+<li><p><strong>堅実な実装</strong>: 基本機能が確実に動作</p></li>
+<li><p><strong>優れたチームワーク</strong>: メンバー全員が貢献</p></li>
+<li><p><strong>優秀なドキュメント</strong>: 他の人が理解・再現できる</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id22">
+<h2>トラブルシューティング<a class="headerlink" href="#id22" title="Permalink to this heading">#</a></h2>
+<section id="id23">
+<h3>🐛 よくある問題と対処法<a class="headerlink" href="#id23" title="Permalink to this heading">#</a></h3>
+<section id="id24">
+<h4>1. ロボットが思った通りに動かない<a class="headerlink" href="#id24" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># デバッグのチェックリスト</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">debug_robot_movement</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=== ロボットデバッグ ===&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 1. 関節角度の確認</span>
+    <span class="n">current_angles</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">angle_vector</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;現在の関節角度: </span><span class="si">{</span><span class="n">current_angles</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 2. 逆運動学の解の確認</span>
+    <span class="n">target_coords</span> <span class="o">=</span> <span class="n">skrobot</span><span class="o">.</span><span class="n">coordinates</span><span class="o">.</span><span class="n">Coordinates</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">])</span>
+    <span class="n">success</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span><span class="n">target_coords</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;逆運動学の解: </span><span class="si">{</span><span class="s1">&#39;成功&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">success</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;失敗&#39;</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 3. 手先位置の確認</span>
+    <span class="n">end_pos</span> <span class="o">=</span> <span class="n">robot</span><span class="o">.</span><span class="n">end_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;実際の手先位置: </span><span class="si">{</span><span class="n">end_pos</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 4. 目標との誤差</span>
+    <span class="n">error</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">target_coords</span><span class="o">.</span><span class="n">worldpos</span><span class="p">()</span> <span class="o">-</span> <span class="n">end_pos</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;位置誤差: </span><span class="si">{</span><span class="n">error</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="id25">
+<h4>2. チーム内でのコード統合がうまくいかない<a class="headerlink" href="#id25" title="Permalink to this heading">#</a></h4>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># マージコンフリクトの解決</span>
+git<span class="w"> </span>status<span class="w">  </span><span class="c1"># 競合ファイルを確認</span>
+git<span class="w"> </span>add<span class="w"> </span>.<span class="w">   </span><span class="c1"># 解決後にステージング</span>
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;resolve: マージコンフリクトを解決&quot;</span>
+
+<span class="c1"># ブランチ戦略の見直し</span>
+git<span class="w"> </span>flow<span class="w"> </span>init<span class="w">  </span><span class="c1"># Git Flowの導入を検討</span>
+</pre></div>
+</div>
+</section>
+<section id="id26">
+<h4>3. リアルタイム性能の問題<a class="headerlink" href="#id26" title="Permalink to this heading">#</a></h4>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># パフォーマンス最適化のヒント</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cProfile</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">optimize_control_loop</span><span class="p">():</span>
+    <span class="c1"># 処理時間の測定</span>
+    <span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+    
+    <span class="c1"># ロボット制御処理</span>
+    <span class="n">robot</span><span class="o">.</span><span class="n">inverse_kinematics</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+    
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;処理時間: </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">秒&quot;</span><span class="p">)</span>
+    
+    <span class="c1"># 目標: 10Hz (0.1秒以下)</span>
+    <span class="k">if</span> <span class="n">elapsed</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚠️ 性能改善が必要&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id27">
+<h2>🏁 プロジェクト完成への道のり<a class="headerlink" href="#id27" title="Permalink to this heading">#</a></h2>
+<section id="id28">
+<h3>✅ 最終チェックリスト<a class="headerlink" href="#id28" title="Permalink to this heading">#</a></h3>
+<section id="id29">
+<h4>技術面<a class="headerlink" href="#id29" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>[ ] すべての基本機能が動作する</p></li>
+<li><p>[ ] エラーハンドリングが適切</p></li>
+<li><p>[ ] コードが適切にコメントされている</p></li>
+<li><p>[ ] テストコードが書かれている</p></li>
+</ul>
+</section>
+<section id="id30">
+<h4>プロジェクト管理面<a class="headerlink" href="#id30" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>[ ] README.mdが完成している</p></li>
+<li><p>[ ] Gitコミット履歴が整理されている</p></li>
+<li><p>[ ] 全メンバーが貢献している</p></li>
+<li><p>[ ] 適切なライセンスが設定されている</p></li>
+</ul>
+</section>
+<section id="id31">
+<h4>発表準備<a class="headerlink" href="#id31" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>[ ] デモの練習が完了</p></li>
+<li><p>[ ] プレゼンテーション資料が完成</p></li>
+<li><p>[ ] 質疑応答の準備ができている</p></li>
+<li><p>[ ] バックアッププランがある</p></li>
+</ul>
+</section>
+</section>
+<section id="id32">
+<h3>🎊 プロジェクト発表会<a class="headerlink" href="#id32" title="Permalink to this heading">#</a></h3>
+<p>最終日には、チーム毎にプロジェクトの発表を行います：</p>
+<ol class="arabic simple">
+<li><p><strong>プロジェクト概要</strong> (3分)</p></li>
+<li><p><strong>技術実装の説明</strong> (5分)</p></li>
+<li><p><strong>ライブデモンストレーション</strong> (5分)</p></li>
+<li><p><strong>チームワークと学んだこと</strong> (2分)</p></li>
+<li><p><strong>質疑応答</strong> (5分)</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="id33">
+<h2>🌟 これからの挑戦<a class="headerlink" href="#id33" title="Permalink to this heading">#</a></h2>
+<p>プロジェクトが完成したら、さらなる挑戦が待っています：</p>
+<ul class="simple">
+<li><p><strong>研究への応用</strong>: 学術的な研究テーマへの発展</p></li>
+<li><p><strong>産業応用</strong>: 実際の産業問題への適用</p></li>
+<li><p><strong>競技会参加</strong>: ロボットコンテストへの挑戦</p></li>
+<li><p><strong>起業・イノベーション</strong>: 技術を活用した社会貢献</p></li>
+</ul>
+<p>君たちの創造力と技術力で、素晴らしいロボットを作り上げよう！</p>
+</section>
+</section>
+
+
+                </article>
+              
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../robot-control/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">🤖 セッション2: ロボット制御プログラミング</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+<div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> On this page
+  </div>
+  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">このセッションで挑戦すること</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">🎯 学習目標</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">プロジェクト例</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">🤖 プロジェクト1: スマートアシスタントロボット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id6">🎨 プロジェクト2: アーティストロボット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id7">🏭 プロジェクト3: 自動組立ロボット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id8">🎮 プロジェクト4: ゲームプレイロボット</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id9">チーム編成とプロジェクト管理</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id10">👥 チーム構成（3-4人推奨）</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id11">📅 開発スケジュール（例：2週間）</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id12">第1週</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id13">第2週</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id14">開発ツールとワークフロー</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id15">🔧 推奨ツールセット</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id16">📁 プロジェクト構造</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id17">🤝 協調開発ワークフロー</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#jedy">JEDYロボットとの連携</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id18">🤖 実機との接続</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id19">プロジェクト評価基準</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id20">📊 評価項目</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id21">🏆 優秀プロジェクトの特徴</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id22">トラブルシューティング</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id23">🐛 よくある問題と対処法</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id24">1. ロボットが思った通りに動かない</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id25">2. チーム内でのコード統合がうまくいかない</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id26">3. リアルタイム性能の問題</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id27">🏁 プロジェクト完成への道のり</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id28">✅ 最終チェックリスト</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id29">技術面</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id30">プロジェクト管理面</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#id31">発表準備</a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id32">🎊 プロジェクト発表会</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id33">🌟 これからの挑戦</a></li>
+</ul>
+  </nav></div>
+
+  <div class="sidebar-secondary-item">
+
+  
+  <div class="tocsection editthispage">
+    <a href="https://github.com/iory/robot-programming-workshop/edit/main//source/projects/index.md">
+      <i class="fa-solid fa-pencil"></i>
+      
+      
+        
+          Edit on GitHub
+        
+      
+    </a>
+  </div>
+</div>
+
+  <div class="sidebar-secondary-item">
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/projects/index.md.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+          </footer>
+        
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+<div class="bd-footer__inner bd-page-width">
+  
+    <div class="footer-items__start">
+      
+        <div class="footer-item">
+
+  <p class="copyright">
+    
+      © Copyright 2025, JSK Robotics Laboratory.
+      <br/>
+    
+  </p>
+</div>
+      
+        <div class="footer-item">
+
+  <p class="sphinx-version">
+    Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 6.2.1.
+    <br/>
+  </p>
+</div>
+      
+    </div>
+  
+  
+  
+    <div class="footer-items__end">
+      
+        <div class="footer-item">
+<p class="theme-version">
+  <!-- # L10n: Setting the PST URL as an argument as this does not need to be localized -->
+  Built with the <a href="https://pydata-sphinx-theme.readthedocs.io/en/stable/index.html">PyData Sphinx Theme</a> 0.16.1.
+</p></div>
+      
+    </div>
+  
+</div>
+
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,438 @@
+# 🔧 Git入門 - ロボットプログラミングのバージョン管理
+
+## Gitって何？
+
+**Git**は、プログラムのソースコードの変更履歴を管理するための「バージョン管理システム」です。ロボットプログラミングでは、以下の理由で必須のツールです：
+
+### なぜロボットプログラミングでGitが重要？
+
+1. **バックアップ**: プログラムが壊れても安心
+2. **チーム開発**: 複数人で同じプログラムを開発
+3. **変更履歴**: いつ、誰が、何を変更したかを記録
+4. **実験**: 新機能を安全にテスト
+5. **配布**: 作ったプログラムを他の人と共有
+
+### Gitの基本概念
+
+- **リポジトリ**: プロジェクトのフォルダ（変更履歴付き）
+- **コミット**: 変更の記録を保存すること
+- **ブランチ**: 並行して開発を進める仕組み
+- **リモート**: ネット上の共有リポジトリ（GitHubなど）
+
+---
+
+## 基本的なGitコマンド
+
+### 📥 他の人のプロジェクトを入手
+
+#### git clone: プロジェクトをダウンロード
+
+```bash
+# GitHubからロボットプログラムをダウンロード
+git clone https://github.com/username/robot-project.git
+
+# SSH鍵を設定済みの場合
+git clone git@github.com:username/robot-project.git
+
+# 特定のディレクトリ名でクローン
+git clone https://github.com/username/robot-project.git my-robot
+```
+
+**実践例**: 演習用リポジトリのクローン
+```bash
+# ロボットプログラミング演習のコードを取得
+cd ~/ros/enshu_ws/src
+git clone https://github.com/iory/robot-programming.git
+```
+
+### 🔍 リポジトリの状態確認
+
+#### git status: 現在の状態をチェック
+
+```bash
+git status
+```
+
+**表示される内容**:
+- 変更されたファイル
+- 追加されたファイル
+- コミット待ちのファイル
+
+#### git log: 変更履歴を確認
+
+```bash
+git log                    # 詳細な履歴
+git log --oneline         # 簡潔な履歴
+git log --graph           # ブランチ構造を表示
+```
+
+### 📝 変更の記録
+
+#### git add: 変更をステージング
+
+```bash
+git add filename.py       # 特定のファイルを追加
+git add .                 # すべての変更を追加
+git add *.py             # Pythonファイルのみ追加
+```
+
+#### git commit: 変更を記録
+
+```bash
+# メッセージ付きでコミット
+git commit -m "ロボットの移動機能を追加"
+
+# より詳細なメッセージ
+git commit -m "feat: ロボットの移動機能を追加
+
+- キーボード入力による移動制御
+- 安全停止機能
+- 速度制限の実装"
+```
+
+### 🌐 リモートリポジトリとの同期
+
+#### git pull: 最新の変更を取得
+
+```bash
+git pull                  # 現在のブランチを更新
+git pull origin main      # mainブランチから更新
+```
+
+#### git push: 変更をアップロード
+
+```bash
+git push                  # 現在のブランチをプッシュ
+git push origin main      # mainブランチにプッシュ
+```
+
+---
+
+## 実践演習
+
+### 🎯 演習1: リポジトリのクローンと確認
+
+```bash
+# 1. 演習用ディレクトリに移動
+cd ~
+mkdir git_practice && cd git_practice
+
+# 2. サンプルリポジトリをクローン
+git clone https://github.com/octocat/Hello-World.git
+
+# 3. クローンしたディレクトリに移動
+cd Hello-World
+
+# 4. リポジトリの状態を確認
+git status
+git log --oneline
+
+# 5. ファイル一覧を確認
+ls -la
+```
+
+### 🎯 演習2: 初めての変更とコミット
+
+```bash
+# 1. 新しいファイルを作成
+echo "Hello Robot Programming!" > robot_hello.txt
+
+# 2. 状態を確認
+git status
+
+# 3. ファイルをステージング
+git add robot_hello.txt
+
+# 4. 再度状態を確認
+git status
+
+# 5. コミットを作成
+git commit -m "Add robot greeting message"
+
+# 6. ログを確認
+git log --oneline
+```
+
+### 🎯 演習3: ファイルの変更と履歴追跡
+
+```bash
+# 1. 既存ファイルを編集
+echo "Version 2: Advanced Robot Programming!" >> robot_hello.txt
+
+# 2. 変更を確認
+git status
+git diff robot_hello.txt
+
+# 3. 変更をコミット
+git add robot_hello.txt
+git commit -m "Update robot greeting to version 2"
+
+# 4. 変更履歴を確認
+git log --oneline
+git show HEAD  # 最新のコミット内容を表示
+```
+
+---
+
+## ロボットプログラミングでの実践的なGit活用
+
+### 🤖 プロジェクト構成例
+
+典型的なロボットプロジェクトのGit管理：
+
+```
+robot_project/
+├── .git/                 # Git管理ファイル（自動生成）
+├── .gitignore           # 管理しないファイルを指定
+├── README.md            # プロジェクト説明
+├── src/                 # ソースコード
+│   ├── robot_control.py
+│   └── sensors.py
+├── config/              # 設定ファイル
+│   └── robot_config.yaml
+├── launch/              # ROSランチファイル
+│   └── robot.launch
+└── docs/               # ドキュメント
+    └── manual.md
+```
+
+### 📋 .gitignoreの設定
+
+以下のファイルはGitで管理しない：
+
+```bash
+# .gitignore ファイルの内容
+# コンパイル結果
+*.pyc
+__pycache__/
+build/
+devel/
+
+# ログファイル
+*.log
+logs/
+
+# 一時ファイル
+*~
+.DS_Store
+
+# 個人設定
+.vscode/
+.idea/
+
+# ROSファイル
+/devel/
+/build/
+```
+
+### 🏷️ 良いコミットメッセージの書き方
+
+```bash
+# 悪い例
+git commit -m "fix"
+git commit -m "update"
+
+# 良い例
+git commit -m "fix: ロボットの左右移動の方向を修正"
+git commit -m "feat: 障害物回避機能を追加"
+git commit -m "docs: READMEにセットアップ手順を追加"
+```
+
+**コミットメッセージの種類**:
+- `feat:` 新機能追加
+- `fix:` バグ修正
+- `docs:` ドキュメント更新
+- `refactor:` コードの整理
+- `test:` テスト追加
+
+---
+
+## ブランチの基本
+
+### 🌿 ブランチとは？
+
+ブランチは、メインの開発ラインから分岐して、独立して開発を進める仕組みです。
+
+```bash
+# 現在のブランチを確認
+git branch
+
+# 新しいブランチを作成
+git branch feature/obstacle-avoidance
+
+# ブランチを切り替え
+git checkout feature/obstacle-avoidance
+
+# ブランチ作成と切り替えを同時に
+git checkout -b feature/new-sensor
+
+# ブランチ一覧を確認
+git branch -a
+```
+
+### 🔄 ブランチのマージ
+
+```bash
+# mainブランチに切り替え
+git checkout main
+
+# 開発ブランチをマージ
+git merge feature/obstacle-avoidance
+
+# 不要になったブランチを削除
+git branch -d feature/obstacle-avoidance
+```
+
+---
+
+## チーム開発での活用
+
+### 👥 典型的なワークフロー
+
+1. **プロジェクトをクローン**
+   ```bash
+   git clone https://github.com/team/robot-project.git
+   ```
+
+2. **最新の変更を取得**
+   ```bash
+   git pull origin main
+   ```
+
+3. **新機能用のブランチを作成**
+   ```bash
+   git checkout -b feature/my-new-feature
+   ```
+
+4. **開発・テスト・コミット**
+   ```bash
+   # 開発作業
+   git add .
+   git commit -m "feat: 新機能を実装"
+   ```
+
+5. **リモートにプッシュ**
+   ```bash
+   git push origin feature/my-new-feature
+   ```
+
+6. **Pull Request作成** (GitHub上で)
+
+---
+
+## よくあるトラブルと対処法
+
+### 🚨 コンフリクト（競合）の解決
+
+```bash
+# マージ時にコンフリクトが発生
+git merge feature-branch
+
+# コンフリクトしたファイルを手動で編集
+# <<<<<<<, =======, >>>>>>> の部分を修正
+
+# 解決後にコミット
+git add conflicted_file.py
+git commit -m "resolve: マージコンフリクトを解決"
+```
+
+### 🔄 間違ったコミットの取り消し
+
+```bash
+# 最新のコミットを取り消し（ファイルは残す）
+git reset --soft HEAD~1
+
+# 最新のコミットを完全に取り消し
+git reset --hard HEAD~1
+
+# 特定のコミットの変更を打ち消し
+git revert commit_hash
+```
+
+### 💾 変更の一時保存
+
+```bash
+# 作業中の変更を一時保存
+git stash
+
+# 一時保存した変更を復元
+git stash pop
+
+# 一時保存の一覧を確認
+git stash list
+```
+
+---
+
+## ロボットプログラミング演習での実践
+
+### 📚 演習用リポジトリの取得
+
+```bash
+# ワークスペースに移動
+cd ~/ros/enshu_ws/src
+
+# 演習用コードをクローン
+git clone https://github.com/iory/robot-programming.git
+
+# 最新の演習資料を取得
+cd robot-programming
+git pull origin main
+```
+
+### 🔄 演習中の更新手順
+
+```bash
+# 演習開始前に必ず実行
+cd ~/ros/enshu_ws/src/robot-programming
+git pull origin main
+
+# 自分の変更を別ブランチで管理
+git checkout -b my-work-session1
+```
+
+### 💾 作業の保存
+
+```bash
+# 作業内容をコミット
+git add .
+git commit -m "session1: キーボード制御プログラムを実装"
+
+# 必要に応じてリモートにバックアップ
+git push origin my-work-session1
+```
+
+---
+
+## 🎓 まとめ
+
+### 覚えておくべき基本コマンド
+
+```bash
+# 取得・確認
+git clone <URL>          # プロジェクトのダウンロード
+git status               # 現在の状態確認
+git log --oneline        # 変更履歴確認
+
+# 変更の記録
+git add <file>           # ファイルをステージング
+git commit -m "message"  # 変更をコミット
+
+# 同期
+git pull                 # 最新の変更を取得
+git push                 # 変更をアップロード
+
+# ブランチ
+git branch               # ブランチ一覧
+git checkout -b <name>   # 新ブランチ作成・切り替え
+```
+
+### 次のステップ
+
+Gitの基本をマスターしたら：
+1. **GitHub**の使い方を学習
+2. **Pull Request**でのコードレビュー
+3. **GitHub Actions**での自動テスト
+4. **Issue**でのプロジェクト管理
+
+これで君も立派なGitユーザーだ！ロボットプログラミングでGitを活用して、安全で効率的な開発を進めよう！

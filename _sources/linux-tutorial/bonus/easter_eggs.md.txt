@@ -1,0 +1,168 @@
+# 🥚 イースターエッグ & ボーナスチャレンジ
+
+## 隠された秘密を見つけ出せ！
+
+### 🎭 ボーナスミッション1: 歴史の探究者
+
+**背景**: Linuxシステムには、君が実行したコマンドの歴史が記録されている。
+
+**クエスト**:
+1. `history` コマンドで過去のコマンドを確認
+2. `!番号` で過去のコマンドを再実行
+3. `history | grep robot` で「robot」を含むコマンドを検索
+4. `.bash_history` ファイルの中身を確認
+
+```bash
+$ history | tail -20
+$ !100  # 100番目のコマンドを再実行
+$ history | grep -i robot
+$ cat ~/.bash_history | wc -l  # 履歴の総数を確認
+```
+
+🏁 **BONUS_FLAG{history_detective}**
+
+### 🔮 ボーナスミッション2: 環境変数の魔術師
+
+**背景**: システムには見えない設定値が隠されている。
+
+**クエスト**:
+1. すべての環境変数を表示
+2. 新しい環境変数 `ROBOT_SECRET` を設定
+3. `PATH` 変数の中身を見やすく表示
+
+```bash
+$ env | grep USER
+$ export ROBOT_SECRET="JEDY_2024"
+$ echo $ROBOT_SECRET
+$ echo $PATH | tr ':' '\n'  # PATHを改行で区切って表示
+```
+
+🏁 **BONUS_FLAG{env_wizard}**
+
+### 🎯 ボーナスミッション3: ワイルドカードマスター
+
+**背景**: 特殊な記号を使って、複数のファイルを一度に操作する技を習得せよ。
+
+**準備**:
+```bash
+mkdir ~/wildcard_test
+cd ~/wildcard_test
+touch robot_{01..10}.log
+touch sensor_{a..e}.dat
+touch backup_2024_{01..12}.tar
+```
+
+**クエスト**:
+1. `robot_` で始まるファイルをすべて表示
+2. `.dat` で終わるファイルを削除
+3. `backup_2024_0[1-6].tar` のファイルを `first_half/` に移動
+
+```bash
+$ ls robot_*
+$ rm *.dat
+$ mkdir first_half
+$ mv backup_2024_0[1-6].tar first_half/
+```
+
+🏁 **BONUS_FLAG{wildcard_ninja}**
+
+### 💾 ボーナスミッション4: 圧縮の達人
+
+**背景**: 大量のデータを効率的に保存・転送する技術を身につけよ。
+
+**クエスト**:
+1. `mission_data` ディレクトリを作成し、複数のファイルを作成
+2. tar で圧縮アーカイブを作成
+3. gzip で圧縮
+4. 圧縮ファイルの中身を確認（展開せずに）
+
+```bash
+$ mkdir mission_data && cd mission_data
+$ echo "Secret Data" > file{1..5}.txt
+$ cd ..
+$ tar -cvf mission_archive.tar mission_data/
+$ gzip mission_archive.tar
+$ tar -tzf mission_archive.tar.gz  # 中身を確認
+```
+
+🏁 **BONUS_FLAG{compression_expert}**
+
+### 🌈 ボーナスミッション5: カラフルターミナル
+
+**背景**: ターミナルに色を付けて、より見やすくカスタマイズしよう。
+
+**クエスト**:
+1. プロンプトをカラフルにカスタマイズ
+2. `ls` コマンドの出力に色を付ける
+3. エラーメッセージを赤色で表示
+
+```bash
+# ~/.bashrcに追加
+export PS1='\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+
+# 適用
+$ source ~/.bashrc
+```
+
+🏁 **BONUS_FLAG{terminal_artist}**
+
+### 🎮 究極のチャレンジ: ASCII アートジェネレーター
+
+**ミッション**: ロボット「JEDY」のASCIIアートを表示するスクリプトを作成せよ
+
+```bash
+#!/bin/bash
+# jedy_art.sh
+
+cat << 'EOF'
+     ___  _____ ____  _   _ 
+    |_ _|| ____|  _ \| | | |
+     | | |  _| | | | | |_| |
+     | | | |___| |_| |  _  |
+    |___||_____|____/|_| |_|
+    
+    [o]---[o]  <- カメラ
+      |   |
+    +-+---+-+
+    | ROBOT |
+    +-+---+-+
+      |   |
+     /|\ /|\  <- アーム
+    / | X | \
+      | | |
+     [=====]  <- 車輪
+EOF
+
+echo -e "\n\033[32mJEDY Robot System Activated!\033[0m"
+```
+
+🏁 **ULTIMATE_FLAG{ascii_master_jedy}**
+
+## 🏅 スペシャルチャレンジ: ワンライナー職人
+
+以下のタスクを1行のコマンドで実現せよ：
+
+1. 現在のディレクトリ以下のすべての`.txt`ファイルの合計行数を表示
+```bash
+$ find . -name "*.txt" -exec cat {} \; | wc -l
+```
+
+2. 最もサイズの大きいファイルTOP5を表示
+```bash
+$ du -ah . | sort -rh | head -5
+```
+
+3. 1から100までの数字のうち、3の倍数だけを表示
+```bash
+$ seq 1 100 | awk '$1 % 3 == 0'
+```
+
+🏁 **ONELINER_FLAG{command_chain_master}**
+
+## 🎊 完全制覇の証
+
+すべてのボーナスフラグを集めた者には、「Linux グランドマスター」の称号が与えられる！
+
+これらの高度なテクニックは、実際のロボットプログラミングでも大いに役立つぞ。次なる冒険で、これらのスキルを存分に発揮しよう！

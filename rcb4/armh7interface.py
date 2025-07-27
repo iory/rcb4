@@ -135,7 +135,7 @@ def is_running_on_wsl():
         True if running on WSL, False otherwise.
     """
     try:
-        with open('/proc/version') as f:
+        with open('/proc/version', encoding='utf-8') as f:
             version_info = f.read().lower()
             return 'microsoft' in version_info or 'wsl' in version_info
     except Exception:

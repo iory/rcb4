@@ -138,7 +138,7 @@ def is_running_on_wsl():
         with open('/proc/version', encoding='utf-8') as f:
             version_info = f.read().lower()
             return 'microsoft' in version_info or 'wsl' in version_info
-    except Exception:
+    except (FileNotFoundError, PermissionError):
         return False
 
 

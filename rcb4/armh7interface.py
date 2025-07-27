@@ -144,6 +144,24 @@ class ARMH7Interface:
     def __del__(self):
         self.close()
 
+    def _handle_usb_permission_error(self):
+        """Print USB permission error message with instructions in red color."""
+        print(f"\n{Fore.RED}{'=' * 60}")
+        print(f"{Fore.RED}USB PERMISSION ERROR")
+        print(f"{Fore.RED}{'=' * 60}")
+        print(f"{Fore.RED}\nYou don't have permission to access the USB device.")
+        print(f"{Fore.RED}\nTo fix this issue, please run the following commands:")
+        print(f"{Fore.RED}\n1. Add udev rules:")
+        print(f"{Fore.RED}   curl -fsSL https://raw.githubusercontent.com/iory/rcb4/main/rcb4/assets/system/99-rcb4-udev.rules | sudo tee /etc/udev/rules.d/99-rcb4-udev.rules")
+        print(f"{Fore.RED}   sudo udevadm control --reload-rules")
+        print(f"{Fore.RED}   sudo udevadm trigger")
+        print(f"{Fore.RED}\n2. Add your user to the required groups:")
+        print(f"{Fore.RED}   sudo usermod -a -G dialout $USER")
+        print(f"{Fore.RED}   sudo usermod -a -G plugdev $USER")
+        print(f"{Fore.RED}\n3. Log out and log back in for the group changes to take effect.")
+        print(f"{Fore.RED}\nFor more details, see the README.md file.")
+        print(f"{Fore.RED}{'=' * 60}{Style.RESET_ALL}")
+
     def open(self, port="/dev/ttyUSB1", baudrate=1000000, timeout=0.01):
         """Opens a serial connection to the ARMH7 device.
 
@@ -172,6 +190,12 @@ class ARMH7Interface:
             time.sleep(2.0)
         except ValueError as e:
             print(f"Skipping reset for non-USB serial port: {e}")
+        except Exception as e:
+            if "LIBUSB_ERROR_ACCESS" in str(e):
+                self._handle_usb_permission_error()
+                raise
+            else:
+                raise
         try:
             self.serial = serial.Serial(port, baudrate, timeout=timeout)
             print(f"Opened {port} at {baudrate} baud")
@@ -1574,4 +1598,11 @@ class ARMH7Interface:
 
 if __name__ == "__main__":
     interface = ARMH7Interface()
-    print(interface.auto_open())
+    try:
+        print(interface.auto_open())
+    except Exception as e:
+        if "LIBUSB_ERROR_ACCESS" in str(e):
+            # Error already handled and printed by the class method
+            pass
+        else:
+            print(f"Error: {e}")

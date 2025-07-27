@@ -126,6 +126,22 @@ def padding_bytearray(byte_array, n):
         return byte_array
 
 
+def is_running_on_wsl():
+    """Check if the code is running on Windows Subsystem for Linux (WSL).
+
+    Returns
+    -------
+    bool
+        True if running on WSL, False otherwise.
+    """
+    try:
+        with open('/proc/version') as f:
+            version_info = f.read().lower()
+            return 'microsoft' in version_info or 'wsl' in version_info
+    except Exception:
+        return False
+
+
 class ARMH7Interface:
     def __init__(self, timeout=0.1):
         self.lock = Lock()
@@ -183,19 +199,22 @@ class ARMH7Interface:
         serial.SerialException
             If there is an error opening the serial port.
         """
-        # Reset the USB device before opening the serial port
-        try:
-            reset_serial_port(port)
-            # Wait for 2 seconds to ensure the device is properly reset
-            time.sleep(2.0)
-        except ValueError as e:
-            print(f"Skipping reset for non-USB serial port: {e}")
-        except Exception as e:
-            if "LIBUSB_ERROR_ACCESS" in str(e):
-                self._handle_usb_permission_error()
-                raise
-            else:
-                raise
+        # Skip USB reset on WSL as it causes communication failures
+        # On WSL, USB device reset can lead to device disconnection
+        # and subsequent communication errors
+        if not is_running_on_wsl():
+            try:
+                reset_serial_port(port)
+                # Wait for 2 seconds to ensure the device is properly reset
+                time.sleep(2.0)
+            except ValueError as e:
+                print(f"Skipping reset for non-USB serial port: {e}")
+            except Exception as e:
+                if "LIBUSB_ERROR_ACCESS" in str(e):
+                    self._handle_usb_permission_error()
+                    raise
+                else:
+                    raise
         try:
             self.serial = serial.Serial(port, baudrate, timeout=timeout)
             print(f"Opened {port} at {baudrate} baud")

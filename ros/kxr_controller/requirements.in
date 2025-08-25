@@ -6,6 +6,6 @@ pandas==2.0.3
 pyelftools==0.31
 pyglet==1.4.10
 pyserial==3.5
-scikit-robot>=0.0.45
+scikit-robot>=0.2.12
 tabulate==0.9.0
 pycollada==0.8

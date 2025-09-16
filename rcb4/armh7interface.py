@@ -47,6 +47,24 @@ from rcb4.temperature import setting_value_to_temperature
 from rcb4.units import convert_data
 from rcb4.usb_utils import reset_serial_port
 
+# ICS channel mapping (corresponds to J1-J6 connectors)
+ICS_CHANNELS = {
+    "J1": 0,
+    "J2": 1,
+    "J3": 2,
+    "J4": 3,
+    "J5": 4,
+    "J6": 5,
+    "ALL": 6
+}
+
+# ICS baudrate mapping
+ICS_BAUDRATES = {
+    1250000: 0,
+    625000: 1,
+    115200: 2
+}
+
 armh7_variable_list = [
     "walking_command",
     "walking_mode",
@@ -1613,6 +1631,81 @@ class ARMH7Interface:
             for sid in servo_ids
         ]
         return setting_value_to_temperature[temperature_vector]
+
+    def read_ics_baudrate(self, ch="ALL"):
+        """Read ICS baudrate configuration for specified channel(s).
+
+        Parameters
+        ----------
+        ch : str
+            ICS channel name ("J1"-"J6" or "ALL")
+
+        Returns
+        -------
+        int or list
+            Baudrate value(s) for the specified channel(s)
+        """
+        if ch not in ICS_CHANNELS:
+            channel_list = list(ICS_CHANNELS.keys())
+            raise ValueError(f"Invalid channel. Valid channels: {channel_list}")
+
+        ri_baud_list = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()
+
+        # Reverse mapping from value to baudrate
+        value_to_baudrate = {v: k for k, v in ICS_BAUDRATES.items()}
+
+        if ch == "ALL":
+            results = []
+            for channel_name in ["J1", "J2", "J3", "J4", "J5", "J6"]:
+                channel_idx = ICS_CHANNELS[channel_name]
+                baud_value = ri_baud_list[channel_idx]
+                baudrate = value_to_baudrate.get(baud_value, 1250000)  # Default to 1250000
+                results.append((channel_name, baudrate))
+                print(f"{channel_name}: {baudrate}")
+            return results
+        else:
+            channel_idx = ICS_CHANNELS[ch]
+            baud_value = ri_baud_list[channel_idx]
+            baudrate = value_to_baudrate.get(baud_value, 1250000)  # Default to 1250000
+            print(f"{ch}: {baudrate}")
+            return baudrate
+
+    def send_ics_baudrate(self, baud, ch="ALL"):
+        """Send ICS baudrate configuration to specified channel(s).
+
+        Parameters
+        ----------
+        baud : int
+            Baudrate value (1250000, 625000, or 115200)
+        ch : str
+            ICS channel name ("J1"-"J6" or "ALL")
+
+        Returns
+        -------
+        numpy.ndarray
+            Result from write operation
+        """
+        if baud not in ICS_BAUDRATES:
+            baud_list = list(ICS_BAUDRATES.keys())
+            raise ValueError(f"Invalid baudrate. Valid baudrates: {baud_list}")
+
+        if ch not in ICS_CHANNELS:
+            channel_list = list(ICS_CHANNELS.keys())
+            raise ValueError(f"Invalid channel. Valid channels: {channel_list}")
+
+        ri_baud_list = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()
+        baud_value = ICS_BAUDRATES[baud]
+
+        if ch == "ALL":
+            # Set all channels to the same baudrate
+            for i in range(6):  # J1-J6 channels
+                ri_baud_list[i] = baud_value
+        else:
+            # Set specific channel
+            channel_idx = ICS_CHANNELS[ch]
+            ri_baud_list[channel_idx] = baud_value
+
+        return self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list)
 
 
 if __name__ == "__main__":

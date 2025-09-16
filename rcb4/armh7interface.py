@@ -1694,7 +1694,9 @@ class ARMH7Interface:
             channel_list = list(ICS_CHANNELS.keys())
             raise ValueError(f"Invalid channel. Valid channels: {channel_list}")
 
-        ri_baud_list = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()
+        # Read current values as 2D array (like euslisp)
+        ri_baud_list_2d = [self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()]
+        ri_baud_list = ri_baud_list_2d[0]  # Work with the first (and only) array
         baud_value = ICS_BAUDRATES[baud]
 
         print(f"Before: {ri_baud_list}")
@@ -1711,8 +1713,8 @@ class ARMH7Interface:
 
         print(f"After modification: {ri_baud_list}")
         
-        # Use cstruct_slot method like in euslisp implementation
-        result = self.cstruct_slot(SystemStruct, "ics_baudrate", ri_baud_list)
+        # Use write_cstruct_slot_v like in euslisp (pass 2D array structure)
+        result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list_2d)
         
         # Verify the write by reading back
         verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")

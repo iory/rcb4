@@ -1294,7 +1294,8 @@ class ARMH7Interface:
         skip_size = cls.size
         field_type = cls.__fields_types__[slot_name]
         typ = field_type.c_type
-        cnt = getattr(field_type, "vlen", 1)  # Number of elements in array (e.g., 6 for ics_baudrate)
+        # Number of elements in array (e.g., 6 for ics_baudrate number of ports)
+        cnt = getattr(field_type, "vlen", 1)
         esize = c_type_to_size(typ)
         offset = field_type.offset
         tsize = cnt * esize

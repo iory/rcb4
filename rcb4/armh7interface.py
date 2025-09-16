@@ -47,6 +47,25 @@ from rcb4.temperature import setting_value_to_temperature
 from rcb4.units import convert_data
 from rcb4.usb_utils import reset_serial_port
 
+# ICS channel mapping (corresponds to actual UART mapping from euslisp)
+# huart1:J6, huart2:J1, huart3:J5, huart4:J4, huart5:J3, huart7:J2
+ICS_CHANNELS = {
+    "J1": 1,
+    "J2": 5,
+    "J3": 4,
+    "J4": 3,
+    "J5": 2,
+    "J6": 0,
+    "ALL": 6
+}
+
+# ICS baudrate mapping (from euslisp)
+ICS_BAUDRATES = {
+    115200: 0,
+    625000: 1,
+    1250000: 2
+}
+
 armh7_variable_list = [
     "walking_command",
     "walking_mode",
@@ -1273,11 +1292,12 @@ class ARMH7Interface:
         vcnt = c_vector[cls.__name__] or 1
         addr = self.armh7_address[cls.__name__]
         skip_size = cls.size
-        cnt = 1
-        typ = cls.__fields_types__[slot_name].c_type
+        field_type = cls.__fields_types__[slot_name]
+        typ = field_type.c_type
+        # Number of elements in array (e.g., 6 for ics_baudrate number of ports)
+        cnt = getattr(field_type, "vlen", 1)
         esize = c_type_to_size(typ)
-        offset = cls.__fields_types__[slot_name].offset
-        c_type = cls.__fields_types__[slot_name].c_type
+        offset = field_type.offset
         tsize = cnt * esize
 
         n = 11 + tsize * vcnt
@@ -1294,20 +1314,17 @@ class ARMH7Interface:
         struct.pack_into("<H", byte_list, 8, skip_size)
 
         for i in range(vcnt):
+            # vec is a list of arrays, get the i-th array
+            array_data = vec[i] if isinstance(vec, list) and len(vec) > i else vec
+
             if cnt == 1:
-                if (
-                    isinstance(vec, list)
-                    or isinstance(vec, tuple)
-                    or isinstance(vec, np.ndarray)
-                ):
-                    if isinstance(vec, np.ndarray):
-                        v = float(vec[i])
-                    else:
-                        v = vec[i]
+                # Single element
+                if isinstance(array_data, (list, tuple, np.ndarray)) and len(array_data) > 0:
+                    v = array_data[0]
                 else:
-                    v = vec
+                    v = array_data
                 if not isinstance(v, (int, float)):
-                    v = v[0] if len(v) > 1 else v
+                    v = v[0] if hasattr(v, '__len__') and len(v) > 0 else v
                 if typ == "uint8":
                     v = int(round(v))
                     struct.pack_into("<B", byte_list, 10 + i * esize, v)
@@ -1325,19 +1342,31 @@ class ARMH7Interface:
                 else:
                     raise RuntimeError(f"Not implemented case for typ {typ}")
             else:
+                # Array of elements (like ics_baudrate with 6 elements)
                 for j in range(cnt):
-                    v = vec[i][j]
-                    if typ in ("uint8", "uint16", "uint32"):
-                        v = round(v)
-                    if typ in ("float", "double"):
+                    if isinstance(array_data, (list, tuple, np.ndarray)) and j < len(array_data):
+                        v = array_data[j]
+                    else:
+                        v = 0  # Default value
+                    if typ in ("uint8", "uint16", "uint32", "int16"):
+                        v = int(round(v))
+                    if typ == "uint8":
+                        struct.pack_into("<B", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "uint16":
+                        struct.pack_into("<H", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "int16":
+                        struct.pack_into("<h", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "uint32":
+                        struct.pack_into("<I", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ in ("float", "double"):
                         struct.pack_into("<f", byte_list, 10 + i * tsize + j * esize, v)
                     else:
-                        struct.pack_into("<I", byte_list, 10 + i * tsize + j * esize, v)
+                        raise RuntimeError(f"Not implemented case for typ {typ}")
 
         byte_list[n - 1] = rcb4_checksum(byte_list)
         s = self.serial_write(byte_list)
         s = padding_bytearray(s, tsize)
-        return np.frombuffer(s, dtype=c_type_to_numpy_format(c_type))
+        return np.frombuffer(s, dtype=c_type_to_numpy_format(typ))
 
     def scan_ics_channels_per_port(self, timeout=False, raw_id=True):
         """Return the ICS or SIO ID for devices on each ICS channel (J1..J6).
@@ -1613,6 +1642,95 @@ class ARMH7Interface:
             for sid in servo_ids
         ]
         return setting_value_to_temperature[temperature_vector]
+
+    def read_ics_baudrate(self, ch="ALL"):
+        """Read ICS baudrate configuration for specified channel(s).
+
+        Parameters
+        ----------
+        ch : str
+            ICS channel name ("J1"-"J6" or "ALL")
+
+        Returns
+        -------
+        int or list
+            Baudrate value(s) for the specified channel(s)
+        """
+        if ch not in ICS_CHANNELS:
+            channel_list = list(ICS_CHANNELS.keys())
+            raise ValueError(f"Invalid channel. Valid channels: {channel_list}")
+
+        ri_baud_list = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()
+
+        # Reverse mapping from value to baudrate
+        value_to_baudrate = {v: k for k, v in ICS_BAUDRATES.items()}
+
+        if ch == "ALL":
+            results = []
+            for channel_name in ["J1", "J2", "J3", "J4", "J5", "J6"]:
+                channel_idx = ICS_CHANNELS[channel_name]
+                baud_value = ri_baud_list[channel_idx]
+                baudrate = value_to_baudrate.get(baud_value, 1250000)  # Default to 1250000
+                results.append((channel_name, baudrate))
+                print(f"{channel_name}: {baudrate}")
+            return results
+        else:
+            channel_idx = ICS_CHANNELS[ch]
+            baud_value = ri_baud_list[channel_idx]
+            baudrate = value_to_baudrate.get(baud_value, 1250000)  # Default to 1250000
+            print(f"{ch}: {baudrate}")
+            return baudrate
+
+    def send_ics_baudrate(self, baud, ch="ALL"):
+        """Send ICS baudrate configuration to specified channel(s).
+
+        Parameters
+        ----------
+        baud : int
+            Baudrate value (1250000, 625000, or 115200)
+        ch : str
+            ICS channel name ("J1"-"J6" or "ALL")
+
+        Returns
+        -------
+        numpy.ndarray
+            Result from write operation
+        """
+        if baud not in ICS_BAUDRATES:
+            baud_list = list(ICS_BAUDRATES.keys())
+            raise ValueError(f"Invalid baudrate. Valid baudrates: {baud_list}")
+
+        if ch not in ICS_CHANNELS:
+            channel_list = list(ICS_CHANNELS.keys())
+            raise ValueError(f"Invalid channel. Valid channels: {channel_list}")
+
+        # Read current values as 2D array (like euslisp)
+        ri_baud_list_2d = [self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()]
+        ri_baud_list = ri_baud_list_2d[0]  # Work with the first (and only) array
+        baud_value = ICS_BAUDRATES[baud]
+
+        print(f"Before: {ri_baud_list}")
+        print(f"Setting baudrate value: {baud_value} for channel: {ch}")
+
+        if ch == "ALL":
+            # Set all channels to the same baudrate
+            for i in range(6):  # J1-J6 channels
+                ri_baud_list[i] = baud_value
+        else:
+            # Set specific channel
+            channel_idx = ICS_CHANNELS[ch]
+            ri_baud_list[channel_idx] = baud_value
+
+        print(f"After modification: {ri_baud_list}")
+
+        # Use write_cstruct_slot_v like in euslisp (pass 2D array structure)
+        result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list_2d)
+
+        # Verify the write by reading back
+        verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")
+        print(f"Verification read: {verification}")
+
+        return result
 
 
 if __name__ == "__main__":

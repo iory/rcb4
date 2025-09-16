@@ -19,7 +19,11 @@ def rcb4_checksum(byte_list: List[int]) -> int:
     int
         The calculated checksum.
     """
-    return sum(b & 0xFF for b in byte_list) & 0xFF
+    # Use Python's int type to avoid numpy overflow warnings
+    checksum = 0
+    for b in byte_list:
+        checksum += int(b) & 0xFF
+    return checksum & 0xFF
 
 
 def rcb4_velocity(v) -> int:

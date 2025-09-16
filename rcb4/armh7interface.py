@@ -1292,11 +1292,11 @@ class ARMH7Interface:
         vcnt = c_vector[cls.__name__] or 1
         addr = self.armh7_address[cls.__name__]
         skip_size = cls.size
-        cnt = 1
-        typ = cls.__fields_types__[slot_name].c_type
+        field_type = cls.__fields_types__[slot_name]
+        typ = field_type.c_type
+        cnt = getattr(field_type, "vlen", 1)  # Number of elements in array (e.g., 6 for ics_baudrate)
         esize = c_type_to_size(typ)
-        offset = cls.__fields_types__[slot_name].offset
-        c_type = cls.__fields_types__[slot_name].c_type
+        offset = field_type.offset
         tsize = cnt * esize
 
         n = 11 + tsize * vcnt
@@ -1313,20 +1313,17 @@ class ARMH7Interface:
         struct.pack_into("<H", byte_list, 8, skip_size)
 
         for i in range(vcnt):
+            # vec is a list of arrays, get the i-th array
+            array_data = vec[i] if isinstance(vec, list) and len(vec) > i else vec
+            
             if cnt == 1:
-                if (
-                    isinstance(vec, list)
-                    or isinstance(vec, tuple)
-                    or isinstance(vec, np.ndarray)
-                ):
-                    if isinstance(vec, np.ndarray):
-                        v = float(vec[i])
-                    else:
-                        v = vec[i]
+                # Single element
+                if isinstance(array_data, (list, tuple, np.ndarray)) and len(array_data) > 0:
+                    v = array_data[0]
                 else:
-                    v = vec
+                    v = array_data
                 if not isinstance(v, (int, float)):
-                    v = v[0] if len(v) > 1 else v
+                    v = v[0] if hasattr(v, '__len__') and len(v) > 0 else v
                 if typ == "uint8":
                     v = int(round(v))
                     struct.pack_into("<B", byte_list, 10 + i * esize, v)
@@ -1344,19 +1341,31 @@ class ARMH7Interface:
                 else:
                     raise RuntimeError(f"Not implemented case for typ {typ}")
             else:
+                # Array of elements (like ics_baudrate with 6 elements)
                 for j in range(cnt):
-                    v = vec[i][j]
-                    if typ in ("uint8", "uint16", "uint32"):
-                        v = round(v)
-                    if typ in ("float", "double"):
+                    if isinstance(array_data, (list, tuple, np.ndarray)) and j < len(array_data):
+                        v = array_data[j]
+                    else:
+                        v = 0  # Default value
+                    if typ in ("uint8", "uint16", "uint32", "int16"):
+                        v = int(round(v))
+                    if typ == "uint8":
+                        struct.pack_into("<B", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "uint16":
+                        struct.pack_into("<H", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "int16":
+                        struct.pack_into("<h", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ == "uint32":
+                        struct.pack_into("<I", byte_list, 10 + i * tsize + j * esize, v)
+                    elif typ in ("float", "double"):
                         struct.pack_into("<f", byte_list, 10 + i * tsize + j * esize, v)
                     else:
-                        struct.pack_into("<I", byte_list, 10 + i * tsize + j * esize, v)
+                        raise RuntimeError(f"Not implemented case for typ {typ}")
 
         byte_list[n - 1] = rcb4_checksum(byte_list)
         s = self.serial_write(byte_list)
         s = padding_bytearray(s, tsize)
-        return np.frombuffer(s, dtype=c_type_to_numpy_format(c_type))
+        return np.frombuffer(s, dtype=c_type_to_numpy_format(typ))
 
     def scan_ics_channels_per_port(self, timeout=False, raw_id=True):
         """Return the ICS or SIO ID for devices on each ICS channel (J1..J6).

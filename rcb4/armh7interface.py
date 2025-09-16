@@ -1696,6 +1696,9 @@ class ARMH7Interface:
         ri_baud_list = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate").copy()
         baud_value = ICS_BAUDRATES[baud]
 
+        print(f"Before: {ri_baud_list}")
+        print(f"Setting baudrate value: {baud_value} for channel: {ch}")
+
         if ch == "ALL":
             # Set all channels to the same baudrate
             for i in range(6):  # J1-J6 channels
@@ -1705,7 +1708,14 @@ class ARMH7Interface:
             channel_idx = ICS_CHANNELS[ch]
             ri_baud_list[channel_idx] = baud_value
 
-        return self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list)
+        print(f"After modification: {ri_baud_list}")
+        result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list)
+        
+        # Verify the write by reading back
+        verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")
+        print(f"Verification read: {verification}")
+
+        return result
 
 
 if __name__ == "__main__":

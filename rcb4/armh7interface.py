@@ -60,7 +60,7 @@ ICS_CHANNELS = {
 
 # ICS baudrate mapping
 ICS_BAUDRATES = {
-    1250000: 0,
+    1250000: 255,  # Default value appears to be 255
     625000: 1,
     115200: 2
 }

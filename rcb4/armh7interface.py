@@ -47,22 +47,23 @@ from rcb4.temperature import setting_value_to_temperature
 from rcb4.units import convert_data
 from rcb4.usb_utils import reset_serial_port
 
-# ICS channel mapping (corresponds to J1-J6 connectors)
+# ICS channel mapping (corresponds to actual UART mapping from euslisp)
+# huart1:J6, huart2:J1, huart3:J5, huart4:J4, huart5:J3, huart7:J2
 ICS_CHANNELS = {
-    "J1": 0,
-    "J2": 1,
-    "J3": 2,
+    "J1": 1,
+    "J2": 5, 
+    "J3": 4,
     "J4": 3,
-    "J5": 4,
-    "J6": 5,
+    "J5": 2,
+    "J6": 0,
     "ALL": 6
 }
 
-# ICS baudrate mapping
+# ICS baudrate mapping (from euslisp)
 ICS_BAUDRATES = {
-    1250000: 255,  # Default value appears to be 255
+    115200: 0,
     625000: 1,
-    115200: 2
+    1250000: 2
 }
 
 armh7_variable_list = [
@@ -1709,10 +1710,9 @@ class ARMH7Interface:
             ri_baud_list[channel_idx] = baud_value
 
         print(f"After modification: {ri_baud_list}")
-        result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list)
         
-        # Write to flash to make the changes persistent
-        self.write_to_flash()
+        # Use cstruct_slot method like in euslisp implementation
+        result = self.cstruct_slot(SystemStruct, "ics_baudrate", ri_baud_list)
         
         # Verify the write by reading back
         verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")

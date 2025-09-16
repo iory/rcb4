@@ -51,7 +51,7 @@ from rcb4.usb_utils import reset_serial_port
 # huart1:J6, huart2:J1, huart3:J5, huart4:J4, huart5:J3, huart7:J2
 ICS_CHANNELS = {
     "J1": 1,
-    "J2": 5, 
+    "J2": 5,
     "J3": 4,
     "J4": 3,
     "J5": 2,
@@ -1315,7 +1315,7 @@ class ARMH7Interface:
         for i in range(vcnt):
             # vec is a list of arrays, get the i-th array
             array_data = vec[i] if isinstance(vec, list) and len(vec) > i else vec
-            
+
             if cnt == 1:
                 # Single element
                 if isinstance(array_data, (list, tuple, np.ndarray)) and len(array_data) > 0:
@@ -1721,10 +1721,10 @@ class ARMH7Interface:
             ri_baud_list[channel_idx] = baud_value
 
         print(f"After modification: {ri_baud_list}")
-        
+
         # Use write_cstruct_slot_v like in euslisp (pass 2D array structure)
         result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list_2d)
-        
+
         # Verify the write by reading back
         verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")
         print(f"Verification read: {verification}")

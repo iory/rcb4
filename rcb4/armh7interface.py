@@ -1711,6 +1711,9 @@ class ARMH7Interface:
         print(f"After modification: {ri_baud_list}")
         result = self.write_cstruct_slot_v(SystemStruct, "ics_baudrate", ri_baud_list)
         
+        # Write to flash to make the changes persistent
+        self.write_to_flash()
+        
         # Verify the write by reading back
         verification = self.read_cstruct_slot_vector(SystemStruct, "ics_baudrate")
         print(f"Verification read: {verification}")

@@ -2,7 +2,7 @@ colorama==0.4.6
 cstruct==5.3
 gdown==5.1.0
 numpy==1.24.4;python_version<"3.12"
-numpy>=1.26.0;python_version>="3.12"
+numpy<2:python_version>="3.12"
 pandas==2.0.3;python_version<"3.12"
 pandas==2.3.2;python_version>="3.12"
 pycollada==0.8

@@ -178,18 +178,21 @@
     std_msgs::Float32)))
 
 
-(defun kxr-init (&key
+(defun kxr-init (&rest args &key
                    (namespace nil)
                    (create-viewer t)
-                   (controller-name "fullbody_controller"))
+                   (controller-name "fullbody_controller")
+                   &allow-other-keys)
   (unless (boundp '*robot*)
     (setq *robot* (load-robot-model :namespace namespace
                                     :server-ip (ros::get-param (if namespace (format nil "~A/model_server_ip" namespace) "/model_server_ip") "localhost")
                                     :port (ros::get-param (if namespace (format nil "~A/model_server_port" namespace) "/model_server_port") 8123))))
   (unless (ros::ok) (ros::roseus "kxr_eus_interface"))
   (unless (boundp '*ri*)
-    (setq *ri* (instance kxr-interface :init *robot* :namespace namespace
-                         :controller-name controller-name)))
+    (let ((ri (instantiate kxr-interface)))
+      (apply #'send ri :init *robot* :namespace namespace
+	     :controller-name controller-name args)
+      (setq *ri* ri)))
 
   (ros::spin-once)
   (send *ri* :spin-once)

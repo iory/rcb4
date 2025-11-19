@@ -197,7 +197,7 @@ class ARMH7Interface:
         print(f"{Fore.RED}\nFor more details, see the README.md file.")
         print(f"{Fore.RED}{'=' * 60}{Style.RESET_ALL}")
 
-    def open(self, port="/dev/ttyUSB1", baudrate=1000000, timeout=0.01):
+    def open(self, port="/dev/ttyUSB1", baudrate=1000000, timeout=0.01, max_attempts=3):
         """Opens a serial connection to the ARMH7 device.
 
         Parameters
@@ -208,6 +208,8 @@ class ARMH7Interface:
             The baud rate for the serial connection.
         timeout : float, optional
             The timeout for the serial connection in seconds (default is 0.01).
+        max_attempts : int, optional
+            Maximum number of connection attempts (default is 3).
 
         Returns
         -------
@@ -218,34 +220,75 @@ class ARMH7Interface:
         serial.SerialException
             If there is an error opening the serial port.
         """
-        # Skip USB reset on WSL as it causes communication failures
-        # On WSL, USB device reset can lead to device disconnection
-        # and subsequent communication errors
-        if not is_running_on_wsl():
+        connected = False
+        last_exception = None
+
+        for attempt in range(max_attempts):
             try:
-                reset_serial_port(port)
-                # Wait for 2 seconds to ensure the device is properly reset
-                time.sleep(2.0)
-            except ValueError as e:
-                print(f"Skipping reset for non-USB serial port: {e}")
-            except Exception as e:
-                if "LIBUSB_ERROR_ACCESS" in str(e):
-                    self._handle_usb_permission_error()
-                    raise
+                # USB reset only on retry (not on first attempt) and not on WSL
+                if attempt > 0 and not is_running_on_wsl():
+                    try:
+                        print(f"Attempt {attempt + 1}: Performing USB reset...")
+                        reset_serial_port(port)
+                        time.sleep(2.0)
+                    except ValueError as e:
+                        print(f"Skipping reset for non-USB serial port: {e}")
+                    except Exception as e:
+                        if "LIBUSB_ERROR_ACCESS" in str(e):
+                            self._handle_usb_permission_error()
+                            raise
+                        print(f"USB reset failed: {e}")
+
+                # Open serial port
+                self.serial = serial.Serial(port, baudrate, timeout=timeout)
+                print(f"Attempt {attempt + 1}: Opened {port} at {baudrate} baud")
+
+                # Clear any garbage data from buffers
+                self.serial.reset_input_buffer()
+                self.serial.reset_output_buffer()
+                time.sleep(0.1)
+
+                # After powering on, the ACK value becomes unstable for some reason,
+                # so the process is repeated several times.
+                ack_success = False
+                for ack_attempt in range(10):
+                    try:
+                        ack = self.check_ack()
+                        if ack is True:
+                            ack_success = True
+                            connected = True
+                            print(f"ACK confirmed on attempt {ack_attempt + 1}")
+                            break
+                        time.sleep(0.1)
+                    except Exception as e:
+                        if ack_attempt == 9:
+                            print(f"ACK check failed after 10 attempts: {e}")
+                        time.sleep(0.05)
+
+                if connected:
+                    break
                 else:
-                    raise
-        try:
-            self.serial = serial.Serial(port, baudrate, timeout=timeout)
-            print(f"Opened {port} at {baudrate} baud")
-        except serial.SerialException as e:
-            print(f"Error opening serial port: {e}")
-            raise serial.SerialException(e)
-        # After powering on, the ACK value becomes unstable for some reason,
-        # so the process is repeated several times.
-        for _ in range(10):
-            ack = self.check_ack()
-            if ack is True:
-                break
+                    print(f"Attempt {attempt + 1}: Failed to receive ACK")
+                    self.serial.close()
+                    self.serial = None
+                    if attempt < max_attempts - 1:
+                        time.sleep(1.0)
+
+            except serial.SerialException as e:
+                last_exception = e
+                print(f"Attempt {attempt + 1}: Serial connection failed - {e}")
+                if self.serial:
+                    self.serial.close()
+                    self.serial = None
+                if attempt < max_attempts - 1:
+                    time.sleep(1.0)
+
+        if not connected:
+            error_msg = f"Failed to connect to {port} after {max_attempts} attempts"
+            if last_exception:
+                error_msg += f": {last_exception}"
+            raise serial.SerialException(error_msg)
+
         self.check_firmware_version()
         self.copy_worm_params_from_flash()
         self.search_worm_ids()
@@ -285,18 +328,39 @@ class ARMH7Interface:
         if ret is True:
             return interface
 
-    def auto_open(self):
+    def auto_open(self, max_attempts=3):
+        """Automatically find and open the ARMH7 device.
+
+        Parameters
+        ----------
+        max_attempts : int, optional
+            Maximum number of connection attempts per port (default is 3).
+
+        Returns
+        -------
+        bool
+            True if connection successful, False otherwise.
+        """
         system_info = platform.uname()
         if "amlogic" in system_info.version and system_info.machine == "aarch64":
             # for radxa specific.
-            return self.open("/dev/ttyAML1")
+            try:
+                return self.open("/dev/ttyAML1", max_attempts=max_attempts)
+            except Exception as e:
+                print(f"Failed to open /dev/ttyAML1: {e}")
+                return False
 
         vendor_id = 0x0403
         product_id = 0x6001
         ports = serial.tools.list_ports.comports()
         for port in ports:
             if port.vid == vendor_id and port.pid == product_id:
-                return self.open(port=port.device)
+                try:
+                    return self.open(port=port.device, max_attempts=max_attempts)
+                except Exception as e:
+                    print(f"Failed to open {port.device}: {e}")
+                    continue
+        return False
 
     def close(self):
         if self.serial:

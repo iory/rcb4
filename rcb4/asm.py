@@ -82,8 +82,8 @@ def encode_servo_ids_to_nbytes_bin(ids: List[int], num_bytes: int) -> List[int]:
     """
     bit_representation = 0
     for idx in ids:
-        bit_representation |= 1 << idx
-    return [(bit_representation >> (8 * i)) & 0xFF for i in range(num_bytes)]
+        bit_representation |= 1 << int(idx)
+    return [int((bit_representation >> (8 * i)) & 0xFF) for i in range(num_bytes)]
 
 
 def encode_servo_ids_to_5bytes_bin(ids: List[int]) -> List[int]:

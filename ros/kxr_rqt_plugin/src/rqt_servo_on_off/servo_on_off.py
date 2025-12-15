@@ -1,17 +1,19 @@
 #!/usr/bin/env python
 
 import os
-import rospy
+
 import actionlib
-import rospkg
-
+from kxr_controller.msg import ServoOnOffAction
+from kxr_controller.msg import ServoOnOffGoal
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, Signal
-from python_qt_binding.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QCheckBox, QLabel, QPushButton
+from python_qt_binding.QtWidgets import QCheckBox
+from python_qt_binding.QtWidgets import QHBoxLayout
+from python_qt_binding.QtWidgets import QPushButton
+from python_qt_binding.QtWidgets import QWidget
+import rospkg
+import rospy
 from rqt_gui_py.plugin import Plugin
-
 from sensor_msgs.msg import JointState
-from kxr_controller.msg import ServoOnOffAction, ServoOnOffGoal
 
 
 class ServoOnOff(Plugin):
@@ -39,7 +41,7 @@ class ServoOnOff(Plugin):
         # Show _widget.windowTitle on left-top of each plugin
         if context.serial_number() > 1:
             self._widget.setWindowTitle(
-                self._widget.windowTitle() + (' (%d)' % context.serial_number())
+                self._widget.windowTitle() + f' ({context.serial_number()})'
             )
 
         # Add widget to the user interface

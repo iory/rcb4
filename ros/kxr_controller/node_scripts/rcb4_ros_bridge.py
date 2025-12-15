@@ -18,6 +18,8 @@ from kxr_controller.module_loader import KXRConfigLoader
 from kxr_controller.module_loader import ModuleLoader
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorResult
+from kxr_controller.msg import ControlAirBoardAction
+from kxr_controller.msg import ControlAirBoardResult
 from kxr_controller.msg import PressureControl
 from kxr_controller.msg import PressureControlAction
 from kxr_controller.msg import PressureControlResult
@@ -372,6 +374,15 @@ class RCB4ROSBridge:
                 PressureControl,
                 queue_size=1,
             )
+
+            self.control_air_board_server = actionlib.SimpleActionServer(
+                self.base_namespace + "/fullbody_controller/control_air_board_interface",
+                ControlAirBoardAction,
+                execute_cb=self.control_air_board_callback,
+                auto_start=False,
+            )
+            rospy.sleep(0.1)
+            self.control_air_board_server.start()
 
             rospy.set_param(self.base_namespace + "/air_board_ids", self.air_board_ids)
             self.pressure_control_state = {}
@@ -1036,6 +1047,23 @@ class RCB4ROSBridge:
         )
         self.pressure_control_thread[idx].start()
         return self.pressure_control_server.set_succeeded(PressureControlResult())
+
+    def control_air_board_callback(self, goal):
+        if not self.interface.is_opened():
+            return self.control_air_board_server.set_aborted(
+                ControlAirBoardResult())
+        if hasattr(self.interface, goal.action_name):
+            success = serial_call_with_retry(
+                getattr(self.interface, goal.action_name),
+                board_idx=goal.board_idx)
+            if success is None:
+                return self.control_air_board_server.set_aborted(
+                    ControlAirBoardResult())
+        else:
+            rospy.logwarn(f'Could not find {goal.action_name} and control air board.')
+            return self.control_air_board_server.set_aborted(
+                ControlAirBoardResult())
+        return self.control_air_board_server.set_succeeded(ControlAirBoardResult())
 
     def publish_imu_message(self):
         if self.publish_imu is False or self.imu_publisher.get_num_connections() == 0:

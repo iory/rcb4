@@ -10,6 +10,8 @@ import std_msgs.msg
 
 from kxr_controller.msg import AdjustAngleVectorAction
 from kxr_controller.msg import AdjustAngleVectorGoal
+from kxr_controller.msg import ControlAirBoardAction
+from kxr_controller.msg import ControlAirBoardGoal
 from kxr_controller.msg import PressureControlAction
 from kxr_controller.msg import PressureControlGoal
 from kxr_controller.msg import ServoOnOffAction
@@ -68,6 +70,15 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
                 self.pressure_topic_name_base = (
                     namespace + "/fullbody_controller/pressure/"
                 )
+
+                self.control_air_board_client = actionlib.SimpleActionClient(
+                    namespace + "/fullbody_controller/control_air_board_interface",
+                    ControlAirBoardAction,
+                )
+                self.enabled_control_air_board = True
+                if not self.control_air_board_client.wait_for_server(timeout):
+                    rospy.logerr("ControlAirBoard action server not available.")
+                    self.enabled_control_air_board = False
             # Adjust angle vector client
             self.adjust_angle_vector_client = actionlib.SimpleActionClient(
                 namespace + "/fullbody_controller/adjust_angle_vector_interface",
@@ -200,6 +211,21 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         return rospy.wait_for_message(
             self.pressure_topic_name_base + f"{board_idx}", std_msgs.msg.Float32
         )
+
+    def control_air_board(self, board_idx, action_name):
+        if not self.enabled_control_air_board:
+            rospy.logerr("ControlAirBoard action server not available.")
+            return
+        goal = ControlAirBoardGoal(
+            board_idx=board_idx,
+            action_name=action_name,
+        )
+        client = self.control_air_board_client
+        if client.get_state() == actionlib_msgs.msg.GoalStatus.ACTIVE:
+            client.cancel_goal()
+            client.wait_for_result(timeout=rospy.Duration(10))
+        client.send_goal(goal)
+        return client
 
     def update_kxr_parameters(self, frame_count=None, wheel_frame_count=None,
                               temperature_limit=None, current_limit=None, **kwargs):

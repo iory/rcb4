@@ -1,0 +1,5 @@
+uint16 board_idx  # Do not use board id? (Currently, bus-connected air board is not supported)
+string action_name
+---
+---
+bool succeeded

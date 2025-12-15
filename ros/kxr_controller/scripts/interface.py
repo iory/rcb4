@@ -57,8 +57,16 @@ def main():
         else:
             raise NotImplementedError(f"Not supported viewer {args.viewer}")
 
-    # Drop into an IPython shell with both local & global vars
-    IPython.embed(global_ns=globals(), local_ns=locals())  # NOQA
+    # Drop into an IPython shell with variables accessible
+    user_ns = {
+        'robot_model': robot_model,
+        'ri': ri,
+        'np': np,
+        'rospy': rospy,
+    }
+    if args.viewer is not None:
+        user_ns['viewer'] = viewer
+    IPython.start_ipython(argv=[], user_ns=user_ns)
 
 
 if __name__ == "__main__":

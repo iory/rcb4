@@ -1,0 +1,11 @@
+#!/bin/bash
+# Wrapper script to run interface.py with proper TTY handling for rosrun
+# Bypasses catkin_virtualenv's heredoc execution which breaks stdin
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PKG_NAME="kxr_controller"
+
+CATKIN_WS="$(catkin locate)"
+VENV_PYTHON="$CATKIN_WS/devel/.private/$PKG_NAME/share/$PKG_NAME/venv/bin/python"
+
+exec "$VENV_PYTHON" "$SCRIPT_DIR/interface.py" "$@"

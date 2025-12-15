@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 import argparse
-import time
-
-from rcb4.armh7interface import ARMH7Interface
-import yaml
 import os.path as osp
 import sys
+import time
+
 from colorama import Fore
+import yaml
+
+from rcb4.armh7interface import ARMH7Interface
 
 
 def main():

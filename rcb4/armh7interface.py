@@ -250,12 +250,10 @@ class ARMH7Interface:
 
                 # After powering on, the ACK value becomes unstable for some reason,
                 # so the process is repeated several times.
-                ack_success = False
                 for ack_attempt in range(10):
                     try:
                         ack = self.check_ack()
                         if ack is True:
-                            ack_success = True
                             connected = True
                             print(f"ACK confirmed on attempt {ack_attempt + 1}")
                             break

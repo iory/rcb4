@@ -578,7 +578,9 @@ class RCB4ROSBridge:
         set_initial_position(initial_positions, namespace=self.base_namespace)
         return True
 
-    def _valid_joint(self, joint_name):
+    def _valid_joint(self, joint_name, velocity_control=False):
+        if velocity_control:
+            return joint_name in self.joint_name_to_id
         return joint_name in self.joint_name_to_id and (
             self.joint_name_to_id[joint_name] in self.interface.servo_on_states_dict
             and self.interface.servo_on_states_dict[self.joint_name_to_id[joint_name]]
@@ -589,7 +591,7 @@ class RCB4ROSBridge:
         servo_ids = []
         angle_vector = []
         for name, angle in zip(msg.name, msg.position):
-            if not self._valid_joint(name):
+            if not self._valid_joint(name, velocity_control):
                 continue
             idx = self.joint_name_to_id[name]
             if velocity_control:

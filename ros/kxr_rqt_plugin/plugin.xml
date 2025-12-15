@@ -1,0 +1,15 @@
+<library path="src">
+  <class name="ServoOnOff" type="rqt_servo_on_off.servo_on_off.ServoOnOff" base_class_type="rqt_gui_py::Plugin">
+    <description>
+      A plugin to control KXR servo on/off states using the ServoOnOff action.
+    </description>
+    <qtgui>
+      <group>
+        <label>KXR</label>
+      </group>
+      <label>Servo On/Off Control</label>
+      <icon type="theme">system-run</icon>
+      <statustip>Control servo on/off states for KXR robot joints.</statustip>
+    </qtgui>
+  </class>
+</library>

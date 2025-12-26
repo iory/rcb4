@@ -76,7 +76,7 @@ def format_baud(baud):
 
 
 class ICSServoController:
-    def __init__(self, baudrate=1250000, yaml_path=None):
+    def __init__(self, baudrate=1250000, yaml_path=None, timeout=0.1):
         if baudrate not in [1250000, 625000, 115200]:
             print(f";; baud={baudrate} is wrong.")
             print(";; baud should be one of 1250000, 625000, 115200")
@@ -94,7 +94,7 @@ class ICSServoController:
         self.send_angle_pulse = None
         self.selected_index = 0
         self.baudrate = baudrate
-        self.timeout = 0.1
+        self.timeout = timeout
         self.ics = None
         self.is_continuous_rotation_mode = None
         self.servo_eeprom_params64 = [
@@ -130,6 +130,48 @@ class ICSServoController:
             ("stretch-3", [63, 64]),
         ]
 
+    def synchronize(self, tx_data, rx_length, timeout_multiplier=1):
+        """Send data and wait for response.
+
+        Parameters
+        ----------
+        tx_data : bytes or bytearray
+            Data to transmit.
+        rx_length : int
+            Expected number of bytes to receive.
+        timeout_multiplier : int, optional
+            Multiplier for timeout (e.g., 50 for EEPROM operations).
+
+        Returns
+        -------
+        bytes or None
+            Received data if successful, None if timeout or error.
+        """
+        if self.ics is None or not self.ics.is_open:
+            return None
+
+        self.ics.reset_input_buffer()
+        self.ics.write(tx_data)
+        self.ics.flush()
+
+        # Wait for TX to complete physically (important for half-duplex ICS)
+        # Calculate TX time: (bytes * 10 bits/byte) / baudrate + margin
+        tx_time = (len(tx_data) * 10) / self.baudrate
+        time.sleep(tx_time + 0.001)  # Add 1ms margin
+
+        adjusted_timeout = self.timeout * timeout_multiplier
+        # Use pyserial's built-in timeout for reliable reading
+        original_timeout = self.ics.timeout
+        self.ics.timeout = adjusted_timeout
+
+        try:
+            rx_buffer = self.ics.read(rx_length)
+            if len(rx_buffer) < rx_length:
+                return None
+            return bytes(rx_buffer)
+        finally:
+            self.ics.timeout = original_timeout
+
     def open_connection(self):
         ports = serial.tools.list_ports.comports()
         if len(ports) == 0:
@@ -151,10 +193,13 @@ class ICSServoController:
                         try:
                             self.setup_rotation_mode()
                             self.set_speed(127)
-                        except Exception as _:
+                        except Exception:
                             pass
                         return True
-                    except IndexError:
+                    except (IndexError, OSError):
+                        # Try next baudrate if communication fails
+                        if self.ics and self.ics.is_open:
+                            self.ics.close()
                         continue
         return False
 
@@ -198,49 +243,51 @@ class ICSServoController:
         return self.read_baud(servo_id=servo_id)
 
     def get_servo_id(self):
-        self.ics.write(bytes([0xFF, 0x00, 0x00, 0x00]))
-        time.sleep(0.1)
-        ret = self.ics.read(5)
+        ret = self.synchronize(bytes([0xFF, 0x00, 0x00, 0x00]), 5,
+                               timeout_multiplier=3)
+        if ret is None or len(ret) < 5:
+            raise OSError("Failed to get servo ID: timeout or insufficient data")
         servo_id = ret[4] & 0x1F
         return servo_id
 
     def set_servo_id(self, servo_id):
-        self.ics.write(bytes([0xE0 | (0x1F & servo_id), 0x01, 0x01, 0x01]))
-        time.sleep(0.1)
-        ret = self.ics.read(5)
+        ret = self.synchronize(
+            bytes([0xE0 | (0x1F & servo_id), 0x01, 0x01, 0x01]), 5)
+        if ret is None or len(ret) < 5:
+            raise OSError("Failed to set servo ID: timeout or insufficient data")
         return 0x1F & ret[4]
 
     def set_speed(self, speed, servo_id=None):
         speed = max(1, min(127, speed))
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xC0 | (servo_id & 0x1F), 0x02, speed]))
-        time.sleep(0.01)
-        v = self.ics.read(6)
+        v = self.synchronize(bytes([0xC0 | (servo_id & 0x1F), 0x02, speed]), 6)
+        if v is None or len(v) < 6:
+            raise OSError("Failed to set speed: timeout or insufficient data")
         return v[5]
 
     def get_speed(self, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x02]))
-        time.sleep(0.05)
-        v = self.ics.read(5)
+        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x02]), 5)
+        if v is None or len(v) < 5:
+            raise OSError("Failed to get speed: timeout or insufficient data")
         return v[4]
 
     def get_stretch(self, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x01]))
-        time.sleep(0.05)
-        v = self.ics.read(5)
+        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x01]), 5)
+        if v is None or len(v) < 5:
+            raise OSError("Failed to get stretch: timeout or insufficient data")
         return v[4]
 
     def get_current(self, servo_id=None, interpolate=True):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x03]))
-        time.sleep(0.05)
-        v = self.ics.read(5)
+        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x03]), 5)
+        if v is None or len(v) < 5:
+            raise OSError("Failed to get current: timeout or insufficient data")
         current = v[4]
         sign = 1
         if current >= 64:
@@ -253,9 +300,9 @@ class ICSServoController:
     def get_temperature(self, servo_id=None, interpolate=True):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 0x04]))
-        time.sleep(0.05)
-        v = self.ics.read(5)
+        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x04]), 5)
+        if v is None or len(v) < 5:
+            raise OSError("Failed to get temperature: timeout or insufficient data")
         if interpolate:
             return get_setting_value_from_temperatures(v[4])
         return v[4]
@@ -418,9 +465,9 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
         value = max(1, min(value, 127))
-        self.ics.write(bytes([0xC0 | servo_id, 0x01, value]))
-        time.sleep(0.1)
-        v = self.ics.read(6)
+        v = self.synchronize(bytes([0xC0 | servo_id, 0x01, value]), 6)
+        if v is None or len(v) < 6:
+            raise OSError("Failed to set stretch: timeout or insufficient data")
         return v[2]
 
     def set_stretch_values(self, stretch_values, servo_id=None):
@@ -462,10 +509,10 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
         if free:
-            self.ics.write(bytes([
-                0x80 | (0x1F & servo_id), 0, 0]))
-            time.sleep(0.01)
-            v = self.ics.read(6)
+            v = self.synchronize(
+                bytes([0x80 | (0x1F & servo_id), 0, 0]), 6)
+            if v is None or len(v) < 6:
+                raise OSError("Failed to set free: timeout or insufficient data")
             return ((v[3 + 1] << 7) & 0x3F80) | (v[3 + 2] & 0x007F)
         ics_param64, _ = self.read_param()
         if free is None or free == 0:
@@ -490,9 +537,12 @@ class ICSServoController:
     def set_param(self, ics_param64, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xC0 | servo_id, 0x00] + ics_param64))
-        time.sleep(0.5)
-        ret = self.ics.read(68)
+        # EEPROM write takes longer, so use larger timeout multiplier
+        ret = self.synchronize(
+            bytes([0xC0 | servo_id, 0x00] + ics_param64), 68,
+            timeout_multiplier=50)
+        if ret is None or len(ret) < 68:
+            raise OSError("Failed to set param: timeout or insufficient data")
         ret_ics_param64 = ret[4:]
         self.parse_param64_key_value(ret_ics_param64)
 
@@ -776,9 +826,9 @@ class ICSServoController:
     def read_angle(self, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | (servo_id & 0x1F), 5]))
-        time.sleep(0.01)
-        v = self.ics.read(6)
+        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 5]), 6)
+        if v is None or len(v) < 6:
+            raise OSError("Failed to read angle: timeout or insufficient data")
         angle = ((v[4] & 0x7F) << 7) | (v[5] & 0x7F)
         return angle
 
@@ -787,18 +837,19 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.send_angle_pulse = v
-        self.ics.write(bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]))
-        time.sleep(0.1)
-        v = self.ics.read(6)
-        angle = ((v[4] & 0x7F) << 7) | (v[5] & 0x7F)
+        ret = self.synchronize(
+            bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]), 6)
+        if ret is None or len(ret) < 6:
+            raise OSError("Failed to set angle: timeout or insufficient data")
+        angle = ((ret[4] & 0x7F) << 7) | (ret[5] & 0x7F)
         return angle
 
     def read_param(self, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        self.ics.write(bytes([0xA0 | servo_id, 0x00]))
-        time.sleep(0.1)
-        ret = self.ics.read(68)
+        ret = self.synchronize(bytes([0xA0 | servo_id, 0x00]), 68, timeout_multiplier=10)
+        if ret is None or len(ret) < 68:
+            raise OSError("Failed to read param: timeout or insufficient data")
         ics_param64 = ret[4:]
         result = self.parse_param64_key_value(list(ics_param64))
         return list(ics_param64), result

@@ -150,27 +150,34 @@ class ICSServoController:
         if self.ics is None or not self.ics.is_open:
             return None
 
-        self.ics.reset_input_buffer()
-        self.ics.write(tx_data)
-        self.ics.flush()
-
-        # Wait for TX to complete physically (important for half-duplex ICS)
-        # Calculate TX time: (bytes * 10 bits/byte) / baudrate + margin
-        tx_time = (len(tx_data) * 10) / self.baudrate
-        time.sleep(tx_time + 0.001)  # Add 1ms margin
+        # Retry more for slow baudrates (115200 has intermittent issues)
+        max_retries = 3 if self.ics.baudrate <= 115200 else 1
 
         adjusted_timeout = self.timeout * timeout_multiplier
-        # Use pyserial's built-in timeout for reliable reading
         original_timeout = self.ics.timeout
-        self.ics.timeout = adjusted_timeout
 
-        try:
-            rx_buffer = self.ics.read(rx_length)
-            if len(rx_buffer) < rx_length:
-                return None
-            return bytes(rx_buffer)
-        finally:
-            self.ics.timeout = original_timeout
+        for _attempt in range(max_retries):
+            self.ics.reset_input_buffer()
+            self.ics.write(tx_data)
+            self.ics.flush()
+
+            # Wait for TX to complete physically (important for half-duplex ICS)
+            # Calculate TX time: (bytes * 10 bits/byte) / baudrate + margin
+            # Use actual serial baudrate, not target baudrate
+            tx_time = (len(tx_data) * 10) / self.ics.baudrate
+            time.sleep(tx_time + 0.002)  # Add 2ms margin
+
+            # Use pyserial's built-in timeout for reliable reading
+            self.ics.timeout = adjusted_timeout
+
+            try:
+                rx_buffer = self.ics.read(rx_length)
+                if len(rx_buffer) >= rx_length:
+                    return bytes(rx_buffer)
+            finally:
+                self.ics.timeout = original_timeout
+
+        return None
 
     def open_connection(self):
         ports = serial.tools.list_ports.comports()
@@ -181,6 +188,9 @@ class ICSServoController:
             if p.vid == 0x165C and p.pid == 0x08:
                 for baudrate in [115200, 625000, 1250000]:
                     try:
+                        # Close existing connection if any
+                        if self.ics and self.ics.is_open:
+                            self.ics.close()
                         self.ics = serial.Serial(
                             f"/dev/{p.name}",
                             baudrate,
@@ -189,7 +199,16 @@ class ICSServoController:
                         )
                         current_baudrate = self.baud()
                         if current_baudrate != self.baudrate:
-                            self.baud(self.baudrate)
+                            # Change servo's baud rate setting
+                            self._change_servo_baudrate(self.baudrate)
+                            # Reopen with new baudrate
+                            self.ics.close()
+                            self.ics = serial.Serial(
+                                f"/dev/{p.name}",
+                                self.baudrate,
+                                timeout=self.timeout,
+                                parity=serial.PARITY_EVEN,
+                            )
                         try:
                             self.setup_rotation_mode()
                             self.set_speed(127)
@@ -202,6 +221,22 @@ class ICSServoController:
                             self.ics.close()
                         continue
         return False
+
+    def _change_servo_baudrate(self, baud, servo_id=None):
+        """Change servo's EEPROM baud rate setting without reopening connection."""
+        if baud not in [1250000, 625000, 115200]:
+            return None
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        ics_param64, _ = self.read_param(servo_id=servo_id)
+        if baud == 1250000:
+            ics_param64[27] = 0
+        elif baud == 625000:
+            ics_param64[27] = 1
+        elif baud == 115200:
+            ics_param64[27] = 10
+        self.set_param(ics_param64, servo_id)
+        return baud
 
     def set_default_eeprom_param(self):
         self.set_param(
@@ -228,18 +263,19 @@ class ICSServoController:
         if servo_id is None:
             servo_id = self.get_servo_id()
 
-        ics_param64, _ = self.read_param(servo_id=servo_id)
-        if baud == 1250000:
-            ics_param64[27] = 0
-        elif baud == 625000:
-            ics_param64[27] = 1
-        elif baud == 115200:
-            ics_param64[27] = 10
+        # Change servo's EEPROM baud setting
+        self._change_servo_baudrate(baud, servo_id)
 
-        # Send updated parameters to the device
-        self.set_param(ics_param64, servo_id)
-        # Re-open the connection with the updated baud rate
-        self.open_connection()
+        # Reopen serial with new baudrate
+        if self.ics and self.ics.is_open:
+            port_name = self.ics.port
+            self.ics.close()
+            self.ics = serial.Serial(
+                port_name,
+                baud,
+                timeout=self.timeout,
+                parity=serial.PARITY_EVEN,
+            )
         return self.read_baud(servo_id=servo_id)
 
     def get_servo_id(self):
@@ -844,15 +880,19 @@ class ICSServoController:
         angle = ((ret[4] & 0x7F) << 7) | (ret[5] & 0x7F)
         return angle
 
-    def read_param(self, servo_id=None):
+    def read_param(self, servo_id=None, max_retries=3):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        ret = self.synchronize(bytes([0xA0 | servo_id, 0x00]), 68, timeout_multiplier=10)
-        if ret is None or len(ret) < 68:
-            raise OSError("Failed to read param: timeout or insufficient data")
-        ics_param64 = ret[4:]
-        result = self.parse_param64_key_value(list(ics_param64))
-        return list(ics_param64), result
+        for _attempt in range(max_retries):
+            ret = self.synchronize(
+                bytes([0xA0 | servo_id, 0x00]), 68, timeout_multiplier=10)
+            if ret is not None and len(ret) >= 68:
+                ics_param64 = ret[4:]
+                result = self.parse_param64_key_value(list(ics_param64))
+                return list(ics_param64), result
+            # Small delay before retry (servo may need time to respond)
+            time.sleep(0.05)
+        raise OSError("Failed to read param: timeout or insufficient data")
 
     def _4bit2num(self, lst, v):
         sum_val = 0

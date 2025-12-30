@@ -9,4 +9,5 @@ pyserial
 pyyaml
 readchar
 setuptools;python_version>="3.12"
+pyftdi;sys_platform=="darwin"
 tabulate

@@ -1,3 +1,4 @@
+import platform
 import sys
 import threading
 import time
@@ -8,6 +9,13 @@ import readchar
 import serial
 import serial.tools.list_ports
 import yaml
+
+try:
+    from pyftdi.ftdi import Ftdi
+    from pyftdi.serialext import serial_for_url
+    PYFTDI_AVAILABLE = True
+except ImportError:
+    PYFTDI_AVAILABLE = False
 
 from rcb4.temperature import get_setting_value_from_temperatures
 
@@ -96,6 +104,7 @@ class ICSServoController:
         self.baudrate = baudrate
         self.timeout = timeout
         self.ics = None
+        self._use_pyftdi = False
         self.is_continuous_rotation_mode = None
         self.servo_eeprom_params64 = [
             ("fix-header", [1, 2]),
@@ -179,16 +188,13 @@ class ICSServoController:
 
         return None
 
-    def open_connection(self):
+    def _open_connection_pyserial(self):
+        """Try to open connection using pyserial (Linux)."""
         ports = serial.tools.list_ports.comports()
-        if len(ports) == 0:
-            print(f"{Fore.RED}No USB Found.{Style.RESET_ALL}")
-            print(f"{Fore.RED}May Dual USB Adapter is wrong.{Style.RESET_ALL}")
         for p in ports:
             if p.vid == 0x165C and p.pid == 0x08:
                 for baudrate in [115200, 625000, 1250000]:
                     try:
-                        # Close existing connection if any
                         if self.ics and self.ics.is_open:
                             self.ics.close()
                         self.ics = serial.Serial(
@@ -199,9 +205,7 @@ class ICSServoController:
                         )
                         current_baudrate = self.baud()
                         if current_baudrate != self.baudrate:
-                            # Change servo's baud rate setting
                             self._change_servo_baudrate(self.baudrate)
-                            # Reopen with new baudrate
                             self.ics.close()
                             self.ics = serial.Serial(
                                 f"/dev/{p.name}",
@@ -216,10 +220,75 @@ class ICSServoController:
                             pass
                         return True
                     except (IndexError, OSError):
-                        # Try next baudrate if communication fails
                         if self.ics and self.ics.is_open:
                             self.ics.close()
                         continue
+        return False
+
+    def _open_connection_pyftdi(self):
+        """Try to open connection using pyftdi (macOS)."""
+        if not PYFTDI_AVAILABLE:
+            return False
+        try:
+            Ftdi.add_custom_vendor(0x165c, 'Kondo')
+            Ftdi.add_custom_product(0x165c, 0x0008, 'DUAL USB ADAPTER')
+        except ValueError:
+            # Already registered
+            pass
+
+        for baudrate in [115200, 625000, 1250000]:
+            try:
+                if self.ics is not None:
+                    self.ics.close()
+                self.ics = serial_for_url(
+                    'ftdi://Kondo:DUAL USB ADAPTER/1',
+                    baudrate=baudrate,
+                    timeout=self.timeout,
+                )
+                self.ics.parity = 'E'  # ICS requires even parity
+                self._use_pyftdi = True
+                current_baudrate = self.baud()
+                if current_baudrate != self.baudrate:
+                    self._change_servo_baudrate(self.baudrate)
+                    self.ics.close()
+                    self.ics = serial_for_url(
+                        'ftdi://Kondo:DUAL USB ADAPTER/1',
+                        baudrate=self.baudrate,
+                        timeout=self.timeout,
+                    )
+                    self.ics.parity = 'E'
+                try:
+                    self.setup_rotation_mode()
+                    self.set_speed(127)
+                except Exception:
+                    pass
+                return True
+            except Exception:
+                if self.ics is not None:
+                    try:
+                        self.ics.close()
+                    except Exception:
+                        pass
+                    self.ics = None
+                self._use_pyftdi = False
+                continue
+        return False
+
+    def open_connection(self):
+        # Try pyserial first (works on Linux where ftdi_sio driver is loaded)
+        if self._open_connection_pyserial():
+            return True
+
+        # If pyserial fails, try pyftdi (works on macOS)
+        if PYFTDI_AVAILABLE:
+            if self._open_connection_pyftdi():
+                return True
+
+        # Print error message if all attempts fail
+        print(f"{Fore.RED}No USB Found.{Style.RESET_ALL}")
+        print(f"{Fore.RED}May Dual USB Adapter is wrong.{Style.RESET_ALL}")
+        if platform.system() == 'Darwin' and not PYFTDI_AVAILABLE:
+            print(f"{Fore.YELLOW}On macOS, install pyftdi: pip install pyftdi{Style.RESET_ALL}")
         return False
 
     def _change_servo_baudrate(self, baud, servo_id=None):
@@ -268,14 +337,23 @@ class ICSServoController:
 
         # Reopen serial with new baudrate
         if self.ics and self.ics.is_open:
-            port_name = self.ics.port
-            self.ics.close()
-            self.ics = serial.Serial(
-                port_name,
-                baud,
-                timeout=self.timeout,
-                parity=serial.PARITY_EVEN,
-            )
+            if self._use_pyftdi:
+                self.ics.close()
+                self.ics = serial_for_url(
+                    'ftdi://Kondo:DUAL USB ADAPTER/1',
+                    baudrate=baud,
+                    timeout=self.timeout,
+                )
+                self.ics.parity = 'E'
+            else:
+                port_name = self.ics.port
+                self.ics.close()
+                self.ics = serial.Serial(
+                    port_name,
+                    baud,
+                    timeout=self.timeout,
+                    parity=serial.PARITY_EVEN,
+                )
         return self.read_baud(servo_id=servo_id)
 
     def get_servo_id(self):

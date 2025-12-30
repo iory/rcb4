@@ -46,13 +46,58 @@ Connect st-link and run the following command.
 rcb4-write-firmware
 ```
 
-## Change Servo ID
+## Change Servo ID (ics-manager)
 
-You can use ics-manager command to change servo id.
+The `ics-manager` command allows you to change servo IDs and configure servo parameters.
+
+### Requirements
+
+- [Kondo Dual USB Adapter HS](https://kondo-robot.com/product/02116)
+- ICS servo (KRS series, etc.)
+
+### Setup
+
+1. **Set the Dual USB Adapter to ICS mode**
+
+   Switch the mode selector on the Dual USB Adapter to ICS mode. When properly set, the LED will light up red.
+
+   ![Dual USB Adapter in ICS mode (red LED)](docs/dual-usb-ics-red-blink.jpg)
+
+2. **Connect only ONE servo at a time**
+
+   ⚠️ **Important**: Connect only one servo when changing IDs. If multiple servos are connected, all of them will have their IDs changed simultaneously, which can cause conflicts.
+
+### Platform Support
+
+- **Linux**: Works out of the box after installing udev rules (see Prerequisite section)
+- **macOS**: Supported via pyftdi (automatically installed)
+
+### Usage
 
 ```bash
 ics-manager
 ```
+
+The interactive interface allows you to:
+- View current servo ID
+- Change servo ID using arrow keys (←→) and Enter to confirm
+- Adjust servo angle, speed, and stretch parameters
+- Toggle rotation mode (for continuous rotation servos)
+- Toggle free mode (disable servo holding torque)
+- Reset servo position
+
+#### Keyboard Controls
+
+| Key | Action |
+|-----|--------|
+| ↑↓ | Navigate between options |
+| ←→ | Adjust selected value |
+| Enter | Confirm servo ID change |
+| z | Reset servo to zero position |
+| r | Toggle rotation mode |
+| f | Toggle free mode |
+| d | Reset to default EEPROM parameters |
+| q | Quit |
 
 ## Contributing
 

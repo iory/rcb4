@@ -83,6 +83,32 @@ def load_yaml(file_path, Loader=yaml.SafeLoader):
     return joint_name_to_id, data
 
 
+def load_imu_params(file_path, Loader=yaml.SafeLoader):
+    """Load IMU calibration parameters from a YAML file.
+
+    Parameters
+    ----------
+    file_path : str or pathlib.PosixPath
+        The path to the YAML file.
+
+    Returns
+    -------
+    bias : np.ndarray
+        Bias vector.
+    scale : np.ndarray
+        Scale vector.
+    """
+    if not osp.exists(str(file_path)):
+        raise OSError(f"{file_path!s} not exists")
+    with open(osp.expanduser(file_path)) as f:
+        data = yaml.load(f, Loader=Loader)
+
+    data = data["imu_calibration"]
+    bias = data["bias"]
+    scale = data["scale"]
+    return bias, scale
+
+
 def make_urdf_file(joint_name_to_id):
     robot = ET.Element(
         "robot", {"name": "dummy_robot", "xmlns:xi": "http://www.w3.org/2001/XInclude"}
@@ -182,11 +208,14 @@ class RCB4ROSBridge:
         self.proc_kxr_controller = None
         self.servo_config_path = rospy.get_param("~servo_config_path")
         self.joint_name_to_id, self.servo_infos = load_yaml(self.servo_config_path)
+        self.imu_config_path = rospy.get_param("~imu_config_path")
+        self.imu_bias, self.imu_scale = load_imu_params(self.imu_config_path)
         self.urdf_path = rospy.get_param("~urdf_path", None)
         self.use_rcb4 = rospy.get_param("~use_rcb4", False)
         self.control_pressure = rospy.get_param("~control_pressure", False)
         self.read_temperature = rospy.get_param("~read_temperature", False) and not self.use_rcb4
         self.read_current = rospy.get_param("~read_current", False) and not self.use_rcb4
+
         self.base_namespace = self.get_base_namespace()
         self.use_fullbody_controller = rospy.get_param("~use_fullbody_controller", True)
         if self.use_fullbody_controller is False:
@@ -262,6 +291,9 @@ class RCB4ROSBridge:
             )
             self.imu_publisher = rospy.Publisher(
                 self.base_namespace + "/imu", sensor_msgs.msg.Imu, queue_size=1
+            )
+            self.imu_corrected_publisher = rospy.Publisher(
+                self.base_namespace + "/imu_corrected", sensor_msgs.msg.Imu, queue_size=1
             )
         if self.publish_sensor:
             self._sensor_publisher_dict = {}
@@ -1066,7 +1098,7 @@ class RCB4ROSBridge:
         return self.control_air_board_server.set_succeeded(ControlAirBoardResult())
 
     def publish_imu_message(self):
-        if self.publish_imu is False or self.imu_publisher.get_num_connections() == 0:
+        if self.publish_imu is False or (self.imu_publisher.get_num_connections() == 0 and self.imu_corrected_publisher.get_num_connections() == 0):
             return
         if not self.interface.is_opened():
             return
@@ -1087,6 +1119,19 @@ class RCB4ROSBridge:
             msg.linear_acceleration.z,
         ) = acc
         self.imu_publisher.publish(msg)
+
+        acc_corrected = (np.array(acc) - self.imu_bias) * self.imu_scale
+        msg_corr = sensor_msgs.msg.Imu()
+        msg_corr.header = msg.header
+        msg_corr.orientation = msg.orientation
+        msg_corr.orientation_covariance = msg.orientation_covariance
+        msg_corr.angular_velocity = msg.angular_velocity
+        msg_corr.angular_velocity_covariance = msg.angular_velocity_covariance
+        msg_corr.linear_acceleration.x = acc_corrected[0]
+        msg_corr.linear_acceleration.y = acc_corrected[1]
+        msg_corr.linear_acceleration.z = acc_corrected[2]
+        msg_corr.linear_acceleration_covariance = msg.linear_acceleration_covariance
+        self.imu_corrected_publisher.publish(msg_corr)
 
     def publish_sensor_values(self):
         if self.publish_sensor is False:

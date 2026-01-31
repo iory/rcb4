@@ -2,6 +2,7 @@
 
   <arg name="urdf_path" default="$(find kxr_models)/urdf/kxrl2l2a6h2m.urdf" />
   <arg name="servo_config_path" default="$(find kxr_models)/config/kxrl2l2a6h2m_servo_config.yaml" />
+  <arg name="imu_config_path" default="$(find kxr_controller)/config/imu_calibration.yaml" />
   <arg name="namespace" default="" />
   <arg name="publish_imu" default="false" />
   <arg name="publish_sensor" default="false" />
@@ -45,6 +46,7 @@
              if="$(eval len(arg('urdf_path')) > 0)"/>
       <rosparam subst_value="true" >
         servo_config_path: $(arg servo_config_path)
+        imu_config_path: $(arg imu_config_path)
         publish_imu: $(arg publish_imu)
         publish_sensor: $(arg publish_sensor)
         publish_battery_voltage: $(arg publish_battery_voltage)
@@ -93,6 +95,7 @@
              if="$(eval len(arg('urdf_path')) > 0)"/>
       <rosparam subst_value="true" >
         servo_config_path: $(arg servo_config_path)
+        imu_config_path: $(arg imu_config_path)
         publish_imu: $(arg publish_imu)
         publish_sensor: $(arg publish_sensor)
         publish_battery_voltage: $(arg publish_battery_voltage)

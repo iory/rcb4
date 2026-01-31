@@ -40,16 +40,16 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
         self.use_sim_time = rospy.get_param("/use_sim_time", False)
         # Servo on off client
         if self.use_sim_time is False:
+            timeout = rospy.Duration(self.controller_timeout) if self.controller_timeout else rospy.Duration(10.0)
             self.servo_on_off_client = actionlib.SimpleActionClient(
                 namespace + "/fullbody_controller/servo_on_off_real_interface",
                 ServoOnOffAction
             )
-            self.servo_on_off_client.wait_for_server()
+            self.servo_on_off_client.wait_for_server(timeout)
             # Stretch client
             self.stretch_client = actionlib.SimpleActionClient(
                 namespace + "/fullbody_controller/stretch_interface", StretchAction
             )
-            timeout = rospy.Duration(10.0)
             self.enabled_stretch = True
             if not self.stretch_client.wait_for_server(timeout):
                 rospy.logerr("Stretch action server not available.")
@@ -84,7 +84,7 @@ class KXRROSRobotInterface(ROSRobotInterfaceBase):
                 namespace + "/fullbody_controller/adjust_angle_vector_interface",
                 AdjustAngleVectorAction,
             )
-            self.adjust_angle_vector_client.wait_for_server()
+            self.adjust_angle_vector_client.wait_for_server(timeout)
 
     def servo_on(self, joint_names=None):
         if self.use_sim_time:

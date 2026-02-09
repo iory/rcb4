@@ -41,12 +41,15 @@ import serial
 from skrobot.model import RobotModel
 from skrobot.utils.urdf import no_mesh_load_mode
 import std_msgs.msg
+from std_srvs.srv import Trigger
+from std_srvs.srv import TriggerResponse
 from trajectory_msgs.msg import JointTrajectoryPoint
 import yaml
 
 from rcb4.armh7interface import ARMH7Interface
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
+from rcb4.units import convert_adc_to_newton
 
 # async load heavy modules
 server_loader = ModuleLoader('dynamic_reconfigure.server', 'Server')
@@ -297,6 +300,15 @@ class RCB4ROSBridge:
             )
         if self.publish_sensor:
             self._sensor_publisher_dict = {}
+            self.preload_offsets = {}
+            self.calibrate_force_service = rospy.Service(
+                self.base_namespace + "/calibrate_force_sensor",
+                Trigger,
+                self.calibrate_force_sensor_callback
+            )
+            self.recent_adc_history = {}
+            self.last_adc_average = {}
+            rospy.Timer(rospy.Duration(60), self.drift_check_callback)
         if self.publish_battery_voltage:
             self.battery_voltage_publisher = rospy.Publisher(
                 self.base_namespace + "/battery_voltage",
@@ -1133,6 +1145,68 @@ class RCB4ROSBridge:
         msg_corr.linear_acceleration_covariance = msg.linear_acceleration_covariance
         self.imu_corrected_publisher.publish(msg_corr)
 
+    def calibrate_force_sensor_callback(self, req):
+        """
+        Calibrate force sensors using ALL available history data.
+        """
+        rospy.loginfo("Starting force sensor calibration (using history)...")
+        if not self.recent_adc_history:
+            return TriggerResponse(success=False, message="No sensor data available in history.")
+        new_offsets = {}
+
+        for sid, history in self.recent_adc_history.items():
+            if len(history) == 0:
+                continue
+            data = list(history)
+            avgs = np.mean(data, axis=0)
+            if np.any(avgs <= 10.0):
+                error_indices = np.where(avgs <= 10.0)[0]
+                return TriggerResponse(
+                    success=False,
+                    message=f"Low value detected on sensor ID {sid}, elements {error_indices}. Values: {avgs}"
+                )
+            new_offsets[sid] = avgs.tolist()
+
+        if not new_offsets:
+            return TriggerResponse(success=False, message="History was empty or insufficient.")
+        self.preload_offsets.update(new_offsets)
+        msg = f"Calibration successful. Offsets updated: {new_offsets}"
+        rospy.loginfo(msg)
+        return TriggerResponse(success=True, message=msg)
+
+    def drift_check_callback(self, event):
+        """
+        Check for sensor drift every minute using raw ADC values.
+        Publish True if drifting (> 0.1N/min), False if stable.
+
+        Note:
+            KJS force sensor typically takes about 10 minutes to stabilize
+            (warm-up) after power-on due to temperature changes.
+        """
+
+        for sensor_id, history in self.recent_adc_history.items():
+            if len(history) < 10:
+                continue
+            sum_history = [sum(v) for v in history]
+            current_avg_adc = sum(sum_history) / len(sum_history)
+            is_drifted = True
+            if sensor_id in self.last_adc_average:
+                prev_avg_adc = self.last_adc_average[sensor_id]
+                diff_adc = abs(current_avg_adc - prev_avg_adc)
+                diff_n = convert_adc_to_newton(diff_adc)
+                is_drifted = (diff_n >= 0.1)
+                if is_drifted:
+                    rospy.logwarn(f"ID {sensor_id}: Drift detected ({diff_n:.3f} N/min)")
+            self.last_adc_average[sensor_id] = current_avg_adc
+            key = f"kjs_{sensor_id}_force_drifted"
+            if key not in self._sensor_publisher_dict:
+                self._sensor_publisher_dict[key] = rospy.Publisher(
+                    self.base_namespace + f"/kjs/{sensor_id}/force_drifted",
+                    std_msgs.msg.Bool, queue_size=1, latch=True)
+            if sensor_id in self.last_adc_average:
+                self._sensor_publisher_dict[key].publish(
+                    std_msgs.msg.Bool(data=is_drifted))
+
     def publish_sensor_values(self):
         if self.publish_sensor is False:
             return
@@ -1145,6 +1219,37 @@ class RCB4ROSBridge:
         if sensors is None:
             return
         for sensor in sensors:
+            raw_adc_list = [float(x) for x in sensor.adc]
+            raw_adc_sum = sum(raw_adc_list)
+            if sensor.id not in self.recent_adc_history:
+                self.recent_adc_history[sensor.id] = deque(maxlen=30)
+            self.recent_adc_history[sensor.id].append(raw_adc_list)
+            publish_params = [
+                (raw_adc_sum, "force"),
+            ]
+            if sensor.id in self.preload_offsets:
+                current_offsets = self.preload_offsets[sensor.id]
+                adc_sum = 0.0
+                for i in range(4):
+                    adc_sum += (raw_adc_list[i] - current_offsets[i])
+                force_n = convert_adc_to_newton(adc_sum)
+                publish_params.append((adc_sum, "force_corrected"))
+                publish_params.append((force_n, "force_N"))
+            msg.header.frame_id = f"kjs_{sensor.id}_frame"
+            for val, suffix in publish_params:
+                key = f"kjs_{sensor.id}_{suffix}"
+                if key not in self._sensor_publisher_dict:
+                    self._sensor_publisher_dict[key] = rospy.Publisher(
+                        self.base_namespace + f"/kjs/{sensor.id}/{suffix}",
+                        geometry_msgs.msg.WrenchStamped,
+                        queue_size=1,
+                    )
+                    # Avoid 'rospy.exceptions.ROSException:
+                    # publish() to a closed topic'
+                    rospy.sleep(0.1)
+                msg.wrench.force.x = val
+                self._sensor_publisher_dict[key].publish(msg)
+            # Each sensor value
             for i in range(4):
                 for typ in ["proximity", "force"]:
                     key = f"kjs_{sensor.id}_{typ}_{i}"

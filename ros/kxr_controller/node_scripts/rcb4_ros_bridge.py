@@ -1171,7 +1171,7 @@ class RCB4ROSBridge:
                         # Avoid 'rospy.exceptions.ROSException:
                         # publish() to a closed topic'
                         rospy.sleep(0.1)
-                    msg.header.frame_id = f"kjs_{sensor.id}_{i}_frame"
+                    msg.header.frame_id = self.base_namespace + f"/kjs_{sensor.id}_{i}_frame"
                     self._sensor_publisher_dict[key].publish(msg)
 
             # Publish IMU data from each KJS sensor board
@@ -1186,10 +1186,10 @@ class RCB4ROSBridge:
             if self._sensor_publisher_dict[imu_key].get_num_connections() > 0:
                 imu_msg = sensor_msgs.msg.Imu()
                 imu_msg.header.stamp = stamp
-                imu_msg.header.frame_id = f"kjs_{sensor.id}_imu_frame"
-                # MPU9250 acceleration measurement range is +-8g
-                acc = convert_data(sensor.acc, 8) * 9.81
-                # Gyro measurement range is +-2000 deg/s
+                imu_msg.header.frame_id = self.base_namespace + f"/kjs_{sensor.id}_imu_frame"
+                # ICM-20600/ICM-42605/ICM-42670 acceleration range is +-16g
+                acc = convert_data(sensor.acc, 16) * 9.81
+                # ICM-20600/ICM-42605/ICM-42670 gyro range is +-2000 deg/s
                 gyro = np.deg2rad(convert_data(sensor.gyro, 2000))
                 # Apply per-sensor calibration if available
                 calib = self.sensor_imu_calibration.get(sensor.id)

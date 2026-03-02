@@ -47,6 +47,7 @@ import yaml
 from rcb4.armh7interface import ARMH7Interface
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
+from rcb4.units import convert_data
 
 # async load heavy modules
 server_loader = ModuleLoader('dynamic_reconfigure.server', 'Server')
@@ -97,6 +98,9 @@ def load_imu_params(file_path, Loader=yaml.SafeLoader):
         Bias vector.
     scale : np.ndarray
         Scale vector.
+    sensor_calibration : dict
+        Per-sensor calibration parameters keyed by sensor ID.
+        Each value is a dict with 'bias' and 'scale' as np.ndarray.
     """
     if not osp.exists(str(file_path)):
         raise OSError(f"{file_path!s} not exists")
@@ -106,7 +110,13 @@ def load_imu_params(file_path, Loader=yaml.SafeLoader):
     data = data["imu_calibration"]
     bias = data["bias"]
     scale = data["scale"]
-    return bias, scale
+    sensor_calibration = {}
+    for sensor_id, params in data.get("sensors", {}).items():
+        sensor_calibration[int(sensor_id)] = {
+            "bias": np.array(params["bias"], dtype=np.float64),
+            "scale": np.array(params["scale"], dtype=np.float64),
+        }
+    return bias, scale, sensor_calibration
 
 
 def make_urdf_file(joint_name_to_id):
@@ -209,7 +219,7 @@ class RCB4ROSBridge:
         self.servo_config_path = rospy.get_param("~servo_config_path")
         self.joint_name_to_id, self.servo_infos = load_yaml(self.servo_config_path)
         self.imu_config_path = rospy.get_param("~imu_config_path")
-        self.imu_bias, self.imu_scale = load_imu_params(self.imu_config_path)
+        self.imu_bias, self.imu_scale, self.sensor_imu_calibration = load_imu_params(self.imu_config_path)
         self.urdf_path = rospy.get_param("~urdf_path", None)
         self.use_rcb4 = rospy.get_param("~use_rcb4", False)
         self.control_pressure = rospy.get_param("~control_pressure", False)
@@ -1163,6 +1173,35 @@ class RCB4ROSBridge:
                         rospy.sleep(0.1)
                     msg.header.frame_id = f"kjs_{sensor.id}_{i}_frame"
                     self._sensor_publisher_dict[key].publish(msg)
+
+            # Publish IMU data from each KJS sensor board
+            imu_key = f"kjs_{sensor.id}_imu"
+            if imu_key not in self._sensor_publisher_dict:
+                self._sensor_publisher_dict[imu_key] = rospy.Publisher(
+                    self.base_namespace + f"/kjs/{sensor.id}/imu",
+                    sensor_msgs.msg.Imu,
+                    queue_size=1,
+                )
+                rospy.sleep(0.1)
+            if self._sensor_publisher_dict[imu_key].get_num_connections() > 0:
+                imu_msg = sensor_msgs.msg.Imu()
+                imu_msg.header.stamp = stamp
+                imu_msg.header.frame_id = f"kjs_{sensor.id}_imu_frame"
+                # MPU9250 acceleration measurement range is +-8g
+                acc = convert_data(sensor.acc, 8) * 9.81
+                # Gyro measurement range is +-2000 deg/s
+                gyro = np.deg2rad(convert_data(sensor.gyro, 2000))
+                # Apply per-sensor calibration if available
+                calib = self.sensor_imu_calibration.get(sensor.id)
+                if calib is not None:
+                    acc = (acc - calib["bias"]) * calib["scale"]
+                (imu_msg.linear_acceleration.x,
+                 imu_msg.linear_acceleration.y,
+                 imu_msg.linear_acceleration.z) = acc
+                (imu_msg.angular_velocity.x,
+                 imu_msg.angular_velocity.y,
+                 imu_msg.angular_velocity.z) = gyro
+                self._sensor_publisher_dict[imu_key].publish(imu_msg)
 
     def publish_battery_voltage_value(self):
         if (

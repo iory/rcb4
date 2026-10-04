@@ -45,6 +45,7 @@ from trajectory_msgs.msg import JointTrajectoryPoint
 import yaml
 
 from rcb4.armh7interface import ARMH7Interface
+from rcb4.rcb4interface import deg_to_servovector
 from rcb4.rcb4interface import RCB4Interface
 from rcb4.rcb4interface import ServoOnOffValues
 
@@ -446,8 +447,6 @@ class RCB4ROSBridge:
             serial_call_with_retry(self.interface.switch_reading_servo_temperature, enable=True, max_retries=3)
 
         wheel_servo_sorted_ids = []
-        trim_vector_servo_ids = []
-        trim_vector_offset = []
         for _, info in self.servo_infos.items():
             if isinstance(info, int):
                 continue
@@ -462,19 +461,13 @@ class RCB4ROSBridge:
             self.interface._joint_to_actuator_matrix[idx, idx] = (
                 direction * self.interface._joint_to_actuator_matrix[idx, idx]
             )
-            trim_vector_servo_ids.append(servo_id)
-            trim_vector_offset.append(direction * offset)
+            # Shift the servo zero point by offset [deg] in software.
+            # The trim slot on the board does not keep written values
+            # (firmware v0.6.5 reads back -1), so it is not used.
+            self.interface._joint_to_actuator_matrix[idx, -1] = (
+                7500 + offset * deg_to_servovector
+            )
         self.interface._actuator_to_joint_matrix = np.linalg.inv(self.interface.joint_to_actuator_matrix)
-        if self.interface.__class__.__name__ != "RCB4Interface":
-            if len(trim_vector_offset) > 0:
-                ret = serial_call_with_retry(
-                    self.interface.trim_vector,
-                    trim_vector_offset,
-                    trim_vector_servo_ids,
-                    max_retries=10,
-                )
-                if ret is None:
-                    return log_error_and_close_interface("set trim_vector")
         if self.interface.wheel_servo_sorted_ids is None:
             self.interface.wheel_servo_sorted_ids = []
         self.interface.wheel_servo_sorted_ids = list(

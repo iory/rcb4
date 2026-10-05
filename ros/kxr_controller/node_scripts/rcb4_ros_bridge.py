@@ -431,6 +431,30 @@ class RCB4ROSBridge:
             self.recent_pressures = {}
             self.history_pressures = {}
 
+    def warn_board_trim(self, servo_ids):
+        """Warn if board trim is set, since it adds to the software offset.
+
+        Parameters
+        ----------
+        servo_ids : list[int]
+            Servo ids configured in the servo config.
+        """
+        trim = serial_call_with_retry(self.interface._trim_servo_vector, max_retries=3)
+        if trim is None:
+            rospy.logwarn("Failed to read servo trim. Cannot check double offset with board trim.")
+            return
+        # -1 is what an unset trim slot reads back on firmware v0.6.5 (see #227).
+        trimmed = {
+            servo_id: int(trim[servo_id])
+            for servo_id in servo_ids
+            if trim[servo_id] not in (0, -1)
+        }
+        if len(trimmed) > 0:
+            msg = f"Servo trim is set on the board {trimmed} (servo id: trim). "
+            msg += "It is applied on top of offset in the servo config. "
+            msg += "Clear it with clear_trim_vector() if it is not intended."
+            rospy.logwarn(msg)
+
     def setup_interface_and_servo_parameters(self):
         self.interface = self.setup_interface()
 
@@ -447,6 +471,7 @@ class RCB4ROSBridge:
             serial_call_with_retry(self.interface.switch_reading_servo_temperature, enable=True, max_retries=3)
 
         wheel_servo_sorted_ids = []
+        configured_servo_ids = []
         for _, info in self.servo_infos.items():
             if isinstance(info, int):
                 continue
@@ -463,11 +488,14 @@ class RCB4ROSBridge:
             )
             # Shift the servo zero point by offset [deg] in software.
             # The trim slot on the board does not keep written values
-            # (firmware v0.6.5 reads back -1), so it is not used.
-            self.interface._joint_to_actuator_matrix[idx, -1] = (
-                7500 + offset * deg_to_servovector
+            # (firmware v0.6.5 reads back -1, see #227), so it is not used.
+            self.interface._joint_to_actuator_matrix[idx, -1] += (
+                offset * deg_to_servovector
             )
+            configured_servo_ids.append(servo_id)
         self.interface._actuator_to_joint_matrix = np.linalg.inv(self.interface.joint_to_actuator_matrix)
+        if isinstance(self.interface, ARMH7Interface) and len(configured_servo_ids) > 0:
+            self.warn_board_trim(configured_servo_ids)
         if self.interface.wheel_servo_sorted_ids is None:
             self.interface.wheel_servo_sorted_ids = []
         self.interface.wheel_servo_sorted_ids = list(

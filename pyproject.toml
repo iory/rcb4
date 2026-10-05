@@ -34,6 +34,9 @@ ignore = [
   "RUF005", # recommends non-type-aware expansion
   "RUF046", # unnecessary-cast-to-int
   "UP008",
+  "RUF105", # noqa-comments: keep flake8-compatible `# noqa`
+  "RUF106", # rule-codes-in-suppression-comments
+  "RUF201", # rule-codes-in-selectors: keep rule codes in this config
 ]
 
 # don't allow implicit string concatenation

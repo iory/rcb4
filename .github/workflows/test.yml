@@ -3,22 +3,23 @@ name: Run Tests
 on:
   push:
     branches: [ main ]
-  pull_request_target:
-    types:
-      - labeled
-      - opened
-      - reopened
-      - synchronize
+  # Fork PRs run on pull_request: read-only token and no secrets.
+  # Set "Require approval for all external contributors" so that every run
+  # from a fork waits for a maintainer to review the commit and approve it.
+  # The video is uploaded by hardware-ci-video.yml (workflow_run) instead.
+  pull_request:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # Cancel the previous run of the same PR when a new commit is pushed,
 # so that the self-hosted runner does not have to finish outdated tests.
-# github.ref is the base branch on pull_request_target, so use the PR number.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name != 'push' }}
+
+permissions:
+  contents: read
 
 jobs:
   tests:
@@ -30,14 +31,7 @@ jobs:
         python-version: [3.8, 3.12]
     if: ${{ !(github.event_name == 'push' && github.ref == 'refs/heads/main') }}
     steps:
-    - name: Check access
-      if: ${{ github.event.pull_request.author_association != 'COLLABORATOR' && github.event.pull_request.author_association != 'OWNER' && !contains(github.event.*.labels.*.name, 'safe to test') }}
-      run: |
-        echo "Event not triggered by a collaborator. Please add the 'safe to test' label to trigger this workflow with the correct permissions"
-        exit 1
-    - uses: actions/checkout@v3
-      with:
-        ref: ${{ github.event.pull_request.head.sha || github.ref }}
+    - uses: actions/checkout@v4
     - name: Set up Python for Self-Hosted Linux arm64
       uses: iory/action@v3.1.2
       with:
@@ -50,7 +44,7 @@ jobs:
         pip install pytest hacking
 
     - name: Install packages for video
-      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+      if: github.event_name == 'pull_request'
       run: |
         pip install deface
 
@@ -58,39 +52,37 @@ jobs:
       run: pip install .
 
     - name: Set Timestamp and PR Number
-      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-      run: echo "VIDEO_FILE_NAME=$(date +'%Y-%m-%d-%H%M')-PR${{ github.event.pull_request.number }}.mp4" >> $GITHUB_ENV
+      if: github.event_name == 'pull_request'
+      run: echo "VIDEO_FILE_NAME=$(date +'%Y-%m-%d-%H%M')-PR${{ github.event.pull_request.number }}.mp4" >> "$GITHUB_ENV"
 
     - name: Record Video in Background
-      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
+      if: github.event_name == 'pull_request'
       run: |
         ffmpeg -f v4l2 -i /dev/video0 -t 600 -vcodec libx264 -an "$VIDEO_FILE_NAME" &
         echo $! > ffmpeg_pid.txt
     - name: Run Pytest
       run: pytest -v tests
     - name: Stop Recording
-      if: always() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
+      if: always() && (github.event_name == 'pull_request')
       run: |
-        kill $(cat ffmpeg_pid.txt) || echo "Recording already stopped"
+        if [ ! -f ffmpeg_pid.txt ]; then
+          echo "Recording was not started"
+          exit 0
+        fi
+        kill "$(cat ffmpeg_pid.txt)" || echo "Recording already stopped"
         sleep 5  # Wait for ffmpeg to stop
         deface --replacewith mosaic --mosaicsize 20 "$VIDEO_FILE_NAME" -o tmp.mp4
         mv tmp.mp4 "$VIDEO_FILE_NAME"
-    - name: Upload to gdrive
-      if: github.event_name == 'pull_request' || github.event_name == 'pull_request_target'
-      id: upload
-      uses: iory/github-action-upload-google-drive@v0.0.3
+    # Secrets are not available here for fork PRs, so only store the video.
+    # hardware-ci-video.yml uploads it to Google Drive and comments on the PR.
+    - name: Upload video artifact
+      if: "!cancelled() && env.VIDEO_FILE_NAME != ''"
+      uses: actions/upload-artifact@v4
       with:
-        service_account_json: ${{ secrets.CREDENTIALS }}
-        file_path: "${{ env.VIDEO_FILE_NAME }}"
-        folder_id: ${{ secrets.FOLDERID }}
-        input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
-
-    - name: PR comment
-      if: "!cancelled() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')"
-      uses: thollander/actions-comment-pull-request@v3
-      with:
-        comment-tag: hardware_ci_video
-        message: "🎬️ [Watch Hardware CI Test Video](https://drive.google.com/file/d/${{ steps.upload.outputs.file_id }}/view)"
+        name: hardware-ci-video-py${{ matrix.python-version }}
+        path: ${{ env.VIDEO_FILE_NAME }}
+        if-no-files-found: ignore
+        retention-days: 7
 
   industrial_ci:
     name: Run ROS Tests
@@ -102,9 +94,7 @@ jobs:
           - {ROS_DISTRO: noetic, ROS_REPO: main, DOCKER_RUN_OPTS: "--privileged"}
         os: [self-hosted]
     steps:
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+      - uses: actions/checkout@v4
       - uses: 'ros-industrial/industrial_ci@master'
         env: ${{matrix.env}}
 

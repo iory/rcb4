@@ -13,6 +13,13 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+# Cancel the previous run of the same PR when a new commit is pushed,
+# so that the self-hosted runner does not have to finish outdated tests.
+# github.ref is the base branch on pull_request_target, so use the PR number.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
+
 jobs:
   tests:
     name: Run Unit Tests
@@ -79,7 +86,7 @@ jobs:
         input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
 
     - name: PR comment
-      if: always() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')
+      if: "!cancelled() && (github.event_name == 'pull_request' || github.event_name == 'pull_request_target')"
       uses: thollander/actions-comment-pull-request@v3
       with:
         comment-tag: hardware_ci_video

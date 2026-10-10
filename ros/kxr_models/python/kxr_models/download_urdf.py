@@ -1,14 +1,14 @@
 from distutils.version import StrictVersion
+from importlib.metadata import version
 import os.path as osp
 
 import gdown
-import pkg_resources
 import rospkg
 import rospy
 
 from kxr_models.ros import get_namespace
 
-gdown_version = pkg_resources.get_distribution("gdown").version
+gdown_version = version("gdown")
 
 
 def download_urdf_mesh_files(namespace=None):

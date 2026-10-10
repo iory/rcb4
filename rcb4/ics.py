@@ -176,11 +176,19 @@ class ICSServoController:
             tx_time = (len(tx_data) * 10) / self.ics.baudrate
             time.sleep(tx_time + 0.002)  # Add 2ms margin
 
-            # Use pyserial's built-in timeout for reliable reading
+            # Keep reading until rx_length bytes or the deadline. pyserial's
+            # read(n) blocks for all n bytes, but pyftdi's (used on macOS)
+            # returns as soon as anything is buffered: an EEPROM write gets
+            # its 66 byte echo at once and the servo's 2 byte reply ~0.35 s
+            # later, so a single read() came back short and the write was
+            # reported as failed although the servo had applied it.
             self.ics.timeout = adjusted_timeout
+            deadline = time.monotonic() + adjusted_timeout
 
             try:
-                rx_buffer = self.ics.read(rx_length)
+                rx_buffer = b""
+                while len(rx_buffer) < rx_length and time.monotonic() < deadline:
+                    rx_buffer += self.ics.read(rx_length - len(rx_buffer))
                 if len(rx_buffer) >= rx_length:
                     return bytes(rx_buffer)
             finally:

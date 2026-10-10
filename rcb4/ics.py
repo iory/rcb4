@@ -467,6 +467,16 @@ class ICSServoController:
         mode_text = "Enabled" if rotation_mode else "Disabled"
         print(f"{Fore.CYAN}Rotation mode set to {mode_text}{Fore.RESET}")
 
+    def toggle_reverse_mode(self):
+        # Free the servo first: flipping the direction while it holds a target
+        # makes the same target mean the mirrored angle, and the horn jumps.
+        self.set_free(True)
+        reverse_mode = self.read_reverse()
+        self.set_reverse(not reverse_mode)
+        reverse_mode = self.read_reverse()
+        mode_text = "Enabled" if reverse_mode else "Disabled"
+        print(f"{Fore.CYAN}Reverse mode set to {mode_text}{Fore.RESET}")
+
     def set_free_mode(self):
         free_mode = self.read_free()
         self.set_free(not free_mode)
@@ -656,6 +666,18 @@ class ICSServoController:
         self.is_continuous_rotation_mode = result["rotation"]
         return result["rotation"]
 
+    def read_reverse(self, servo_id=None):
+        _, result = self.read_param(servo_id=servo_id)
+        return result["reverse"]
+
+    def read_slave(self, servo_id=None):
+        _, result = self.read_param(servo_id=servo_id)
+        return result["slave"]
+
+    def read_serial(self, servo_id=None):
+        _, result = self.read_param(servo_id=servo_id)
+        return result["serial"]
+
     def set_param(self, ics_param64, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
@@ -755,6 +777,9 @@ class ICSServoController:
                         print(
                             "Press 'r' to toggle rotation mode (enables continuous wheel-like rotation)"
                         )
+                        print(
+                            "Press 'v' to toggle reverse mode (inverts the rotation direction)"
+                        )
                         print("Press 'f' to set free mode")
                         print(f"Press 'd' to set default EEPROM parameters {Fore.RED}(WARNING: This action will overwrite the servo's EEPROM).{Style.RESET_ALL}\n")
                         print("'q' to quit.")
@@ -767,6 +792,8 @@ class ICSServoController:
                         self.reset_servo_position()
                     elif key == "r":
                         self.toggle_rotation_mode()
+                    elif key == "v":
+                        self.toggle_reverse_mode()
                     elif key == "f":
                         self.set_free_mode()
                     elif key == "q":

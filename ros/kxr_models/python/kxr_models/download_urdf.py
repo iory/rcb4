@@ -1,14 +1,32 @@
-from distutils.version import StrictVersion
+from importlib.metadata import version
 import os.path as osp
+import re
 
 import gdown
-import pkg_resources
 import rospkg
 import rospy
 
 from kxr_models.ros import get_namespace
 
-gdown_version = pkg_resources.get_distribution("gdown").version
+gdown_version = version("gdown")
+
+
+def _version_tuple(version_string):
+    """Return the leading numeric components of a version string.
+
+    Parameters
+    ----------
+    version_string : str
+        Version string such as ``"5.2.0"`` or ``"5.1.0rc1"``.
+
+    Returns
+    -------
+    tuple of int
+        Three numeric components padded with zeros, e.g. ``(5, 1, 0)``
+        for ``"5.1"``.
+    """
+    numbers = [int(x) for x in re.findall(r"\d+", version_string)[:3]]
+    return tuple(numbers + [0] * (3 - len(numbers)))
 
 
 def download_urdf_mesh_files(namespace=None):
@@ -39,7 +57,7 @@ def download_urdf_mesh_files(namespace=None):
     while not osp.exists(compressed_urdf_path):
         rospy.loginfo(f"Waiting {compressed_urdf_path} from server")
         rospy.sleep(1.0)
-        if StrictVersion(gdown_version) < StrictVersion("5.1.0"):
+        if _version_tuple(gdown_version) < (5, 1, 0):
             gdown.cached_download(url=server_url,
                                   md5=f'{compressed_urdf_hash}',
                                   path=compressed_urdf_path)

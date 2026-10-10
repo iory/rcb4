@@ -364,13 +364,17 @@ class ICSServoController:
                 )
         return self.read_baud(servo_id=servo_id)
 
-    def get_servo_id(self):
-        ret = self.synchronize(bytes([0xFF, 0x00, 0x00, 0x00]), 5,
-                               timeout_multiplier=3)
-        if ret is None or len(ret) < 5:
-            raise OSError("Failed to get servo ID: timeout or insufficient data")
-        servo_id = ret[4] & 0x1F
-        return servo_id
+    def get_servo_id(self, max_retries=3):
+        # Retry like read_param(): right after an EEPROM write (set_servo_id,
+        # set_param) the servo is still busy and misses the first ID read,
+        # which used to drop ics-manager into a reconnect.
+        for _attempt in range(max_retries):
+            ret = self.synchronize(bytes([0xFF, 0x00, 0x00, 0x00]), 5,
+                                   timeout_multiplier=3)
+            if ret is not None and len(ret) >= 5:
+                return ret[4] & 0x1F
+            time.sleep(0.05)
+        raise OSError("Failed to get servo ID: timeout or insufficient data")
 
     def set_servo_id(self, servo_id):
         ret = self.synchronize(

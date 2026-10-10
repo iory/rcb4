@@ -83,6 +83,7 @@ The interactive interface allows you to:
 - Change servo ID using arrow keys (←→) and Enter to confirm
 - Adjust servo angle, speed, and stretch parameters
 - Toggle rotation mode (for continuous rotation servos)
+- Toggle reverse mode (invert the rotation direction)
 - Toggle free mode (disable servo holding torque)
 - Reset servo position
 
@@ -95,6 +96,7 @@ The interactive interface allows you to:
 | Enter | Confirm servo ID change |
 | z | Reset servo to zero position |
 | r | Toggle rotation mode |
+| v | Toggle reverse mode (frees the servo first) |
 | f | Toggle free mode |
 | d | Reset to default EEPROM parameters |
 | q | Quit |

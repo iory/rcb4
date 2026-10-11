@@ -1,7 +1,7 @@
 from collections import namedtuple
-from distutils.version import StrictVersion
 import os
 import os.path as osp
+import re
 import subprocess
 
 from colorama import Fore
@@ -12,6 +12,24 @@ from rcb4._lazy_imports import _lazy_gdown_version
 
 data_dir = osp.abspath(osp.dirname(__file__))
 _default_cache_dir = osp.expanduser("~/.rcb4")
+
+
+def _version_tuple(version_string):
+    """Return the leading numeric components of a version string.
+
+    Parameters
+    ----------
+    version_string : str
+        Version string such as ``"5.2.0"`` or ``"5.1.0rc1"``.
+
+    Returns
+    -------
+    tuple of int
+        Three numeric components padded with zeros, e.g. ``(5, 1, 0)``
+        for ``"5.1"``.
+    """
+    numbers = [int(x) for x in re.findall(r"\d+", version_string)[:3]]
+    return tuple(numbers + [0] * (3 - len(numbers)))
 
 
 ELFINFO = namedtuple("ELFINFO", ["url", "md5sum"])
@@ -59,7 +77,7 @@ def kondoh7_elf(version="latest"):
     gdown_version = _lazy_gdown_version()
     gdown = _lazy_gdown()
     try:
-        if StrictVersion(gdown_version) < StrictVersion("5.1.0"):
+        if _version_tuple(gdown_version) < (5, 1, 0):
             gdown.cached_download(
                 url=elf_info.url, path=target_path, md5=elf_info.md5sum, quiet=True
             )
@@ -96,7 +114,7 @@ def stlink():
     target_dir = osp.join(get_cache_dir(), "stlink", "stlink-1.7.0")
     gdown_version = _lazy_gdown_version()
     gdown = _lazy_gdown()
-    if StrictVersion(gdown_version) < StrictVersion("5.1.0"):
+    if _version_tuple(gdown_version) < (5, 1, 0):
         gdown.cached_download(
             url=url,
             path=target_path,

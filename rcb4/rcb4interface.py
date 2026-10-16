@@ -261,11 +261,11 @@ class RCB4Interface:
         except ValueError:
             pass  # already registered (rcb4.ics registers the same names)
         try:
-            ser = serial_for_url(port, baudrate=baudrate, timeout=timeout)
+            port_serial = serial_for_url(port, baudrate=baudrate, timeout=timeout)
         except Exception as e:
             raise serial.SerialException(e) from e
-        ser.parity = "E"
-        return ser
+        port_serial.parity = "E"
+        return port_serial
 
     def _candidate_ports(self):
         ports = [

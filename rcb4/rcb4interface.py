@@ -7,6 +7,13 @@ import numpy as np
 import serial
 import serial.tools.list_ports
 
+try:
+    from pyftdi.ftdi import Ftdi
+    from pyftdi.serialext import serial_for_url
+    PYFTDI_AVAILABLE = True
+except ImportError:
+    PYFTDI_AVAILABLE = False
+
 from rcb4.asm import encode_servo_ids_to_5bytes_bin
 from rcb4.asm import encode_servo_positions_to_bytes
 from rcb4.asm import encode_servo_velocity_and_position_to_bytes
@@ -121,6 +128,12 @@ com_baudrate_shift = 6  # bit position of ConfigData.Baudrate
 # A wrong COM baud rate gets no reply, so do not wait long for it.
 ack_timeout = 0.5
 
+# Kondo Dual USB Adapter HS. macOS has no driver for this VID, so no
+# /dev/cu.* appears and the adapter is opened through pyftdi instead.
+dual_usb_vendor_id = 0x165C
+dual_usb_product_id = 0x0008
+dual_usb_ftdi_url = "ftdi://Kondo:DUAL USB ADAPTER/1"
+
 
 class RCB4Interface:
     # The number of data bytes per motion
@@ -135,6 +148,7 @@ class RCB4Interface:
     def __init__(self):
         self.lock = Lock()
         self.serial = None
+        self._serial_is_ftdi = False
         self.servo_sorted_ids = None
         self.wheel_servo_sorted_ids = None
         self._joint_to_actuator_matrix = None
@@ -151,7 +165,8 @@ class RCB4Interface:
         Parameters
         ----------
         port : str
-            The port name to connect to.
+            The port name to connect to, or a pyftdi URL (``ftdi://...``)
+            for the Dual USB Adapter on macOS.
         baudrate : int
             The baud rate the board currently uses on COM.
         timeout : float, optional
@@ -171,9 +186,7 @@ class RCB4Interface:
             If there is an error opening the serial port.
         """
         try:
-            self.serial = serial.Serial(
-                port, baudrate, parity="E", stopbits=1, timeout=timeout
-            )
+            self.serial = self._open_serial(port, baudrate, timeout)
             print(f"Opened {port} at {baudrate} baud")
         except serial.SerialException as e:
             print(f"Error opening serial port: {e}")
@@ -221,7 +234,7 @@ class RCB4Interface:
             RamAddr.ConfigRamAddress.value, [config & 0xFF, config >> 8]
         )
         self.close()
-        self.serial = serial.Serial(port, baudrate, parity="E", stopbits=1, timeout=timeout)
+        self.serial = self._open_serial(port, baudrate, timeout)
         if self.check_ack(timeout=ack_timeout) is not True:
             print(f"No reply after switching {port} to {baudrate} baud")
             return False
@@ -229,16 +242,46 @@ class RCB4Interface:
         print(f"Switched {port} to {baudrate} baud")
         return True
 
+    @staticmethod
+    def _is_ftdi_url(port):
+        return port.startswith("ftdi://")
+
+    def _open_serial(self, port, baudrate, timeout):
+        """Open ``port`` as 8E1, through pyftdi when it is an ``ftdi://`` URL."""
+        self._serial_is_ftdi = self._is_ftdi_url(port)
+        if not self._serial_is_ftdi:
+            return serial.Serial(port, baudrate, parity="E", stopbits=1, timeout=timeout)
+        if not PYFTDI_AVAILABLE:
+            raise serial.SerialException(f"pyftdi is required to open {port}")
+        try:
+            Ftdi.add_custom_vendor(dual_usb_vendor_id, "Kondo")
+            Ftdi.add_custom_product(
+                dual_usb_vendor_id, dual_usb_product_id, "DUAL USB ADAPTER"
+            )
+        except ValueError:
+            pass  # already registered (rcb4.ics registers the same names)
+        try:
+            ser = serial_for_url(port, baudrate=baudrate, timeout=timeout)
+        except Exception as e:
+            raise serial.SerialException(e) from e
+        ser.parity = "E"
+        return ser
+
+    def _candidate_ports(self):
+        ports = [
+            p.device
+            for p in serial.tools.list_ports.comports()
+            if p.vid == dual_usb_vendor_id and p.pid == dual_usb_product_id
+        ]
+        if not ports and PYFTDI_AVAILABLE:
+            ports.append(dual_usb_ftdi_url)
+        return ports
+
     def auto_open(self):
-        vendor_id = 0x165C
-        product_id = 0x0008
-        ports = serial.tools.list_ports.comports()
-        for port in ports:
-            if port.vid != vendor_id or port.pid != product_id:
-                continue
+        for port in self._candidate_ports():
             for baudrate in com_baudrates:
                 try:
-                    if self.open(port=port.device, baudrate=baudrate):
+                    if self.open(port=port, baudrate=baudrate):
                         return True
                 except serial.SerialException:
                     pass
@@ -264,6 +307,62 @@ class RCB4Interface:
         )
         txbuf = [self._config_data & 0xFF, (self._config_data >> 8) & 0xFF]
         return self.write_move_com_to_ram_command(RamAddr.ConfigRamAddress.value, txbuf)
+
+    def stop_rom_program(self):
+        """Stop the ROM program and vector jumps in RAM.
+
+        Otherwise a motion stored in ROM may command the servos this
+        interface assigns. Only RAM is written, so power off restores it.
+        """
+        mask = ConfigData.EnableRunEeprom.value | ConfigData.EnableReferenceTable.value
+        self._config_data = self.get_config() & ~mask
+        txbuf = [self._config_data & 0xFF, (self._config_data >> 8) & 0xFF]
+        return self.write_move_com_to_ram_command(RamAddr.ConfigRamAddress.value, txbuf)
+
+    @staticmethod
+    def ics_record_address(ics_number):
+        return RamAddr.ServoRamAddress.value + servo_record_size * ics_number
+
+    def assign_ics_number(self, ics_number):
+        """Assign one ICS number (2 x servo ID + port) with the servo left free.
+
+        The reference is set to free before assigning, because the board
+        sends it to the servo as soon as the number is assigned; the stored
+        reference (7500 by default) would otherwise move the servo to the
+        center with torque on. The current position is cleared so that a
+        stale value is not taken for a reply.
+
+        Parameters
+        ----------
+        ics_number : int
+            ICS number, 0 to 34. Port 0 (even) is SIO1-4, port 1 (odd) is
+            SIO5-8.
+        """
+        if not 0 <= ics_number < ics_slot_count:
+            raise ValueError(f"ICS number must be 0-{ics_slot_count - 1}, got {ics_number}")
+        record = self.ics_record_address(ics_number)
+        free = ServoOnOffValues.OFF.value
+        self.write_move_com_to_ram_command(
+            record + servo_current_offset, [0, 0, free & 0xFF, free >> 8]
+        )
+        table = self.read_ics_assign_table()
+        table[ics_number] = record
+        return self.write_ics_assign_table(table)
+
+    def unassign_ics_number(self, ics_number):
+        """Stop the board from talking to one ICS number."""
+        if not 0 <= ics_number < ics_slot_count:
+            raise ValueError(f"ICS number must be 0-{ics_slot_count - 1}, got {ics_number}")
+        table = self.read_ics_assign_table()
+        table[ics_number] = ics_unassigned
+        return self.write_ics_assign_table(table)
+
+    def read_ics_current(self, ics_number):
+        """Current position the board last read from one ICS number (0 = no reply yet)."""
+        data = self.write_move_ram_to_com_command(
+            self.ics_record_address(ics_number) + servo_current_offset, 2
+        )
+        return int.from_bytes(bytes(data), "little")
 
     def probe_ics_servos(self):
         """Assign every ICS number and keep only the ones a servo answers on.
@@ -311,6 +410,7 @@ class RCB4Interface:
         """
         if np.any(self.read_ics_assign_table() != ics_unassigned):
             return np.zeros(shape=0, dtype=np.int64)
+        self.stop_rom_program()
         current_code = (
             self._config_data & ConfigData.IcsBaudrate.value
         ) >> ics_baudrate_shift
@@ -355,18 +455,26 @@ class RCB4Interface:
         if self.serial is None:
             raise RuntimeError("Serial is not opened.")
 
-        self.serial.flushInput()
+        # No flushInput() here: serial_write() flushes before sending, and the
+        # reply can already be buffered when this starts.
         start_time = time.time()
+        # pyftdi ports have no file descriptor for select(); they are polled
+        # with read(), which returns after the port's own short timeout.
+        use_select = not self._serial_is_ftdi
         read_data = b""
         while True:
-            ready, _, _ = select.select(
-                [self.serial], [], [], timeout - (time.time() - start_time)
-            )
+            remaining = timeout - (time.time() - start_time)
+            if use_select:
+                ready, _, _ = select.select([self.serial], [], [], max(remaining, 0))
+            else:
+                ready = remaining > 0
             if not ready:
                 self.close()
                 raise serial.SerialException("Timeout: No data received.")
 
             chunk = self.serial.read(self.serial.in_waiting or 1)
+            if not chunk and not use_select:
+                continue
             if not chunk:
                 self.close()
                 raise serial.SerialException("Timeout: Incomplete data received.")

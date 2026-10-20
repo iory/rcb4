@@ -84,10 +84,18 @@ class RamAddr(Enum):
 
 
 class RomAddr(Enum):
+    # Startup command that copies ConfigDataRomAddress into the config word
+    ConfigCmdExecute = 0x0333
     # Address of the command to play the startup motion
     StartupCmdRomAddress = 0x0444
     # The first address where the main loop starts running
     MainLoopCmd = 0x044B
+    # Config word the startup routine writes at ConfigCmdExecute
+    ConfigDataRomAddress = 0x05DC
+    # ICS assignment table the startup routine copies to RAM (36 x 2 bytes)
+    ServoDataRamAddress = 0x05DE
+    # Servo records the startup routine copies to RAM (servo_record_size each)
+    ServoDataRomAddress = 0x0626
     # The starting address where motion data is stored
     MotionRomAddress = 0x0B80
 
@@ -115,6 +123,121 @@ ics_slot_count = 35
 servo_record_size = 20
 servo_current_offset = 0x04  # followed by the reference position
 ics_unassigned = 0xFFFF
+# Servo record members a HeartToHeart project sets (RCB-4 firmware reference,
+# "シリアルサーボ", in Kondo's RCB-4 reference set Ver.2.0,
+# https://kondo-robot.com/w/wp-content/uploads/RCB4RefSetV200R20120420.zip).
+# The board drives  reference (+6) + trim (+2) + mixing 1 + mixing 2  and
+# stores  servo position - trim  at +4, so both change what a servo is driven to.
+servo_trim_offset = 0x02  # int16
+servo_reference_offset = 0x06  # followed by the interpolation speed (+8)
+# Each mixing: uint16 source (RAM address, or ICS number + offset), then a
+# ratio byte (sign, factor). It adds  source x ratio  every cycle.
+servo_mixing_offsets = (14, 17)
+# A mixing source naming no data: no RAM address (RAM ends at 0x048F) and no
+# ICS number (bits 8-13 would be 63). Every record on an RCB-4mini with a
+# project read it, ratio 1, with no mixing seen.
+mixing_no_source = 0xFFFF
+# Output cycle (config bits 4-5) of a board without a project: 15 ms.
+flat_frame = 0x0010
+# ROM up to the end of the project's startup program and its initial data
+# (the jump vectors end at 0x094A); motions start at RomAddr.MotionRomAddress.
+# RCB-4 programming manual, "EEPROMアドレスマップ", same reference set.
+rom_project_size = 0x094B
+# The whole ROM: 0x000000-0x03FFFF. Besides the project area it holds the
+# motions and, at 0x03CB80, the default startup motion the startup routine
+# calls (a 3-byte RETURN in kxreus rcb4asm.l :DefaultStartup).
+rom_size = 0x40000
+# MOV type bytes: destination in bits 4-5, source in bits 0-1
+# (RCB-4 command reference, MOV): ROM -> COM reads, literal -> ROM writes.
+mov_rom_to_com = 0x23
+mov_literal_to_rom = 0x32
+# The command at RomAddr.ConfigCmdExecute in a HeartToHeart4 project:
+# MOV ROM 0x0005DC -> RAM 0x0000, 2 bytes. flatten_rom_startup() checks
+# for it before it writes anything.
+config_cmd_execute_bytes = bytes.fromhex("0b0003000000dc050002f1")
+# Bytes per ROM read or write; the MOV command allows 1 to 128.
+rom_chunk_size = 64
+# Measured on an RCB-4mini (2026-10-20): writing 64-byte chunks back to back
+# from 0, the first 16 bytes after each 128-byte boundary (0x80, 0x100, ...)
+# read back unwritten. So ROM writes are kept inside a 128-byte EEPROM page
+# and paced by rom_write_settle_time.
+rom_page_size = 128
+rom_write_settle_time = 0.02
+# Startup-routine code after RomAddr.ConfigCmdExecute that flatten_rom_startup
+# may replace: free, wait, hold, home and the startup-motion call, up to the
+# main loop (RCB-4 programming manual, EEPROM address map).
+startup_code_start = 0x033E
+startup_code_end = 0x044B
+# The startup routine's own 500 ms wait at 0x038D, as a HeartToHeart4 project
+# holds it: MOV timer 0 := 5, SUB-compare timer 0 with 0x8000, JUMP back to
+# the SUB while Z = 0. rom_timer_wait() builds the same commands.
+startup_timer_wait_address = 0x038D
+startup_timer_wait_bytes = bytes.fromhex(
+    "0900023c000005004c"  # MOV timer 0 := 5
+    + "0907823c000000804e"  # SUB-compare timer 0 with 0x8000
+    + "070b96030004af")  # JUMP 0x000396 while Z = 0
+# Timer 0 (RAM 0x003C) counts down by one every 100 ms and reads 0x8000 when
+# it has run out (RCB-4 firmware reference, ダウンタイマー).
+timer0_address = 0x003C
+timer_tick_time = 0.1
+
+
+def _rom_command(body):
+    """``body`` (command byte onwards) framed with its size and checksum."""
+    byte_list = [len(body) + 2] + list(body)
+    return bytes(byte_list + [rcb4_checksum(byte_list)])
+
+
+def _address3(address):
+    return [address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF]
+
+
+def rom_config_write(config):
+    """ROM command: MOV config word (RAM 0x0000) := literal ``config``."""
+    return _rom_command([CommandTypes.Move.value, 0x02, 0x00, 0x00, 0x00,
+                         config & 0xFF, (config >> 8) & 0xFF])
+
+
+def rom_timer_wait(address, ticks):
+    """ROM commands placed at ``address`` that wait ``ticks`` x 100 ms."""
+    start = _rom_command([CommandTypes.Move.value, 0x02]
+                         + _address3(timer0_address) + [ticks & 0xFF, ticks >> 8])
+    compare = _rom_command([0x07, 0x82] + _address3(timer0_address) + [0x00, 0x80])
+    loop = _rom_command([CommandTypes.Jump.value] + _address3(address + len(start)) + [0x04])
+    return start + compare + loop
+
+
+def blink_startup_program(base_config, final_config, blinks, ticks,
+                          address=startup_code_start):
+    """ROM code that blinks the green LED ``blinks`` times, then stops.
+
+    Each blink is LED on for ``ticks`` x 100 ms, then off as long. The
+    config words written keep ``base_config`` (which must have the ROM
+    program on, or it would stop at the first one), toggling only the LED
+    bit. The last command writes ``final_config``, whose ROM program bit
+    is off, so the program stops there; a jump to itself follows, so that
+    nothing after it would run even if it did not.
+
+    Raises
+    ------
+    ValueError
+        If the code does not fit before the main loop.
+    """
+    led = ConfigData.GreenLED.value
+    code = b""
+    for _ in range(blinks):
+        for config in (base_config | led, base_config & ~led):
+            code += rom_config_write(config)
+            code += rom_timer_wait(address + len(code), ticks)
+    code += rom_config_write(final_config)
+    code += _rom_command([CommandTypes.Jump.value] + _address3(address + len(code)) + [0x00])
+    if address + len(code) > startup_code_end:
+        raise ValueError(
+            f"{blinks} blinks need {len(code)} bytes; "
+            + f"{startup_code_end - address} fit before the main loop")
+    return code
+
+
 # IcsBaudrate register values to probe. 2 is the one KRS servos answered on.
 ics_baudrate_codes = (2, 1, 0)
 ics_baudrate_shift = 13  # bit position of ConfigData.IcsBaudrate
@@ -158,7 +281,13 @@ class RCB4Interface:
         self.close()
 
     def open(
-        self, port="/dev/ttyUSB0", baudrate=1250000, timeout=0.01, target_baudrate=1250000
+        self,
+        port="/dev/ttyUSB0",
+        baudrate=1250000,
+        timeout=0.01,
+        target_baudrate=1250000,
+        flat=True,
+        servos=True,
     ):
         """Opens a serial connection to the RCB4 device.
 
@@ -175,6 +304,17 @@ class RCB4Interface:
             COM baud rate to switch the board to after connecting (default is
             1250000). Only RAM is written, so the board goes back to its ROM
             setting on power off. None keeps ``baudrate``.
+        flat : bool, optional
+            If True (default), run the board as a board without a
+            HeartToHeart project, whatever project its ROM holds
+            (:meth:`flatten_board`), and assign the ICS numbers servos
+            answer on as on a board without one. Code then sees the same
+            servos and zeros on any board. False leaves a board with a
+            project as its project set it, e.g. to play its ROM motions.
+        servos : bool, optional
+            If False, only connect (and switch the COM baud rate): no RAM
+            setting is flattened, no servo is assigned or freed. For tools
+            that read or write the board's ROM.
 
         Returns
         -------
@@ -199,7 +339,11 @@ class RCB4Interface:
         if target_baudrate is not None and target_baudrate != baudrate:
             if not self.switch_com_baudrate(port, target_baudrate, timeout):
                 return False
-        self.assign_ics_servos()
+        if not servos:
+            return True
+        if flat:
+            self.flatten_board()
+        self.assign_ics_servos(flat=flat)
         self.search_servo_ids()
         return True
 
@@ -275,11 +419,18 @@ class RCB4Interface:
             ports.append(dual_usb_ftdi_url)
         return ports
 
-    def auto_open(self):
+    def auto_open(self, **open_kwargs):
+        """Open the first Dual USB Adapter whose board answers.
+
+        Parameters
+        ----------
+        **open_kwargs
+            Passed to :meth:`open` (e.g. ``flat``, ``servos``).
+        """
         for port in self._candidate_ports():
             for baudrate in com_baudrates:
                 try:
-                    if self.open(port=port, baudrate=baudrate):
+                    if self.open(port=port, baudrate=baudrate, **open_kwargs):
                         return True
                 except serial.SerialException:
                     pass
@@ -341,7 +492,7 @@ class RCB4Interface:
         record = self.ics_record_address(ics_number)
         free = ServoOnOffValues.OFF.value
         self.write_move_com_to_ram_command(
-            record + servo_current_offset, [0, 0, free & 0xFF, free >> 8]
+            record + servo_current_offset, [0, 0, free & 0xFF, free >> 8, 0]
         )
         table = self.read_ics_assign_table()
         table[ics_number] = record
@@ -384,7 +535,7 @@ class RCB4Interface:
         free = ServoOnOffValues.OFF.value
         for record in records:
             self.write_move_com_to_ram_command(
-                int(record) + servo_current_offset, [0, 0, free & 0xFF, free >> 8]
+                int(record) + servo_current_offset, [0, 0, free & 0xFF, free >> 8, 0]
             )
         self.write_ics_assign_table(records)
         time.sleep(ics_assign_settle_time)
@@ -392,21 +543,379 @@ class RCB4Interface:
         self.write_ics_assign_table(np.where(alive, records, ics_unassigned))
         return np.where(alive)[0]
 
-    def assign_ics_servos(self):
-        """Assign connected ICS servos on a board without a project.
+    def flatten_board(self):
+        """Undo in RAM what a HeartToHeart project set, so the board runs flat.
+
+        Config word: the ROM program and vector jumps stopped, the
+        interpolation-end message off (it sends bytes out of COM nobody
+        asked for), the ICS switch on and the output cycle at the 15 ms of a
+        board without a project. Every one of the 35 servo records: trim and
+        mixing zeroed (mixing by ratio := 0), the servo switched free first,
+        since without its trim a held reference would be driven elsewhere at
+        once. The ICS assignment is left to :meth:`assign_ics_servos`.
+
+        Joint zeros then belong in software (the servo config's ``offset``),
+        the same on every board. Only RAM is written: the project restores
+        its settings at the next power-up, and this runs again at every
+        :meth:`open`.
+
+        Returns
+        -------
+        dict
+            ``{"config": (old, new) or None, "trim": {ics_number: trim},
+            "mixing": {ics_number: [(source, ratio), ...]}}``, what was
+            changed.
+        """
+        changed = {"config": None, "trim": {}, "mixing": {}}
+        config = self.get_config()
+        if config == 0xFFFF:  # what get_config returns when the read failed
+            raise serial.SerialException("Could not read the board config")
+        wanted = config & ~(
+            ConfigData.EnableRunEeprom.value
+            | ConfigData.EnableServoResponse.value
+            | ConfigData.EnableReferenceTable.value
+            | ConfigData.Frame.value
+        )
+        wanted |= ConfigData.EnableSio.value | flat_frame
+        if wanted != config:
+            self.write_move_com_to_ram_command(
+                RamAddr.ConfigRamAddress.value, [wanted & 0xFF, wanted >> 8]
+            )
+            changed["config"] = (config, wanted)
+        self._config_data = wanted
+
+        free = ServoOnOffValues.OFF.value
+        for ics_number in range(ics_slot_count):
+            record = self.ics_record_address(ics_number)
+            data = bytes(self.write_move_ram_to_com_command(record, servo_record_size))
+            if len(data) != servo_record_size:
+                raise serial.SerialException(
+                    f"Read of ICS {ics_number}'s record returned {len(data)} bytes"
+                )
+            trim = int.from_bytes(
+                data[servo_trim_offset:servo_trim_offset + 2], "little", signed=True
+            )
+            mixings = []
+            for offset in servo_mixing_offsets:
+                source = int.from_bytes(data[offset:offset + 2], "little")
+                ratio = data[offset + 2]
+                if source != mixing_no_source and ratio != 0:
+                    mixings.append((offset, source, ratio))
+            if trim == 0 and len(mixings) == 0:
+                continue
+            # Free, and no interpolation left to rewrite the reference.
+            self.write_move_com_to_ram_command(
+                record + servo_reference_offset, [free & 0xFF, free >> 8, 0]
+            )
+            if trim != 0:
+                self.write_move_com_to_ram_command(record + servo_trim_offset, [0, 0])
+                changed["trim"][ics_number] = trim
+            for offset, source, ratio in mixings:
+                self.write_move_com_to_ram_command(record + offset + 2, [0])
+                changed["mixing"].setdefault(ics_number, []).append((source, ratio))
+
+        if changed["config"] is not None:
+            print(f"Board config {config:#06x} -> {wanted:#06x} (flat)")
+        if changed["trim"]:
+            print(f"Cleared board trim on ICS {changed['trim']} (ICS number: "
+                  + "trim) and freed those servos")
+        if changed["mixing"]:
+            print(f"Disabled board mixing on ICS {changed['mixing']} (ICS number: "
+                  + "[(source, ratio)]) and freed those servos")
+        return changed
+
+    @staticmethod
+    def _rom_address_bytes(address):
+        if not 0 <= address <= 0x3FFFF:
+            raise ValueError(f"ROM address must be 0x000000-0x03FFFF, got {address:#x}")
+        return [address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF]
+
+    def read_rom(self, address, size):
+        """Read ``size`` bytes of the board's ROM (EEPROM) from ``address``.
+
+        Parameters
+        ----------
+        address : int
+            ROM address, 0x000000 to 0x03FFFF.
+        size : int
+            Number of bytes.
+
+        Returns
+        -------
+        bytes
+            The ROM contents.
+        """
+        data = b""
+        while len(data) < size:
+            chunk = min(rom_chunk_size, size - len(data))
+            byte_list = [0x0B, CommandTypes.Move.value, mov_rom_to_com, 0x00, 0x00, 0x00]
+            byte_list += self._rom_address_bytes(address + len(data)) + [chunk]
+            byte_list.append(rcb4_checksum(byte_list))
+            reply = self.serial_write(byte_list)
+            if len(reply) != chunk + 1 or reply[0] != CommandTypes.Move.value:
+                raise serial.SerialException(
+                    f"ROM read at {address + len(data):#08x} returned {bytes(reply).hex()}"
+                )
+            data += bytes(reply[1:])
+        return data
+
+    def write_rom(self, address, data):
+        """Write ``data`` into the board's ROM (EEPROM), and read it back.
+
+        This is persistent: it survives power off. Only bytes that differ
+        are written, to spare the EEPROM. The ROM program is stopped in RAM
+        first, so the board does not run a program that is being changed.
+
+        Parameters
+        ----------
+        address : int
+            ROM address, 0x000000 to 0x03FFFF.
+        data : bytes
+            What to write.
+
+        Returns
+        -------
+        int
+            Number of bytes written (0 if the ROM already held ``data``).
+
+        Raises
+        ------
+        serial.SerialException
+            If the board does not acknowledge a write, or the ROM does not
+            read back as written.
+        """
+        data = bytes(data)
+        current = self.read_rom(address, len(data))
+        if current == data:
+            return 0
+        self.stop_rom_program()
+        written = 0
+        offset = 0
+        while offset < len(data):
+            if current[offset] == data[offset]:
+                offset += 1
+                continue
+            # A write never crosses an EEPROM page.
+            page_end = (address + offset) // rom_page_size * rom_page_size + rom_page_size
+            end = offset
+            while (end < len(data) and end - offset < rom_chunk_size
+                   and address + end < page_end and current[end] != data[end]):
+                end += 1
+            chunk = list(data[offset:end])
+            # size, MOV, type, 3 address bytes, data, checksum
+            byte_list = [7 + len(chunk), CommandTypes.Move.value, mov_literal_to_rom]
+            byte_list += self._rom_address_bytes(address + offset) + chunk
+            byte_list.append(rcb4_checksum(byte_list))
+            reply = self.serial_write(byte_list)
+            if list(reply) != [CommandTypes.Move.value, 0x06]:
+                raise serial.SerialException(
+                    f"ROM write at {address + offset:#08x} not acknowledged: "
+                    + bytes(reply).hex()
+                )
+            # The board acknowledges before the EEPROM has finished.
+            time.sleep(rom_write_settle_time)
+            written += len(chunk)
+            offset = end
+        back = self.read_rom(address, len(data))
+        if back != data:
+            raise serial.SerialException(
+                f"ROM at {address:#08x} reads {back.hex()} after writing {data.hex()}"
+            )
+        return written
+
+    def backup_rom(self, path, size=rom_size):
+        """Save the ROM (by default all of it, motions included) to a file.
+
+        Read twice; the two reads must agree, so the file is not one lucky
+        (or unlucky) read.
+
+        Parameters
+        ----------
+        path : str or pathlib.Path
+            File to write.
+        size : int, optional
+            Bytes from address 0 (default: the whole ROM, about 16 s per
+            read at 1.25 Mbit/s; rom_project_size for the project area only).
+
+        Returns
+        -------
+        bytes
+            What was saved.
+        """
+        data = self.read_rom(0, size)
+        if self.read_rom(0, size) != data:
+            raise serial.SerialException("Two reads of the ROM differ; nothing saved")
+        with open(path, "wb") as f:
+            f.write(data)
+        return data
+
+    def restore_rom(self, path):
+        """Write a file saved by :meth:`backup_rom` back into the ROM.
+
+        Returns
+        -------
+        int
+            Number of bytes that differed and were written.
+        """
+        with open(path, "rb") as f:
+            data = f.read()
+        return self.write_rom(0, data)
+
+    def rom_startup_blinks(self):
+        """How many times a blink program from :meth:`flatten_rom_startup` blinks.
+
+        Returns
+        -------
+        int or None
+            The blink count if the code after the config write is such a
+            program, else None (e.g. the HeartToHeart4 startup code).
+        """
+        code = self.read_rom(startup_code_start, startup_code_end - startup_code_start)
+        config_writes = 0
+        offset = 0
+        while offset < len(code) and 0 < code[offset] <= len(code) - offset:
+            command = code[offset:offset + code[offset]]
+            if command[:6] == rom_config_write(0)[:6]:
+                config_writes += 1
+            elif command[1] == CommandTypes.Jump.value and command[5] == 0x00:
+                # The jump to itself that ends the program.
+                return (config_writes - 1) // 2 if config_writes % 2 == 1 else None
+            elif not (command[:6] == rom_timer_wait(0, 0)[:6]
+                      or command == rom_timer_wait(0, 0)[9:18]
+                      or command[1] == CommandTypes.Jump.value):
+                return None
+            offset += code[offset]
+        return None
+
+    def flatten_rom_startup(self, led=True, blinks=0, blink_ticks=3):
+        """Make the board start up flat, persistently, by editing its ROM.
+
+        A HeartToHeart4 project's startup routine copies its servo data
+        (trim, mixing, reference) and ICS table into RAM, writes its config
+        word (RomAddr.ConfigCmdExecute), then holds every servo, moves them
+        to the home position and calls the startup motion (RCB-4
+        programming manual, "RCB-4起動ルーチン"). This writes into ROM:
+
+        * the config word it writes: ROM program, vector jumps and the
+          interpolation-end message off. The program stops right after
+          writing it, so nothing after it -- hold, home, startup motion,
+          main loop -- runs. The main loop is what turns the green LED on,
+          so the LED bit (config bit 15) is set in this word instead, unless
+          ``led`` is False;
+        * every servo record: reference := free, trim := 0, and the ratio
+          of any mixing with a source := 0. A servo the project assigns is
+          then sent free, not a position, when the ICS switch comes on.
+
+        The COM and ICS baud rates and the ICS table are kept. Back the ROM
+        up first (:meth:`backup_rom`); :meth:`restore_rom` puts it back.
+
+        Parameters
+        ----------
+        led : bool, optional
+            Green LED on from power-up (default True), as with the project's
+            main loop. False leaves it off.
+        blinks : int, optional
+            If above 0, the board blinks its green LED this many times at
+            power-up before it stops, so a flat board can be told by eye.
+            The startup code after the config write (free, hold, home,
+            startup-motion call) is replaced by the blinks
+            (:func:`blink_startup_program`; at most 3 fit). While it blinks
+            the ROM program runs, so the board may refuse host requests
+            then. 0 (default) stops at the config write.
+        blink_ticks : int, optional
+            Length of each on and each off, in 100 ms (default 3).
+
+        Returns
+        -------
+        dict
+            ``{"config": (old, new) or None, "servo_bytes": int,
+            "program_bytes": int}``, what was changed.
+
+        Raises
+        ------
+        RuntimeError
+            If the ROM does not hold the startup routine this expects, in
+            which case nothing is written.
+        """
+        if self.read_rom(RomAddr.ConfigCmdExecute.value,
+                         len(config_cmd_execute_bytes)) != config_cmd_execute_bytes:
+            raise RuntimeError(
+                f"ROM at {RomAddr.ConfigCmdExecute.value:#06x} is not the "
+                + "HeartToHeart4 startup's config write; not touching this ROM"
+            )
+        changed = {"config": None, "servo_bytes": 0, "program_bytes": 0}
+        old = int.from_bytes(self.read_rom(RomAddr.ConfigDataRomAddress.value, 2), "little")
+        stopped = old & ~(
+            ConfigData.EnableRunEeprom.value
+            | ConfigData.EnableReferenceTable.value
+            | ConfigData.EnableServoResponse.value
+            | ConfigData.GreenLED.value
+        )
+        if led:
+            stopped |= ConfigData.GreenLED.value
+        program = None
+        if blinks > 0:
+            code = self.read_rom(startup_code_start, startup_code_end - startup_code_start)
+            timer_offset = startup_timer_wait_address - startup_code_start
+            ours = code.startswith(rom_config_write(0)[:6])
+            if (not ours and code[timer_offset:timer_offset + len(startup_timer_wait_bytes)]
+                    != startup_timer_wait_bytes):
+                raise RuntimeError(
+                    f"ROM at {startup_code_start:#06x} is neither the HeartToHeart4 "
+                    + "startup code nor a blink program; not touching this ROM"
+                )
+            # The ROM program has to keep running through the config write.
+            running = (stopped & ~ConfigData.GreenLED.value) | ConfigData.EnableRunEeprom.value
+            program = blink_startup_program(running, stopped, blinks, blink_ticks)
+            new = running
+        else:
+            new = stopped
+
+        size = servo_record_size * ics_slot_count
+        servo_data = bytearray(self.read_rom(RomAddr.ServoDataRomAddress.value, size))
+        free = ServoOnOffValues.OFF.value
+        for ics_number in range(ics_slot_count):
+            record = servo_record_size * ics_number
+            servo_data[record + servo_trim_offset:record + servo_trim_offset + 2] = b"\x00\x00"
+            servo_data[record + servo_reference_offset:record + servo_reference_offset + 2] = (
+                free.to_bytes(2, "little"))
+            for offset in servo_mixing_offsets:
+                source = int.from_bytes(servo_data[record + offset:record + offset + 2], "little")
+                if source != mixing_no_source:
+                    servo_data[record + offset + 2] = 0
+        changed["servo_bytes"] = self.write_rom(
+            RomAddr.ServoDataRomAddress.value, bytes(servo_data))
+        # The config word last: until it is written, the program the
+        # startup runs is the one that was there (or none, if it stopped).
+        if program is not None:
+            changed["program_bytes"] = self.write_rom(startup_code_start, program)
+        if self.write_rom(RomAddr.ConfigDataRomAddress.value, new.to_bytes(2, "little")):
+            changed["config"] = (old, new)
+        return changed
+
+    def assign_ics_servos(self, flat=True):
+        """Assign the ICS numbers connected servos answer on.
 
         A board without a HeartToHeart project has every ICS number
         unassigned, so it does not talk to any servo. This assigns the
-        numbers servos answer on, trying each ICS baud rate. Only RAM is
-        written, so the board returns to its ROM settings on power off.
-        Boards with a project are left untouched.
+        numbers servos answer on, trying each ICS baud rate, every number
+        to its own record. Only RAM is written, so the board returns to its
+        ROM settings on power off.
+
+        Parameters
+        ----------
+        flat : bool, optional
+            If True (default), do so on a board with a project too, in
+            place of the project's assignment, so the same servos are
+            found whatever the project. If False, a board with a project
+            is left untouched.
 
         Returns
         -------
         numpy.ndarray
             ICS numbers assigned by this call.
         """
-        if np.any(self.read_ics_assign_table() != ics_unassigned):
+        if not flat and np.any(self.read_ics_assign_table() != ics_unassigned):
             return np.zeros(shape=0, dtype=np.int64)
         self.stop_rom_program()
         current_code = (

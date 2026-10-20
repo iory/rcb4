@@ -101,6 +101,32 @@ The interactive interface allows you to:
 | d | Reset to default EEPROM parameters |
 | q | Quit |
 
+## RCB-4 board ROM (rcb4-rom)
+
+A HeartToHeart4 project in an RCB-4 / RCB-4mini's ROM moves the servos at power-up
+(hold, home position, startup motion) and sets trim and mixing that shift what the
+servos are driven to. `RCB4Interface.open()` undoes all of that in RAM at every
+connect (`flat=True`, the default). `rcb4-rom` makes it persistent, so the board
+powers up without commanding any servo:
+
+```bash
+rcb4-rom show                  # what the board does at power-up
+rcb4-rom flat-startup          # backs the ROM up to rcb4-rom-<date>.bin, then writes it
+rcb4-rom restore rcb4-rom-<date>.bin   # put the project back
+rcb4-rom backup rom.bin
+```
+
+`flat-startup` turns the ROM program off in the startup config (the startup routine
+then stops right after writing it, before holding or moving any servo) and makes every
+servo record start free, with no trim and no mixing. The green LED is lit from power-up
+(`--no-led` to leave it off). The COM and ICS baud rates and the
+ICS table are kept. Pass `--port` to pick the adapter.
+
+`rcb4-rom flat-startup --blink 3` also blinks the green LED 3 times (0.3 s on, 0.3 s
+off) at power-up and then leaves it on, so a flat board can be told by eye (at most 3
+blinks fit in place of the startup code it replaces). The ROM program runs during the
+blinks, about 2 s; `rcb4-rom show` reports the blink count.
+
 ## Contributing
 
 ### Automatic Formatting

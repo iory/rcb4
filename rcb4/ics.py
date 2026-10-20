@@ -12,11 +12,11 @@ import yaml
 
 try:
     from pyftdi.ftdi import Ftdi
-    from pyftdi.serialext import serial_for_url
     PYFTDI_AVAILABLE = True
 except ImportError:
     PYFTDI_AVAILABLE = False
 
+from rcb4.ftdi_serial import open_ftdi_serial
 from rcb4.temperature import get_setting_value_from_temperatures
 
 degree_to_pulse = 29.633
@@ -248,23 +248,22 @@ class ICSServoController:
             try:
                 if self.ics is not None:
                     self.ics.close()
-                self.ics = serial_for_url(
+                # ICS requires even parity, which open_ftdi_serial sets
+                self.ics = open_ftdi_serial(
                     'ftdi://Kondo:DUAL USB ADAPTER/1',
                     baudrate=baudrate,
                     timeout=self.timeout,
                 )
-                self.ics.parity = 'E'  # ICS requires even parity
                 self._use_pyftdi = True
                 current_baudrate = self.baud()
                 if current_baudrate != self.baudrate:
                     self._change_servo_baudrate(self.baudrate)
                     self.ics.close()
-                    self.ics = serial_for_url(
+                    self.ics = open_ftdi_serial(
                         'ftdi://Kondo:DUAL USB ADAPTER/1',
                         baudrate=self.baudrate,
                         timeout=self.timeout,
                     )
-                    self.ics.parity = 'E'
                 try:
                     self.setup_rotation_mode()
                     self.set_speed(127)
@@ -347,12 +346,11 @@ class ICSServoController:
         if self.ics and self.ics.is_open:
             if self._use_pyftdi:
                 self.ics.close()
-                self.ics = serial_for_url(
+                self.ics = open_ftdi_serial(
                     'ftdi://Kondo:DUAL USB ADAPTER/1',
                     baudrate=baud,
                     timeout=self.timeout,
                 )
-                self.ics.parity = 'E'
             else:
                 port_name = self.ics.port
                 self.ics.close()
@@ -731,16 +729,17 @@ class ICSServoController:
                     print("2. Set the device to ICS mode.")
                     print(f"3. Connect only one servo correctly.{Style.RESET_ALL}")
 
-                    print(
-                        f"{Fore.RED}To establish the connection, please execute the following commands in Linux:{Style.RESET_ALL}"
-                    )
-                    print()
-                    print(f"{Fore.RED}  $ sudo su{Style.RESET_ALL}")
-                    print(f"{Fore.RED}  modprobe ftdi-sio{Style.RESET_ALL}")
-                    print(
-                        f"{Fore.RED}  echo 165C 0008 > /sys/bus/usb-serial/drivers/ftdi_sio/new_id{Style.RESET_ALL}"
-                    )
-                    print(f"{Fore.RED}  exit{Style.RESET_ALL}")
+                    if platform.system() == 'Linux':
+                        print(
+                            f"{Fore.RED}To establish the connection, please execute the following commands in Linux:{Style.RESET_ALL}"
+                        )
+                        print()
+                        print(f"{Fore.RED}  $ sudo su{Style.RESET_ALL}")
+                        print(f"{Fore.RED}  modprobe ftdi-sio{Style.RESET_ALL}")
+                        print(
+                            f"{Fore.RED}  echo 165C 0008 > /sys/bus/usb-serial/drivers/ftdi_sio/new_id{Style.RESET_ALL}"
+                        )
+                        print(f"{Fore.RED}  exit{Style.RESET_ALL}")
                     try:
                         ret = self.open_connection()
                     except Exception:

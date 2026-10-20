@@ -9,7 +9,6 @@ import serial.tools.list_ports
 
 try:
     from pyftdi.ftdi import Ftdi
-    from pyftdi.serialext import serial_for_url
     PYFTDI_AVAILABLE = True
 except ImportError:
     PYFTDI_AVAILABLE = False
@@ -19,6 +18,7 @@ from rcb4.asm import encode_servo_positions_to_bytes
 from rcb4.asm import encode_servo_velocity_and_position_to_bytes
 from rcb4.asm import rcb4_checksum
 from rcb4.asm import rcb4_velocity
+from rcb4.ftdi_serial import open_ftdi_serial
 
 # 4000.0 / 135
 deg_to_servovector = 29.62962962962963
@@ -261,11 +261,9 @@ class RCB4Interface:
         except ValueError:
             pass  # already registered (rcb4.ics registers the same names)
         try:
-            port_serial = serial_for_url(port, baudrate=baudrate, timeout=timeout)
+            return open_ftdi_serial(port, baudrate=baudrate, timeout=timeout)
         except Exception as e:
             raise serial.SerialException(e) from e
-        port_serial.parity = "E"
-        return port_serial
 
     def _candidate_ports(self):
         ports = [

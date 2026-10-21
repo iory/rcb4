@@ -692,7 +692,7 @@ class RCB4ROSBridge:
         ret = serial_call_with_retry(
             self.interface.angle_vector, av, servo_ids,
             velocity=self.wheel_frame_count)
-        if ret is None:
+        if not ret:  # failed, or every wheel free
             return
         self._prev_velocity_command = av
 

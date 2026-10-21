@@ -17,12 +17,12 @@ def record(ics_number):
 class FakeBoard(RCB4Interface):
     """RCB4Interface on a RAM bytearray, recording the commands it sends."""
 
-    def __init__(self, servo_ids, reply=b"\x12\x06"):
+    def __init__(self, servo_ids, ack=0x06):
         super().__init__()
         self.ram = bytearray(0x490)
         self._config_data = flat_frame
         self.sent = []
-        self.reply = reply
+        self.ack = ack
         self.servo_ids = servo_ids
         self.search_servo_ids()
 
@@ -36,7 +36,7 @@ class FakeBoard(RCB4Interface):
 
     def serial_write(self, byte_list, timeout=10):
         self.sent.append(bytes(byte_list))
-        return self.reply
+        return bytes([byte_list[1], self.ack])
 
 
 class TestTime(unittest.TestCase):
@@ -64,11 +64,30 @@ class TestFreeServos(unittest.TestCase):
         board.hold([2])
         board.sent.clear()
         with unittest.mock.patch("builtins.print") as printed:
-            board.angle_vector([10, 20], [2, 5])
+            moved = board.angle_vector([10, 20], [2, 5])
         printed.assert_called_once()
         self.assertIn("[5]", printed.call_args[0][0])
+        self.assertEqual(moved, [2])
         # Only ICS 2 is in the command's mask.
         self.assertEqual(board.sent[-1][2:7], bytes([0x04, 0, 0, 0, 0]))
+        with unittest.mock.patch("builtins.print"):
+            self.assertEqual(board.free(), [2, 5])
+            self.assertEqual(board.angle_vector([10, 20], [2, 5]), [])
+
+
+class TestReturns(unittest.TestCase):
+
+    def test_the_servos_commanded_are_returned(self):
+        board = FakeBoard([5, 2])
+        self.assertEqual(board.hold(), [2, 5])
+        self.assertEqual(board.angle_vector([10, 20], [5, 2], time=0.5), [2, 5])
+        self.assertEqual(board.neutral([5]), [5])
+        self.assertEqual(board.free([5]), [5])
+
+    def test_no_acknowledgement_raises(self):
+        board = FakeBoard([2, 5], ack=0x15)
+        with self.assertRaises(serial.SerialException):
+            board.hold()
 
 
 class TestInterpolation(unittest.TestCase):
@@ -108,7 +127,7 @@ class TestStretch(unittest.TestCase):
         self.assertEqual(board.sent[-1][8:10], bytes([30, 40]))
 
     def test_no_acknowledgement_raises(self):
-        board = FakeBoard([2, 5], reply=b"\x12\x15")
+        board = FakeBoard([2, 5], ack=0x15)
         with self.assertRaises(serial.SerialException):
             board.send_stretch(40)
 

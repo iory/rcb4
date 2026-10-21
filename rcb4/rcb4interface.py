@@ -1210,10 +1210,10 @@ class RCB4Interface:
 
         Returns
         -------
-        numpy.ndarray or bytes or None
+        numpy.ndarray or list of int
             The current angles in degrees when ``av`` is None; otherwise
-            the board's reply, or None when every servo was free and
-            nothing was sent.
+            the ICS numbers moved (:meth:`servo_angle_vector`), empty when
+            every servo was free.
 
         Notes
         -----
@@ -1286,6 +1286,11 @@ class RCB4Interface:
         ----------
         servo_ids : array_like, optional
             ICS numbers. Default: every servo found.
+
+        Returns
+        -------
+        list of int
+            The ICS numbers switched.
         """
         if servo_ids is None:
             servo_ids = self.servo_sorted_ids
@@ -1302,6 +1307,11 @@ class RCB4Interface:
         ----------
         servo_ids : array_like, optional
             ICS numbers. Default: every servo found.
+
+        Returns
+        -------
+        list of int
+            The ICS numbers switched.
         """
         if servo_ids is None:
             servo_ids = self.servo_sorted_ids
@@ -1436,11 +1446,19 @@ class RCB4Interface:
             Velocity for the servo movement, clamped between 1 and 255.
             Default value is 127.
 
+        Returns
+        -------
+        list of int
+            The ICS numbers the command was sent to, in ascending order;
+            empty when every servo was free and nothing was sent.
+
         Raises
         ------
         ValueError
             If the length of `servo_ids` does not match the length
             of `servo_vector`.
+        serial.SerialException
+            If the board did not acknowledge the command.
 
         Notes
         -----
@@ -1478,7 +1496,7 @@ class RCB4Interface:
 
         # If no active servos, skip command sending
         if not active_ids:
-            return
+            return []
 
         # Sort the servo vectors based on servo IDs
         sorted_indices = np.argsort(active_ids)
@@ -1512,7 +1530,11 @@ class RCB4Interface:
         byte_list.append(rcb4_checksum(byte_list))
 
         # send the command
-        return self.serial_write(byte_list)
+        reply = self.serial_write(byte_list)
+        if list(reply) != [byte_list[1], 0x06]:
+            raise serial.SerialException(
+                f"Servo command was not acknowledged: {bytes(reply).hex()}")
+        return [int(i) for i in sorted_servo_ids]
 
     def set_servo_parameters_command(
         self, values, servo_ids=None, servo_param_type="stretch"

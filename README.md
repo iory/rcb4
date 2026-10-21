@@ -60,9 +60,9 @@ It finds the adapter, connects, prints every servo that answered and opens Pytho
 ```
 
 ```python
-ri.hold()                                    # torque on, where each servo is now
+ri.hold()                                    # torque on, where each servo is now -> [32, 34]
 ri.angle_vector([15, -15], [32, 34], time=1.0)   # ICS 32 to 15 deg, ICS 34 to -15 deg, in 1 s
-ri.wait_interpolation()                      # wait until the move has arrived
+ri.wait_interpolation()                      # wait until the move has arrived -> True
 ri.print_servos()
 ri.neutral(time=1.0)                         # every servo to 0 deg
 ri.wait_interpolation()
@@ -104,6 +104,9 @@ Things to know:
   SIO1-4, odd numbers on SIO5-8. `print_servos()` shows both.
 - **A free servo does not move.** `angle_vector` skips it and says so; `hold()` it
   first.
+- `angle_vector(av, ...)`, `neutral`, `hold` and `free` return the ICS numbers they
+  commanded (`[]` when every servo was free), and raise `serial.SerialException`
+  if the board does not acknowledge.
 - **`angle_vector(av, ...)` returns at once**: the board moves the servos over
   `time`. Call `wait_interpolation()` before the next move, or the next one
   replaces it. A servo that is blocked (gripping, at a stop) counts as arrived; compare

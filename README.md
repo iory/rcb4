@@ -38,6 +38,83 @@ sudo usermod -a -G plugdev $USER
 ```bash
 pip install rcb4
 ```
+
+## Move servos from Python (RCB-4 / RCB-4mini)
+
+Connect the board through a [Kondo Dual USB Adapter HS](https://kondo-robot.com/product/02116)
+in serial mode (LED green). No HeartToHeart4 project is needed.
+
+### First, from the terminal
+
+```bash
+rcb4-shell                 # or: rcb4-shell --port /dev/ttyUSB0
+```
+
+It finds the adapter, connects, prints every servo that answered and opens Python
+(IPython if it is installed) with the board as `ri`:
+
+```
+ ICS  ID  SIO   angle[deg]  target[deg]  torque  moving
+  32  16  1-4          0.0            -     off      no
+  34  17  1-4          0.0            -     off      no
+```
+
+```python
+ri.hold()                                    # torque on, where each servo is now
+ri.angle_vector([15, -15], [32, 34], time=1.0)   # ICS 32 to 15 deg, ICS 34 to -15 deg, in 1 s
+ri.wait_interpolation()                      # wait until the move has arrived
+ri.print_servos()
+ri.neutral(time=1.0)                         # every servo to 0 deg
+ri.wait_interpolation()
+ri.free()                                    # torque off
+```
+
+### In a script
+
+```python
+from rcb4.rcb4interface import RCB4Interface
+
+ri = RCB4Interface()
+ri.auto_open()            # or ri.open(port="/dev/ttyUSB0")
+ids = ri.search_servo_ids()
+print(ids, ri.angle_vector())
+
+ri.hold(ids)
+ri.angle_vector([30] * len(ids), ids, time=2.0)
+ri.wait_interpolation()
+ri.free(ids)
+```
+
+| Call | What it does |
+|------|--------------|
+| `search_servo_ids()` | ICS numbers of the servos found at connect |
+| `angle_vector()` / `angle_vector(servo_ids=ids)` | current angles [deg] |
+| `angle_vector(av, ids, time=t)` | move to `av` [deg] in `t` s (or `velocity=` output cycles) |
+| `wait_interpolation(ids, timeout=None)` | wait until the moves have arrived; False on timeout |
+| `interpolating_servo_ids(ids)` | the ones still moving |
+| `reference_angle_vector(ids)` | the targets, in servo units |
+| `hold(ids)` / `free(ids)` | torque on (in place) / off |
+| `neutral(ids, time=t)` | to 0 deg |
+| `send_stretch(value, ids)` | holding stiffness, 1-127 (one value, or one per servo) |
+| `print_servos(ids)` | a table of angle, target, torque and moving |
+
+Things to know:
+
+- **Servos are named by ICS number** = 2 x servo ID + port: even numbers are on
+  SIO1-4, odd numbers on SIO5-8. `print_servos()` shows both.
+- **A free servo does not move.** `angle_vector` skips it and says so; `hold()` it
+  first.
+- **`angle_vector(av, ...)` returns at once**: the board moves the servos over
+  `time`. Call `wait_interpolation()` before the next move, or the next one
+  replaces it. A servo that is blocked (gripping, at a stop) counts as arrived; compare
+  `angle_vector()` with the target to find it.
+- `time` is rounded to output cycles of 15 ms and can be at most 3.8 s (255 cycles);
+  `velocity=` gives the cycles directly (127 = 1.9 s).
+- **Servos are found once, at connect.** One plugged in later is not seen until
+  you connect again.
+- `open()` runs the board flat by default (see [rcb4-rom](#rcb-4-board-rom-rcb4-rom)):
+  any project in its ROM is ignored, so the zeros are the servos' own.
+
 ## Write firmware
 
 Connect st-link and run the following command.

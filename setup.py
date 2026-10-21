@@ -60,6 +60,7 @@ setup(
             "armh7-tools=rcb4.apps.armh7_tool:main",
             "ics-manager=rcb4.apps.ics_manager:main",
             "rcb4-rom=rcb4.apps.rcb4_rom:main",
+            "rcb4-shell=rcb4.apps.rcb4_shell:main",
         ],
     },
 )

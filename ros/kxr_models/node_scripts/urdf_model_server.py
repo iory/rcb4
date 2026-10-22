@@ -5,6 +5,7 @@ import tempfile
 import xml.etree.ElementTree as ET
 
 from filelock import FileLock
+from kxr_models.compress import is_valid_tarfile
 from kxr_models.md5sum_utils import checksum_md5
 from kxr_models.urdf import aggregate_urdf_mesh_files
 from kxr_models.urdf import replace_urdf_path
@@ -50,19 +51,23 @@ class URDFModelServer:
                 kxr_models_path, "models", "urdf", f"{urdf_md5sum}.tar.gz"
             )
 
-            if os.path.exists(compressed_urdf_path):
-                compressed_md5sum = checksum_md5(compressed_urdf_path)
-                self._update_robot_description(urdf_path, urdf_md5sum, compressed_md5sum)
-                continue
-
+            # Check for an existing archive under the lock: servers in other
+            # namespaces (e.g. leader and follower) with the same URDF write
+            # the same file, and one may still be compressing it.
             lock_path = compressed_urdf_path + ".lock"
-            with FileLock(lock_path, timeout=10):
-                aggregate_urdf_mesh_files(
-                    urdf_path,
-                    os.path.join(kxr_models_path, "models", "urdf"),
-                    compress=True,
-                )
-                rospy.loginfo(f"Compressed URDF model saved to {compressed_urdf_path}")
+            with FileLock(lock_path, timeout=60):
+                if os.path.exists(compressed_urdf_path) and not is_valid_tarfile(
+                        compressed_urdf_path):
+                    rospy.logwarn(
+                        f"{compressed_urdf_path} is truncated or broken. Recreating it.")
+                    os.remove(compressed_urdf_path)
+                if not os.path.exists(compressed_urdf_path):
+                    aggregate_urdf_mesh_files(
+                        urdf_path,
+                        os.path.join(kxr_models_path, "models", "urdf"),
+                        compress=True,
+                    )
+                    rospy.loginfo(f"Compressed URDF model saved to {compressed_urdf_path}")
                 compressed_md5sum = checksum_md5(compressed_urdf_path)
                 self._update_robot_description(urdf_path, urdf_md5sum, compressed_md5sum)
 

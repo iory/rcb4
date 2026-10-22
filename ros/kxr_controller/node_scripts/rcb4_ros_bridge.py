@@ -308,6 +308,10 @@ class RCB4ROSBridge:
                 self.calibrate_force_sensor_callback
             )
             self.recent_adc_history = {}
+            # recent_adc_history and preload_offsets are written by the main
+            # loop and read by the calibration service and the drift timer,
+            # which run in their own threads.
+            self.adc_history_lock = threading.Lock()
             self.last_adc_average = {}
             rospy.Timer(rospy.Duration(60), self.drift_check_callback)
         if self.publish_battery_voltage:
@@ -1171,15 +1175,15 @@ class RCB4ROSBridge:
         Calibrate force sensors using ALL available history data.
         """
         rospy.loginfo("Starting force sensor calibration (using history)...")
-        if not self.recent_adc_history:
+        recent_adc_history = self.snapshot_adc_history()
+        if not recent_adc_history:
             return TriggerResponse(success=False, message="No sensor data available in history.")
         new_offsets = {}
 
-        for sid, history in self.recent_adc_history.items():
+        for sid, history in recent_adc_history.items():
             if len(history) == 0:
                 continue
-            data = list(history)
-            avgs = np.mean(data, axis=0)
+            avgs = np.mean(history, axis=0)
             if np.any(avgs <= 10.0):
                 error_indices = np.where(avgs <= 10.0)[0]
                 return TriggerResponse(
@@ -1190,10 +1194,25 @@ class RCB4ROSBridge:
 
         if not new_offsets:
             return TriggerResponse(success=False, message="History was empty or insufficient.")
-        self.preload_offsets.update(new_offsets)
+        with self.adc_history_lock:
+            self.preload_offsets.update(new_offsets)
         msg = f"Calibration successful. Offsets updated: {new_offsets}"
         rospy.loginfo(msg)
         return TriggerResponse(success=True, message=msg)
+
+    def snapshot_adc_history(self):
+        """Copy recent_adc_history so it can be read outside the main loop.
+
+        Returns
+        -------
+        dict[int, list[list[float]]]
+            Recent raw ADC values of the 4 elements for each sensor id.
+        """
+        with self.adc_history_lock:
+            return {
+                sensor_id: list(history)
+                for sensor_id, history in self.recent_adc_history.items()
+            }
 
     def drift_check_callback(self, event):
         """
@@ -1205,7 +1224,7 @@ class RCB4ROSBridge:
             (warm-up) after power-on due to temperature changes.
         """
 
-        for sensor_id, history in self.recent_adc_history.items():
+        for sensor_id, history in self.snapshot_adc_history().items():
             if len(history) < 10:
                 continue
             sum_history = [sum(v) for v in history]
@@ -1242,14 +1261,15 @@ class RCB4ROSBridge:
         for sensor in sensors:
             raw_adc_list = [float(x) for x in sensor.adc]
             raw_adc_sum = sum(raw_adc_list)
-            if sensor.id not in self.recent_adc_history:
-                self.recent_adc_history[sensor.id] = deque(maxlen=30)
-            self.recent_adc_history[sensor.id].append(raw_adc_list)
+            with self.adc_history_lock:
+                if sensor.id not in self.recent_adc_history:
+                    self.recent_adc_history[sensor.id] = deque(maxlen=30)
+                self.recent_adc_history[sensor.id].append(raw_adc_list)
+                current_offsets = self.preload_offsets.get(sensor.id)
             publish_params = [
                 (raw_adc_sum, "force"),
             ]
-            if sensor.id in self.preload_offsets:
-                current_offsets = self.preload_offsets[sensor.id]
+            if current_offsets is not None:
                 adc_sum = 0.0
                 for i in range(4):
                     adc_sum += (raw_adc_list[i] - current_offsets[i])

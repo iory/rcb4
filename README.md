@@ -38,6 +38,86 @@ sudo usermod -a -G plugdev $USER
 ```bash
 pip install rcb4
 ```
+
+## Move servos from Python (RCB-4 / RCB-4mini)
+
+Connect the board through a [Kondo Dual USB Adapter HS](https://kondo-robot.com/product/02116)
+in serial mode (LED green). No HeartToHeart4 project is needed.
+
+### First, from the terminal
+
+```bash
+rcb4-shell                 # or: rcb4-shell --port /dev/ttyUSB0
+```
+
+It finds the adapter, connects, prints every servo that answered and opens Python
+(IPython if it is installed) with the board as `ri`:
+
+```
+ ICS  ID  SIO   angle[deg]  target[deg]  torque  moving
+  32  16  1-4          0.0            -     off      no
+  34  17  1-4          0.0            -     off      no
+```
+
+```python
+ri.hold()                                    # torque on, where each servo is now -> [32, 34]
+ri.angle_vector([15, -15], [32, 34], time=1.0)   # ICS 32 to 15 deg, ICS 34 to -15 deg, in 1 s
+ri.wait_interpolation()                      # wait until the move has arrived -> True
+ri.print_servos()
+ri.neutral(time=1.0)                         # every servo to 0 deg
+ri.wait_interpolation()
+ri.free()                                    # torque off
+```
+
+### In a script
+
+```python
+from rcb4.rcb4interface import RCB4Interface
+
+ri = RCB4Interface()
+ri.auto_open()            # or ri.open(port="/dev/ttyUSB0")
+ids = ri.search_servo_ids()
+print(ids, ri.angle_vector())
+
+ri.hold(ids)
+ri.angle_vector([30] * len(ids), ids, time=2.0)
+ri.wait_interpolation()
+ri.free(ids)
+```
+
+| Call | What it does |
+|------|--------------|
+| `search_servo_ids()` | ICS numbers of the servos found at connect |
+| `angle_vector()` / `angle_vector(servo_ids=ids)` | current angles [deg] |
+| `angle_vector(av, ids, time=t)` | move to `av` [deg] in `t` s (or `velocity=` output cycles) |
+| `wait_interpolation(ids, timeout=None)` | wait until the moves have arrived; False on timeout |
+| `interpolating_servo_ids(ids)` | the ones still moving |
+| `reference_angle_vector(ids)` | the targets, in servo units |
+| `hold(ids)` / `free(ids)` | torque on (in place) / off |
+| `neutral(ids, time=t)` | to 0 deg |
+| `send_stretch(value, ids)` | holding stiffness, 1-127 (one value, or one per servo) |
+| `print_servos(ids)` | a table of angle, target, torque and moving |
+
+Things to know:
+
+- **Servos are named by ICS number** = 2 x servo ID + port: even numbers are on
+  SIO1-4, odd numbers on SIO5-8. `print_servos()` shows both.
+- **A free servo does not move.** `angle_vector` skips it and says so; `hold()` it
+  first.
+- `angle_vector(av, ...)`, `neutral`, `hold` and `free` return the ICS numbers they
+  commanded (`[]` when every servo was free), and raise `serial.SerialException`
+  if the board does not acknowledge.
+- **`angle_vector(av, ...)` returns at once**: the board moves the servos over
+  `time`. Call `wait_interpolation()` before the next move, or the next one
+  replaces it. A servo that is blocked (gripping, at a stop) counts as arrived; compare
+  `angle_vector()` with the target to find it.
+- `time` is rounded to output cycles of 15 ms and can be at most 3.8 s (255 cycles);
+  `velocity=` gives the cycles directly (127 = 1.9 s).
+- **Servos are found once, at connect.** One plugged in later is not seen until
+  you connect again.
+- `open()` runs the board flat by default (see [rcb4-rom](#rcb-4-board-rom-rcb4-rom)):
+  any project in its ROM is ignored, so the zeros are the servos' own.
+
 ## Write firmware
 
 Connect st-link and run the following command.
@@ -83,6 +163,7 @@ The interactive interface allows you to:
 - Change servo ID using arrow keys (←→) and Enter to confirm
 - Adjust servo angle, speed, and stretch parameters
 - Toggle rotation mode (for continuous rotation servos)
+- Toggle reverse mode (invert the rotation direction)
 - Toggle free mode (disable servo holding torque)
 - Reset servo position
 
@@ -95,9 +176,36 @@ The interactive interface allows you to:
 | Enter | Confirm servo ID change |
 | z | Reset servo to zero position |
 | r | Toggle rotation mode |
+| v | Toggle reverse mode (frees the servo first) |
 | f | Toggle free mode |
 | d | Reset to default EEPROM parameters |
 | q | Quit |
+
+## RCB-4 board ROM (rcb4-rom)
+
+A HeartToHeart4 project in an RCB-4 / RCB-4mini's ROM moves the servos at power-up
+(hold, home position, startup motion) and sets trim and mixing that shift what the
+servos are driven to. `RCB4Interface.open()` undoes all of that in RAM at every
+connect (`flat=True`, the default). `rcb4-rom` makes it persistent, so the board
+powers up without commanding any servo:
+
+```bash
+rcb4-rom show                  # what the board does at power-up
+rcb4-rom flat-startup          # backs the ROM up to rcb4-rom-<date>.bin, then writes it
+rcb4-rom restore rcb4-rom-<date>.bin   # put the project back
+rcb4-rom backup rom.bin
+```
+
+`flat-startup` turns the ROM program off in the startup config (the startup routine
+then stops right after writing it, before holding or moving any servo) and makes every
+servo record start free, with no trim and no mixing. The green LED is lit from power-up
+(`--no-led` to leave it off). The COM and ICS baud rates and the
+ICS table are kept. Pass `--port` to pick the adapter.
+
+`rcb4-rom flat-startup --blink 3` also blinks the green LED 3 times (0.3 s on, 0.3 s
+off) at power-up and then leaves it on, so a flat board can be told by eye (at most 3
+blinks fit in place of the startup code it replaces). The ROM program runs during the
+blinks, about 2 s; `rcb4-rom show` reports the blink count.
 
 ## Contributing
 

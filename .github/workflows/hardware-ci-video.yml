@@ -1,0 +1,103 @@
+name: Hardware CI Video
+
+# Uploads the video recorded by "Run Tests" to Google Drive and comments on the PR.
+# "Run Tests" runs fork PR code without secrets, so this privileged part is split out.
+# Never check out or execute PR code here: the artifact and its name come from a
+# workflow definition that the PR itself can modify, so treat them as untrusted data.
+on:
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
+
+permissions:
+  actions: read
+  pull-requests: write
+
+jobs:
+  find:
+    name: Find videos
+    if: github.event.workflow_run.event == 'pull_request' && github.event.workflow_run.conclusion != 'cancelled'
+    runs-on: ubuntu-latest
+    outputs:
+      pr-number: ${{ steps.find.outputs.pr-number }}
+      artifacts: ${{ steps.find.outputs.artifacts }}
+    steps:
+      - name: Find pull request and video artifacts
+        id: find
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            // workflow_run.pull_requests is empty for fork PRs, so look the PR up
+            // from the head branch and require that its head is still this commit.
+            const { data: prs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              head: `${run.head_repository.owner.login}:${run.head_branch}`,
+            });
+            const pr = prs.find((p) => p.head.sha === run.head_sha);
+            if (!pr) {
+              core.notice(`No open PR has head ${run.head_sha}; skip (the PR was updated or closed).`);
+              core.setOutput("artifacts", "[]");
+              return;
+            }
+            const artifacts = await github.paginate(
+              github.rest.actions.listWorkflowRunArtifacts,
+              { owner: context.repo.owner, repo: context.repo.repo, run_id: run.id },
+            );
+            const names = artifacts
+              .map((a) => a.name)
+              .filter((name) => /^hardware-ci-video-py[0-9.]+$/.test(name));
+            core.info(`PR #${pr.number}, videos: ${JSON.stringify(names)}`);
+            core.setOutput("pr-number", String(pr.number));
+            core.setOutput("artifacts", JSON.stringify(names));
+
+  upload:
+    name: Upload ${{ matrix.artifact }}
+    needs: find
+    if: needs.find.outputs.artifacts != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        artifact: ${{ fromJson(needs.find.outputs.artifacts) }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: video
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Rename video
+        env:
+          ARTIFACT: ${{ matrix.artifact }}
+          PR_NUMBER: ${{ needs.find.outputs.pr-number }}
+          RUN_CREATED_AT: ${{ github.event.workflow_run.created_at }}
+        run: |
+          mapfile -t files < <(find video -type f -name '*.mp4')
+          if [ "${#files[@]}" -ne 1 ]; then
+            echo "::error::Expected one mp4 in ${ARTIFACT}, found ${#files[@]}"
+            exit 1
+          fi
+          name="$(date -u -d "${RUN_CREATED_AT}" +'%Y-%m-%d-%H%M')-PR${PR_NUMBER}-${ARTIFACT#hardware-ci-video-}.mp4"
+          mv "${files[0]}" "${name}"
+          echo "VIDEO_FILE_NAME=${name}" >> "$GITHUB_ENV"
+
+      - name: Upload to gdrive
+        id: upload
+        uses: iory/github-action-upload-google-drive@v0.0.3
+        with:
+          service_account_json: ${{ secrets.CREDENTIALS }}
+          file_path: ${{ env.VIDEO_FILE_NAME }}
+          folder_id: ${{ secrets.FOLDERID }}
+          input_gdrive_file_name: ${{ env.VIDEO_FILE_NAME }}
+
+      - name: PR comment
+        uses: thollander/actions-comment-pull-request@v3
+        with:
+          pr-number: ${{ needs.find.outputs.pr-number }}
+          comment-tag: ${{ matrix.artifact }}
+          message: "🎬️ [Watch Hardware CI Test Video (${{ matrix.artifact }})](https://drive.google.com/file/d/${{ steps.upload.outputs.file_id }}/view)"

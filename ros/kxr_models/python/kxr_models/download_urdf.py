@@ -6,6 +6,7 @@ import gdown
 import rospkg
 import rospy
 
+from kxr_models.md5sum_utils import checksum_md5
 from kxr_models.ros import get_namespace
 
 gdown_version = version("gdown")
@@ -54,7 +55,11 @@ def download_urdf_mesh_files(namespace=None):
     compressed_urdf_path = osp.join(
         kxr_models_path, "models", "urdf", f"{urdf_hash}.tar.gz"
     )
-    while not osp.exists(compressed_urdf_path):
+    # A file at this path may be a truncated leftover, so check its hash
+    # as well before extracting it.
+    while not rospy.is_shutdown() and not (
+            osp.exists(compressed_urdf_path)
+            and checksum_md5(compressed_urdf_path) == compressed_urdf_hash):
         rospy.loginfo(f"Waiting {compressed_urdf_path} from server")
         rospy.sleep(1.0)
         if _version_tuple(gdown_version) < (5, 1, 0):

@@ -471,6 +471,52 @@ class RCB4ROSBridge:
             msg += "Clear it with clear_trim_vector() if it is not intended."
             rospy.logwarn(msg)
 
+    def _servo_ids_to_joint_names(self, servo_ids):
+        """Return "joint_name(id)" labels for log messages.
+
+        Parameters
+        ----------
+        servo_ids : list[int]
+            Servo ids to label.
+
+        Returns
+        -------
+        list[str]
+            One label per servo id, joint names that share an id are joined by "/".
+        """
+        labels = []
+        for servo_id in servo_ids:
+            names = [jn for jn, sid in self.joint_name_to_id.items() if sid == servo_id]
+            labels.append(f"{'/'.join(names) if names else '?'}({servo_id})")
+        return labels
+
+    def check_wheel_servo_mode(self, config_wheel_ids):
+        """Report wheels the board did not set up as rotation servos.
+
+        The board reads each servo's mode from the servo EEPROM at power-on
+        and only rotation servos are switched on at start. If that read fails
+        the wheel stays off and every velocity command to it is dropped.
+
+        Parameters
+        ----------
+        config_wheel_ids : list[int]
+            Servo ids marked ``type: continuous`` in the servo config.
+        """
+        detected_ids = set(np.asarray(self.interface.search_servo_ids()).tolist())
+        board_wheel_ids = set(self.interface.wheel_servo_sorted_ids or [])
+        not_rotation = sorted(
+            sid for sid in config_wheel_ids
+            if sid in detected_ids and sid not in board_wheel_ids)
+        if len(not_rotation) == 0:
+            return
+        msg = f"Wheel servos {self._servo_ids_to_joint_names(not_rotation)} are "
+        msg += f"'continuous' in {self.servo_config_path}, "
+        msg += "but the board reports them as hinge servos (rotation=0). "
+        msg += "The board probably failed to read the servo mode from EEPROM at power-on, "
+        msg += "so these wheels stay off and will not move. "
+        msg += "Power-cycle the control board and the servos."
+        rospy.logerr(msg)
+
     def setup_interface_and_servo_parameters(self):
         self.interface = self.setup_interface()
 
@@ -512,6 +558,8 @@ class RCB4ROSBridge:
         self.interface._actuator_to_joint_matrix = np.linalg.inv(self.interface.joint_to_actuator_matrix)
         if isinstance(self.interface, ARMH7Interface) and len(configured_servo_ids) > 0:
             self.warn_board_trim(configured_servo_ids)
+        if isinstance(self.interface, ARMH7Interface) and len(wheel_servo_sorted_ids) > 0:
+            self.check_wheel_servo_mode(wheel_servo_sorted_ids)
         if self.interface.wheel_servo_sorted_ids is None:
             self.interface.wheel_servo_sorted_ids = []
         self.interface.wheel_servo_sorted_ids = list(
@@ -699,6 +747,16 @@ class RCB4ROSBridge:
         )
         if len(av) == 0:
             return
+        # servo_angle_vector() drops commands to servos that are off without
+        # telling the caller, so say which wheel is ignored.
+        off_moving_ids = [
+            int(sid) for sid, vel in zip(servo_ids, av)
+            if vel != 0 and not self.interface.servo_on_states_dict.get(int(sid), False)]
+        if len(off_moving_ids) > 0:
+            labels = self._servo_ids_to_joint_names(off_moving_ids)
+            msg = f"Velocity command to wheels {labels} is ignored "
+            msg += "because their servos are off."
+            rospy.logwarn_throttle(10.0, msg)
         if not hasattr(self, "_prev_velocity_command"):
             self._prev_velocity_command = None
         if self._prev_velocity_command is not None and np.allclose(

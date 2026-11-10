@@ -88,6 +88,12 @@ jobs:
     name: Run ROS Tests
     needs: [tests]
     runs-on: ${{ matrix.os }}
+    # BEFORE_INIT runs in the container before its first apt-get update: fall
+    # back to other Ubuntu mirrors when archive.ubuntu.com is down. It is set
+    # here, not in the matrix, so that the job name (a required check) stays
+    # the same.
+    env:
+      BEFORE_INIT: .github/ci/apt-mirrors.sh
     strategy:
       matrix:
         env:

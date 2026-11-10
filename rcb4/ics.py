@@ -1,4 +1,5 @@
 import platform
+import queue
 import sys
 import threading
 import time
@@ -17,39 +18,44 @@ except ImportError:
     PYFTDI_AVAILABLE = False
 
 from rcb4.ftdi_serial import open_ftdi_serial
+from rcb4.protocol import ics as protocol
+from rcb4.protocol.framing import ProtocolError
 from rcb4.temperature import get_setting_value_from_temperatures
 
 degree_to_pulse = 29.633
 
 
 class KeyListener(threading.Thread):
+    """Read keys in the background and hand them over one at a time, in order.
+
+    Every key is queued: a key pressed while the display loop is busy talking
+    to the servo is handled on a later turn, not overwritten by the next one
+    (three quick presses of an arrow are three steps).
+    """
+
     def __init__(self):
         super().__init__()
-        self.key = None
-        self.lock = threading.Lock()
+        self.keys = queue.Queue()
         self.running = True  # Add a running flag
 
     def run(self):
-        """Continuously read keys and store the latest key in self.key while running is True."""
+        """Continuously read keys and queue them while running is True."""
         while self.running:
             try:
                 key = readchar.readkey()
-                if key == 'q':
-                    with self.lock:
-                        self.key = key
-                    break
             except KeyboardInterrupt:
                 self.stop()
                 break
-            with self.lock:
-                self.key = key
+            self.keys.put(key)
+            if key == 'q':
+                break
 
     def get_key(self):
-        """Return the latest key and reset it."""
-        with self.lock:
-            key = self.key
-            self.key = None
-        return key
+        """Return the oldest key not yet handled, or None."""
+        try:
+            return self.keys.get_nowait()
+        except queue.Empty:
+            return None
 
     def stop(self):
         """Stop the listener thread."""
@@ -104,6 +110,7 @@ class ICSServoController:
         self.baudrate = baudrate
         self.timeout = timeout
         self.ics = None
+        self.notice = None
         self._use_pyftdi = False
         self.is_continuous_rotation_mode = None
         self.servo_eeprom_params64 = [
@@ -196,6 +203,51 @@ class ICSServoController:
 
         return None
 
+    def transact(self, command, what, timeout_multiplier=1):
+        """Send one ICS ``command`` and return the checked reply data.
+
+        Parameters
+        ----------
+        command : bytes
+            Built with :mod:`rcb4.protocol.ics`.
+        what : str
+            What the command does, for the error message.
+        timeout_multiplier : int, optional
+            As in :meth:`synchronize`.
+
+        Returns
+        -------
+        bytes
+            Everything received (loopback + reply), already checked by
+            :func:`rcb4.protocol.ics.parse_reply`.
+
+        Raises
+        ------
+        OSError
+            If the reply did not arrive in time.
+        rcb4.protocol.ics.IcsReplyError
+            If what arrived is not the answer to ``command``.
+        """
+        received = self.synchronize(
+            command, protocol.reply_length(command), timeout_multiplier)
+        if received is None:
+            raise OSError(f"Failed to {what}: timeout or insufficient data")
+        protocol.parse_reply(command, received)
+        return received
+
+    def _note_baud_change(self, current_baudrate):
+        """Say that connecting rewrites the servo's baud rate in its EEPROM.
+
+        Kept in :attr:`notice` and shown under the status, because the
+        status screen is cleared on every redraw.
+        """
+        old, new = format_baud(current_baudrate), format_baud(self.baudrate)
+        self.notice = " ".join([
+            f"Servo baud rate was {old}: wrote {new} to its EEPROM (--baudrate).",
+            f"Run with --baudrate {current_baudrate} to keep it.",
+        ])
+        print(f"{Fore.YELLOW}{self.notice}{Style.RESET_ALL}")
+
     def _open_connection_pyserial(self):
         """Try to open connection using pyserial (Linux)."""
         ports = serial.tools.list_ports.comports()
@@ -213,6 +265,7 @@ class ICSServoController:
                         )
                         current_baudrate = self.baud()
                         if current_baudrate != self.baudrate:
+                            self._note_baud_change(current_baudrate)
                             self._change_servo_baudrate(self.baudrate)
                             self.ics.close()
                             self.ics = serial.Serial(
@@ -227,7 +280,9 @@ class ICSServoController:
                         except Exception:
                             pass
                         return True
-                    except (IndexError, OSError):
+                    except (IndexError, OSError, ProtocolError):
+                        # ProtocolError: at a rate the servo is not set to,
+                        # what comes back is not a valid reply.
                         if self.ics and self.ics.is_open:
                             self.ics.close()
                         continue
@@ -257,6 +312,7 @@ class ICSServoController:
                 self._use_pyftdi = True
                 current_baudrate = self.baud()
                 if current_baudrate != self.baudrate:
+                    self._note_baud_change(current_baudrate)
                     self._change_servo_baudrate(self.baudrate)
                     self.ics.close()
                     self.ics = open_ftdi_serial(
@@ -314,15 +370,36 @@ class ICSServoController:
         self.set_param(ics_param64, servo_id)
         return baud
 
-    def set_default_eeprom_param(self):
-        self.set_param(
-            [5, 10, 11, 4, 7, 15, 0, 0, 0, 2,  # 0-9
-             1, 14, 15, 10, 0, 6, 2, 12, 14, 12,  # 10-19
-             0, 13, 10, 12, 0, 0, 0, 0, 0, 10,  # 20-29
-             1, 14, 1, 2, 9, 8, 14, 13, 9, 13,  # 30-39
-             6, 14, 9, 11, 10, 12, 9, 5, 0, 14,   # 40-49
-             0, 1, 0, 0, 13, 2, 0, 0, 3, 12,  # 50-59
-             7, 8, 15, 14],)  # 60-63
+    #: Default EEPROM settings. Only the user settings are applied: the
+    #: protocol's EEPROM_PROTECTED bytes (header, this servo's factory
+    #: calibration) and the bytes in DEFAULT_EEPROM_KEEP stay as read.
+    DEFAULT_EEPROM = (
+        5, 10, 11, 4, 7, 15, 0, 0, 0, 2,  # 0-9
+        1, 14, 15, 10, 0, 6, 2, 12, 14, 12,  # 10-19
+        0, 13, 10, 12, 0, 0, 0, 0, 0, 10,  # 20-29
+        1, 14, 1, 2, 9, 8, 14, 13, 9, 13,  # 30-39
+        6, 14, 9, 11, 10, 12, 9, 5, 0, 14,   # 40-49
+        0, 1, 0, 0, 13, 2, 0, 0, 3, 12,  # 50-59
+        7, 8, 15, 14)  # 60-63
+    #: Baud rate (26, 27) and ID (56, 57): resetting them would change how
+    #: the servo is reached, which --baudrate and the ID screen handle.
+    DEFAULT_EEPROM_KEEP = (26, 27, 56, 57)
+
+    def set_default_eeprom_param(self, servo_id=None):
+        """Reset the user settings in the EEPROM to their defaults.
+
+        The servo's own calibration, header, baud rate and ID are written
+        back as read: the fixed table above came from one servo, and its
+        calibration bytes are wrong for any other.
+        """
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        current, _ = self.read_param(servo_id=servo_id)
+        wanted = protocol.merge_eeprom(current, self.DEFAULT_EEPROM,
+                                       keep=self.DEFAULT_EEPROM_KEEP)
+        # Byte 16 bit 1 is FREE, read-only (manual p.25): keep it as read.
+        wanted[15] = (wanted[15] & ~0x2) | (current[15] & 0x2)
+        self.set_param(wanted, servo_id=servo_id)
 
     def read_baud(self, servo_id=None):
         _, result = self.read_param(servo_id=servo_id)
@@ -366,53 +443,50 @@ class ICSServoController:
         # Retry like read_param(): right after an EEPROM write (set_servo_id,
         # set_param) the servo is still busy and misses the first ID read,
         # which used to drop ics-manager into a reconnect.
+        command = protocol.build_id_read()
+        error = None
         for _attempt in range(max_retries):
-            ret = self.synchronize(bytes([0xFF, 0x00, 0x00, 0x00]), 5,
-                                   timeout_multiplier=3)
-            if ret is not None and len(ret) >= 5:
-                return ret[4] & 0x1F
+            try:
+                received = self.transact(command, "get servo ID",
+                                         timeout_multiplier=3)
+                return protocol.parse_id_reply(command, received)
+            except (OSError, protocol.IcsReplyError) as e:
+                error = e
             time.sleep(0.05)
-        raise OSError("Failed to get servo ID: timeout or insufficient data")
+        raise error
 
     def set_servo_id(self, servo_id):
-        ret = self.synchronize(
-            bytes([0xE0 | (0x1F & servo_id), 0x01, 0x01, 0x01]), 5)
-        if ret is None or len(ret) < 5:
-            raise OSError("Failed to set servo ID: timeout or insufficient data")
-        return 0x1F & ret[4]
+        command = protocol.build_id_write(servo_id)
+        return protocol.parse_id_reply(
+            command, self.transact(command, "set servo ID"))
+
+    def _read_value(self, subcommand, what, servo_id=None):
+        """One parameter read; the reply data (one byte, two for a position)."""
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        command = protocol.build_read(servo_id, subcommand)
+        return protocol.parse_reply(command, self.transact(command, what))
+
+    def _write_value(self, subcommand, value, what, servo_id=None):
+        """One single-value write; the value the servo answered with."""
+        if servo_id is None:
+            servo_id = self.get_servo_id()
+        command = protocol.build_write(servo_id, subcommand, value)
+        return protocol.parse_reply(command, self.transact(command, what))[0]
 
     def set_speed(self, speed, servo_id=None):
         speed = max(1, min(127, speed))
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xC0 | (servo_id & 0x1F), 0x02, speed]), 6)
-        if v is None or len(v) < 6:
-            raise OSError("Failed to set speed: timeout or insufficient data")
-        return v[5]
+        return self._write_value(protocol.SC_SPEED, speed, "set speed", servo_id)
 
     def get_speed(self, servo_id=None):
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x02]), 5)
-        if v is None or len(v) < 5:
-            raise OSError("Failed to get speed: timeout or insufficient data")
-        return v[4]
+        return self._read_value(protocol.SC_SPEED, "get speed", servo_id)[0]
 
     def get_stretch(self, servo_id=None):
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x01]), 5)
-        if v is None or len(v) < 5:
-            raise OSError("Failed to get stretch: timeout or insufficient data")
-        return v[4]
+        return self._read_value(protocol.SC_STRETCH, "get stretch", servo_id)[0]
 
     def get_current(self, servo_id=None, interpolate=True):
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x03]), 5)
-        if v is None or len(v) < 5:
-            raise OSError("Failed to get current: timeout or insufficient data")
-        current = v[4]
+        current = self._read_value(
+            protocol.SC_CURRENT, "get current", servo_id)[0]
         sign = 1
         if current >= 64:
             current -= 64
@@ -422,14 +496,11 @@ class ICSServoController:
         return sign * current
 
     def get_temperature(self, servo_id=None, interpolate=True):
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 0x04]), 5)
-        if v is None or len(v) < 5:
-            raise OSError("Failed to get temperature: timeout or insufficient data")
+        temperature = self._read_value(
+            protocol.SC_TEMPERATURE, "get temperature", servo_id)[0]
         if interpolate:
-            return get_setting_value_from_temperatures(v[4])
-        return v[4]
+            return get_setting_value_from_temperatures(temperature)
+        return temperature
 
     def set_response(self, value, servo_id=None):
         """
@@ -454,8 +525,35 @@ class ICSServoController:
         print(f"Response set to {result['response']}")
 
     def reset_servo_position(self):
-        self.set_angle(7500)
+        self.move_and_wait(7500)
         print(f"{Fore.YELLOW}Servo reset to zero position.{Fore.RESET}")
+
+    def move_and_wait(self, pulse, servo_id=None, timeout=1.5, tolerance=30):
+        """Command ``pulse`` and wait until the servo has got there or stopped.
+
+        The status screen reads the angle right after a key; without the
+        wait it showed where the servo was on its way, and a second key
+        stepped from that point instead of from the target.
+
+        Returns
+        -------
+        int
+            The position read last.
+        """
+        pulse = int(pulse)
+        position = self.set_angle(pulse, servo_id=servo_id)
+        deadline = time.monotonic() + timeout
+        previous = None
+        while time.monotonic() < deadline:
+            try:
+                position = self.read_angle(servo_id)
+            except (OSError, ProtocolError):
+                break               # an ICS 3.5 servo has no angle read
+            if abs(position - pulse) <= tolerance or position == previous:
+                break               # arrived, or held against a stop
+            previous = position
+            time.sleep(0.05)
+        return position
 
     def setup_rotation_mode(self):
         self.is_continuous_rotation_mode = self.read_rotation()
@@ -482,7 +580,6 @@ class ICSServoController:
     def set_free_mode(self):
         free_mode = self.read_free()
         self.set_free(not free_mode)
-        time.sleep(0.1)
         free_mode = self.read_free()
         mode_text = "Enabled" if free_mode else "Disabled"
         print(f"{Fore.MAGENTA}Free mode set to {mode_text}{Fore.RESET}")
@@ -493,8 +590,11 @@ class ICSServoController:
             angle_pulse = min(11500, angle_pulse + int(degree_to_pulse * 1))
         else:
             angle = self.read_angle()
-            angle_pulse = min(11500, angle + degree_to_pulse * 15)
-        self.set_angle(angle_pulse)
+            angle_pulse = int(min(11500, angle + degree_to_pulse * 15))
+        if self.is_continuous_rotation_mode:
+            self.set_angle(angle_pulse)
+        else:
+            self.move_and_wait(angle_pulse)
         print(f"{Fore.BLUE}Angle increased to {angle_pulse}{Fore.RESET}")
 
     def decrease_angle(self):
@@ -503,8 +603,11 @@ class ICSServoController:
             angle_pulse = max(3500, angle_pulse - int(degree_to_pulse * 1))
         else:
             angle = self.read_angle()
-            angle_pulse = max(3500, angle - degree_to_pulse * 15)
-        self.set_angle(angle_pulse)
+            angle_pulse = int(max(3500, angle - degree_to_pulse * 15))
+        if self.is_continuous_rotation_mode:
+            self.set_angle(angle_pulse)
+        else:
+            self.move_and_wait(angle_pulse)
         print(f"{Fore.RED}Angle decreased to {angle_pulse}{Fore.RESET}")
 
     def increase_speed(self):
@@ -590,19 +693,26 @@ class ICSServoController:
         return self.set_flag("slave", slave, servo_id=servo_id)
 
     def set_rotation(self, rotation=None, servo_id=None):
-        if rotation:
-            self.send_angle_pulse = 7500
-        self.set_free(True, servo_id=servo_id)  # free for before mode change.
-        return self.set_flag("rotation", rotation, servo_id=servo_id)
+        """Switch rotation (wheel) mode, leaving the servo free.
 
-    def set_stretch(self, value, servo_id=None):
+        In rotation mode the position command is a speed, so a target left
+        over from position mode would spin the servo. It is freed before the
+        EEPROM write and again after it, and stays free until commanded.
+        """
         if servo_id is None:
             servo_id = self.get_servo_id()
+        self.send_angle_pulse = 7500
+        self.set_free(True, servo_id=servo_id)
+        self.set_flag("rotation", rotation, servo_id=servo_id)
+        self.set_free(True, servo_id=servo_id)
+        self.is_continuous_rotation_mode = bool(rotation)
+
+    def set_stretch(self, value, servo_id=None):
         value = max(1, min(value, 127))
-        v = self.synchronize(bytes([0xC0 | servo_id, 0x01, value]), 6)
-        if v is None or len(v) < 6:
-            raise OSError("Failed to set stretch: timeout or insufficient data")
-        return v[2]
+        # The servo's answer, not the loopback of what was sent (which the
+        # old code returned).
+        return self._write_value(protocol.SC_STRETCH, value, "set stretch",
+                                 servo_id)
 
     def set_stretch_values(self, stretch_values, servo_id=None):
         if servo_id is None:
@@ -640,22 +750,33 @@ class ICSServoController:
         return self.set_flag("reverse", reverse, servo_id=servo_id)
 
     def set_free(self, free, servo_id=None):
+        """Free the servo (``free`` true), or hold it where it is now.
+
+        Returns
+        -------
+        int
+            The position the servo reported.
+
+        Notes
+        -----
+        The EEPROM's FREE flag is read-only (ICS3.5/3.6 manual p.25), so
+        holding is done with a position command, never by writing the flag.
+        Writing it used to leave the servo holding an unrelated target, and
+        a later switch to rotation mode then spun it.
+        """
         if servo_id is None:
             servo_id = self.get_servo_id()
+        command = protocol.build_position(servo_id, protocol.POSITION_FREE)
+        position = protocol.parse_position_reply(
+            command, self.transact(command, "set free"))
         if free:
-            v = self.synchronize(
-                bytes([0x80 | (0x1F & servo_id), 0, 0]), 6)
-            if v is None or len(v) < 6:
-                raise OSError("Failed to set free: timeout or insufficient data")
-            return ((v[3 + 1] << 7) & 0x3F80) | (v[3 + 2] & 0x007F)
-        ics_param64, _ = self.read_param()
-        if free is None or free == 0:
-            ics_param64[15] = ics_param64[15] & 0xD
+            return position
+        if self.is_continuous_rotation_mode:
+            target = 7500           # a speed in rotation mode: hold still
+            self.send_angle_pulse = target
         else:
-            ics_param64[15] = ics_param64[15] | 0x2
-        self.set_param(ics_param64, servo_id)
-        if servo_id != self.read_param()[1].get("servo-id"):
-            return self.read_free(servo_id)
+            target = position       # hold where the free servo was
+        return self.set_angle(target, servo_id=servo_id)
 
     def read_free(self, servo_id=None):
         if servo_id is None:
@@ -683,14 +804,10 @@ class ICSServoController:
     def set_param(self, ics_param64, servo_id=None):
         if servo_id is None:
             servo_id = self.get_servo_id()
-        # EEPROM write takes longer, so use larger timeout multiplier
-        ret = self.synchronize(
-            bytes([0xC0 | servo_id, 0x00] + ics_param64), 68,
-            timeout_multiplier=50)
-        if ret is None or len(ret) < 68:
-            raise OSError("Failed to set param: timeout or insufficient data")
-        ret_ics_param64 = ret[4:]
-        self.parse_param64_key_value(ret_ics_param64)
+        # EEPROM write takes longer, so use larger timeout multiplier. The
+        # servo answers only R_CMD SC (no EEPROM data), checked by transact.
+        self.transact(protocol.build_eeprom_write(servo_id, ics_param64),
+                      "set param", timeout_multiplier=50)
 
     def close_connection(self):
         if self.ics and self.ics.is_open:
@@ -771,7 +888,10 @@ class ICSServoController:
                                 print_str = 'No Data'
                             print(f"{prefix_str} {option}: {print_str}")
 
-                        print("----------------------\n")
+                        print("----------------------")
+                        if self.notice:
+                            print(f"{Fore.YELLOW}{self.notice}{Style.RESET_ALL}")
+                        print()
                         print(
                             "Use ↑↓ to navigate, ←→ to adjust Current Servo ID or Servo Angles"
                         )
@@ -976,39 +1096,36 @@ class ICSServoController:
             return f"{Fore.GREEN if free else Fore.RED}{'Enabled' if free else 'Disabled'}{Style.RESET_ALL}"
 
     def read_angle(self, servo_id=None):
-        if servo_id is None:
-            servo_id = self.get_servo_id()
-        v = self.synchronize(bytes([0xA0 | (servo_id & 0x1F), 5]), 6)
-        if v is None or len(v) < 6:
-            raise OSError("Failed to read angle: timeout or insufficient data")
-        angle = ((v[4] & 0x7F) << 7) | (v[5] & 0x7F)
-        return angle
+        """Current position (ICS 3.6), without commanding one."""
+        data = self._read_value(protocol.SC_POSITION, "read angle", servo_id)
+        return protocol.decode_position(data[0], data[1])
 
     def set_angle(self, v=7500, servo_id=None):
         v = int(v)
         if servo_id is None:
             servo_id = self.get_servo_id()
         self.send_angle_pulse = v
-        ret = self.synchronize(
-            bytes([0x80 | (servo_id & 0x1F), (v >> 7) & 0x7F, v & 0x7F]), 6)
-        if ret is None or len(ret) < 6:
-            raise OSError("Failed to set angle: timeout or insufficient data")
-        angle = ((ret[4] & 0x7F) << 7) | (ret[5] & 0x7F)
-        return angle
+        command = protocol.build_position(servo_id, v)
+        return protocol.parse_position_reply(
+            command, self.transact(command, "set angle"))
 
     def read_param(self, servo_id=None, max_retries=3):
         if servo_id is None:
             servo_id = self.get_servo_id()
+        command = protocol.build_read(servo_id, protocol.SC_EEPROM)
+        error = None
         for _attempt in range(max_retries):
-            ret = self.synchronize(
-                bytes([0xA0 | servo_id, 0x00]), 68, timeout_multiplier=10)
-            if ret is not None and len(ret) >= 68:
-                ics_param64 = ret[4:]
-                result = self.parse_param64_key_value(list(ics_param64))
-                return list(ics_param64), result
+            try:
+                received = self.transact(command, "read param",
+                                         timeout_multiplier=10)
+                ics_param64 = list(protocol.parse_reply(command, received))
+                result = self.parse_param64_key_value(ics_param64)
+                return ics_param64, result
+            except (OSError, protocol.IcsReplyError) as e:
+                error = e
             # Small delay before retry (servo may need time to respond)
             time.sleep(0.05)
-        raise OSError("Failed to read param: timeout or insufficient data")
+        raise error
 
     def _4bit2num(self, lst, v):
         sum_val = 0

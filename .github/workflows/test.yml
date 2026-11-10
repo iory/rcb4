@@ -91,7 +91,10 @@ jobs:
     strategy:
       matrix:
         env:
-          - {ROS_DISTRO: noetic, ROS_REPO: main, DOCKER_RUN_OPTS: "--privileged"}
+          # BEFORE_INIT runs in the container before its first apt-get update:
+          # fall back to other Ubuntu mirrors when archive.ubuntu.com is down.
+          - {ROS_DISTRO: noetic, ROS_REPO: main, DOCKER_RUN_OPTS: "--privileged",
+             BEFORE_INIT: ".github/ci/apt-mirrors.sh"}
         os: [self-hosted]
     steps:
       - uses: actions/checkout@v4

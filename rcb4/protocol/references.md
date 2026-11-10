@@ -45,6 +45,25 @@ version and batch move are shared, and the memory is not.
 | Writing a record's `+6` reference in RAM drives the servo to it, as a batch move does | **measured** 2026-10-20: a position servo (ICS 21..23, before they were set to rotation mode) went to 7500 when its `+6` was written to 7500. A wheel (rotation-mode servo) is best started this way, because servo ON (`0x7FFF`) would copy the pot into its speed |
 | A servo's port is found by assigning both 2 x ID and 2 x ID + 1 and seeing which `+4` the board rewrites, never by the `0x0E` relay | follows from the two rows above; **not yet measured** with a servo moved between SIO1-4 and SIO5-8, and whether polling the extra, empty numbers lengthens the board's frame is not measured either |
 
+## Kondo ICS 3.5 / 3.6 — a servo spoken to directly (`ics.py`)
+
+The protocol on the servo's own line (a Dual USB Adapter in ICS mode, red LED,
+or the board's SIO ports), not the RCB-4 board protocol above. No length byte
+and no checksum.
+
+| Fact used in code | Source |
+| --- | --- |
+| Command byte = main command in bits 5-7 (`0x80` position, `0xA0` read, `0xC0` write, `0xE0` ID) + servo ID 0..31 in bits 0-4; every other byte keeps its MSB 0 (ID writes excepted) | [23] p.11-12 |
+| Sub-commands: `00` EEPROM, `01` stretch, `02` speed, `03` current (read) / current limit (write), `04` temperature / temperature limit, `05` position read (ICS 3.6 only, read only) | [23] p.12 |
+| The line is shared, so the host first receives every byte it sent (**loopback**), then the servo's reply | [23] p.10 (送信コマンドのループバック), p.15 |
+| Position: TX `CMD POS_H POS_L`; RX loopback + `R_CMD TCH_H TCH_L`, `R_CMD` = `CMD & 0x7F`. A position is 14 bits sent as two 7-bit halves; 0 frees the servo; 3500..11500, neutral 7500 on a 270 deg servo. Example: `81 3A 4C` -> `01 3A 4C` | [23] p.13-15 |
+| A position reply from **ID 0 at 115.2 kbit/s keeps the MSB** (ICS 2.0 compatibility); `parse_reply` accepts `0x80` for ID 0 at any rate, since it does not know the rate | [23] p.14-15 |
+| Read: TX `CMD SC`; RX loopback + `R_CMD SC DATA`, `R_CMD` = `0x20 | ID`; `DATA` is 64 bytes for EEPROM, two 7-bit halves for the position, one byte otherwise. Example: `A1 01` -> `21 01 1E` | [23] p.16-17 |
+| Write: TX `CMD SC DATA`; RX loopback + `R_CMD SC DATA` (one value) or `R_CMD SC` (EEPROM), `R_CMD` = `0x40 | ID`. Example: `CA 02 64` -> `4A 02 64` | [23] p.18-20 |
+| ID: TX `CMD SC SC SC` (`FF 00 00 00` reads, `E0|id 01 01 01` writes); RX loopback + `R_CMD` = `0xE0 | ID`, **not** masked. Only with one servo on the line | [23] p.21-22 (the text on p.22 says the read reply has its MSB cleared, but its own example `0xF3`/`0xF4` and the note under it keep it set; the example is followed) |
+| EEPROM: 64 bytes, each one 4-bit half of a field (byte 1-2 = `0x5A` header, 27-28 baud rate, factory-calibration fields to be written back as read) | [23] p.23-24 |
+| A wrong loopback, header, sub-command or written-back value raises `IcsReplyError` (a `ProtocolError`) instead of being taken for data; `ICSServoController` used the bytes at fixed offsets without checking them | follows from the rows above; **measured** [24]: every reply of a KRS servo passed the checks (ID, EEPROM, stretch, speed, current, temperature, position read and four position commands, then 300 reads in a row: 300 ok) |
+
 [17] `rcb4` — the host library, at commit
      `dfa222528e0f21a9ecd1495b7398ae7eb12e25bc`, which added the ICS assignment
      and the 1.25 M switch to `RCB4Interface.open`.
@@ -74,6 +93,15 @@ version and batch move are shared, and the memory is not.
      and replies parsed with `rcb4.protocol` on the port
      `RCB4Interface.open` had opened, every read compared with
      `RCB4Interface`'s own.
+[23] Kondo Kagaku, ICS3.5/3.6 ソフトウェアマニュアル コマンドリファレンス
+     (Ver 2.6), page numbers as printed ("n／30").
+     <https://kondo-robot.com/w/wp-content/uploads/ICS3.5_3.6_SoftwareManual_2_6.pdf>;
+     English ICS3.5 edition:
+     <https://kondo-robot.com/w/wp-content/uploads/ICS3_5SoftwareManual_V1English.pdf>
+[24] Measured 2026-11-10 on one KRS servo (ID 2, ICS 3.6: it answers the
+     position read, EEPROM baud field 115200) on a Kondo Dual USB Adapter HS
+     in ICS mode, through `ICSServoController` with `rcb4.protocol.ics`. It
+     answered nothing at 1.25 M and 625 k (`OSError`, no `IcsReplyError`).
 
 ### Not sourced — deliberately absent
 

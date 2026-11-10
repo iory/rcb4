@@ -12,7 +12,9 @@ Every packet, in both directions, is::
     [len] [body ...] [checksum]
 
 where ``len`` counts the whole packet (so ``len = len(body) + 2``) and
-``checksum = (len + sum(body)) & 0xFF``.
+``checksum = (len + sum(body)) & 0xFF``. The board's replies carry it too
+(measured on an RCB-4mini, ``references.md``), so :func:`unframe` refuses a
+reply whose checksum does not match (:class:`ChecksumError`).
 
 Every byte layout here is pinned by ``tests/rcb4_tests/test_protocol_framing.py``
 against what :class:`rcb4.rcb4interface.RCB4Interface` sends and against
@@ -49,6 +51,14 @@ MAX_PACKET_LENGTH = 0xFF
 
 class ProtocolError(RuntimeError):
     """A packet could not be built or parsed. Never silently repaired."""
+
+
+class ChecksumError(ProtocolError):
+    """A received packet's trailing byte is not its checksum.
+
+    The packet arrived whole (its length byte matched), but its contents
+    were corrupted on the way, so nothing in it can be trusted.
+    """
 
 
 # --------------------------------------------------------------------------
@@ -103,28 +113,25 @@ def frame(body: bytes) -> bytes:
     return head + bytes([checksum(head)])
 
 
-def unframe(packet: bytes) -> tuple[bytes, bool]:
-    """Strip a packet's length byte and trailing checksum.
+def unframe(packet: bytes) -> bytes:
+    """Strip a packet's length byte and trailing checksum, checking both.
 
     Returns
     -------
-    body : bytes
+    bytes
         The packet contents between the length byte and the checksum.
-    checksum_ok : bool
-        Whether the trailing byte matches the computed checksum.
-
-        This is reported rather than enforced: ``rcb4`` -- the implementation
-        validated against this board -- discards the trailing byte without
-        checking it, so we have no evidence the board actually stamps a
-        checksum on *replies*. Raising here would be a guess. The caller
-        counts mismatches and exposes the count, so a wrong assumption shows up
-        as a number instead of as either a crash or a silent corruption.
 
     Raises
     ------
     ProtocolError
-        If the leading length byte does not match the packet's actual length --
-        that is a framing failure, not an assumption, so it does fail loudly.
+        If the leading length byte does not match the packet's actual length
+        (a framing failure: the stream is out of step).
+    ChecksumError
+        If the trailing byte is not ``(len + sum(body)) & 0xFF``. The board
+        checksums its replies (measured on an RCB-4mini, see
+        ``references.md``), so a mismatch means a corrupted reply, never a
+        board that leaves the byte out. It is a :class:`ProtocolError`, so a
+        caller that only catches that still refuses the packet.
     """
     if len(packet) < 2:
         raise ProtocolError(f"packet too short to be framed: {packet!r}")
@@ -132,8 +139,12 @@ def unframe(packet: bytes) -> tuple[bytes, bool]:
         raise ProtocolError(
             f"length byte {packet[0]} does not match the {len(packet)} bytes received"
             )
-    body = packet[1:-1]
-    return body, packet[-1] == checksum(packet[:-1])
+    expected = checksum(packet[:-1])
+    if packet[-1] != expected:
+        got, packet_hex = packet[-1], bytes(packet).hex()
+        raise ChecksumError(
+            f"checksum byte {got:#04x} is not {expected:#04x} in {packet_hex}")
+    return bytes(packet[1:-1])
 
 
 # --------------------------------------------------------------------------

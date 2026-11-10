@@ -19,6 +19,7 @@ from rcb4.asm import encode_servo_velocity_and_position_to_bytes
 from rcb4.asm import rcb4_checksum
 from rcb4.asm import rcb4_velocity
 from rcb4.ftdi_serial import open_ftdi_serial
+from rcb4.protocol.framing import unframe
 
 # 4000.0 / 135
 deg_to_servovector = 29.62962962962963
@@ -969,6 +970,17 @@ class RCB4Interface:
         return ret
 
     def serial_read(self, timeout=10):
+        """Read one reply packet and return its body.
+
+        Raises
+        ------
+        serial.SerialException
+            If no complete packet arrives within ``timeout``.
+        rcb4.protocol.framing.ChecksumError
+            If the packet arrived whole but its checksum does not match: the
+            board checksums its replies (``rcb4/protocol/references.md``), so
+            the reply was corrupted on the line and is not returned.
+        """
         if self.serial is None:
             raise RuntimeError("Serial is not opened.")
 
@@ -997,7 +1009,7 @@ class RCB4Interface:
                 raise serial.SerialException("Timeout: Incomplete data received.")
             read_data += chunk
             if len(read_data) > 0 and read_data[0] == len(read_data):
-                return read_data[1 : len(read_data) - 1]
+                return unframe(read_data)
 
     def get_version(self):
         byte_list = [0x03, CommandTypes.Version.value, 0x00]

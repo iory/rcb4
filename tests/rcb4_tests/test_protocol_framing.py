@@ -98,9 +98,7 @@ def test_frame_round_trips():
     body = bytes([0x10, 0x01, 0x02])
     packet = protocol.frame(body)
     assert packet[0] == len(packet)
-    decoded, checksum_ok = protocol.unframe(packet)
-    assert decoded == body
-    assert checksum_ok is True
+    assert protocol.unframe(packet) == body
 
 
 def test_unframe_rejects_a_length_mismatch():
@@ -110,14 +108,16 @@ def test_unframe_rejects_a_length_mismatch():
         protocol.unframe(bytes([0x09, 0x01, 0x02]))
 
 
-def test_unframe_reports_a_bad_checksum_without_raising():
-    """The board's replies have never been verified to carry a checksum, so a
-    mismatch is reported for counting rather than treated as fatal."""
+@pytest.mark.parametrize("corrupt", [-1, 1])
+def test_unframe_refuses_a_bad_checksum(corrupt):
+    """The board checksums its replies (measured on an RCB-4mini), so a
+    mismatch -- in the checksum byte or in the body -- is a corrupted packet
+    and raises, as a ProtocolError a caller already catches."""
     packet = bytearray(protocol.frame(bytes([0x10, 0x01])))
-    packet[-1] ^= 0xFF
-    body, checksum_ok = protocol.unframe(bytes(packet))
-    assert body == bytes([0x10, 0x01])
-    assert checksum_ok is False
+    packet[corrupt] ^= 0x40
+    with pytest.raises(protocol.ChecksumError):
+        protocol.unframe(bytes(packet))
+    assert issubclass(protocol.ChecksumError, protocol.ProtocolError)
 
 
 def test_oversized_packet_is_refused():

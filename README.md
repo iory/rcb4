@@ -107,6 +107,8 @@ Things to know:
 - `angle_vector(av, ...)`, `neutral`, `hold` and `free` return the ICS numbers they
   commanded (`[]` when every servo was free), and raise `serial.SerialException`
   if the board does not acknowledge.
+- Every reply's checksum is checked: a reply corrupted on the line raises
+  `rcb4.protocol.framing.ChecksumError` instead of being used.
 - **`angle_vector(av, ...)` returns at once**: the board moves the servos over
   `time`. Call `wait_interpolation()` before the next move, or the next one
   replaces it. A servo that is blocked (gripping, at a stop) counts as arrived; compare

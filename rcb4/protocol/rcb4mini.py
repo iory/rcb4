@@ -39,6 +39,7 @@ from typing import Sequence
 from rcb4.protocol.framing import build_ack  # noqa: F401  (re-exported)
 from rcb4.protocol.framing import build_multi_servo  # noqa: F401  (re-exported)
 from rcb4.protocol.framing import build_version  # noqa: F401  (re-exported)
+from rcb4.protocol.framing import ChecksumError  # noqa: F401  (re-exported)
 from rcb4.protocol.framing import frame  # noqa: F401  (re-exported)
 from rcb4.protocol.framing import ProtocolError
 from rcb4.protocol.framing import unframe  # noqa: F401  (re-exported)

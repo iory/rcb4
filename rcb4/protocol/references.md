@@ -25,6 +25,7 @@ version and batch move are shared, and the memory is not.
 | Config bit 1 runs the ROM program, bit 3 enables vector jumps; `flat_config` clears both | bit names: [17] `ConfigData`, [20] `*rcb4-sysreg-bits*`; [20] `:send-servo-vector-com` clears ROM-run around every servo command, [17] `suspend_motion` clears both. A board without a project powered up with ROM-run set (`0x8313`), once with vector jumps too (`0x831b`), **measured** [19]. Not shown to cause the refusals: they persisted with both cleared |
 | The board sometimes **refuses** a request with `[x, 0x15]` (x seen: 0x00, 0x01, 0x02, 0x0b), and answers the same request moments later | **measured** [19]; [18] retries reads for the same reason |
 | Firmware reply to `VERSION`: `fd "CB-4 V1.0      090715          " c7` | [17] `check_firmware_version`; **recorded** [19] |
+| The board's **replies carry the checksum** (`(len + sum(body)) & 0xFF`), like the requests, so `unframe` raises `ChecksumError` on a mismatch, and `RCB4Interface.serial_read` with it. [17] used to discard the reply's last byte without checking it, which is why this was once left open | **measured** [22]: all 7 replies matched (`VERSION`, a config read, five ICS 2 record reads with the servo limp, held and at -80, 0, 45 deg), and then 500 RAM reads in a row (4, 2 and 126 bytes in turn) parsed with the strict `unframe`: 500 ok, no `ChecksumError`, no NAK; the replies recorded in [19] and pinned in `test_protocol_rcb4mini.py` (ack, RAM reads, record reads) match as well. **Not measured on an ARM-H7**, which shares `unframe` |
 | COM port: **even parity** | [17] `RCB4Interface.open` |
 | Config word at `$0000`; COM rate in bits 6-7: `0` = 115200, `2` = 1.25 Mbit/s; the board acks a config write at the old rate, then switches | **measured** [19] (switched to 2, answered at 1.25 M only) |
 | ICS rate in config bits 13-14: KRS servos set to 1.25 Mbit/s answer with `2`, not `0` or `1` (`3` also answered, meaning unknown, unused) | **measured** [19] |
@@ -67,6 +68,12 @@ version and batch move are shared, and the memory is not.
      documentation `Rcb4.xml`.
      <https://kondo-robot.com/faq/rcb-4-reference-ver-2_0>,
      <https://kondo-robot.com/w/wp-content/uploads/RCB4RefSetV200R20120420.zip>
+[22] Measured 2026-11-10 on an RCB-4mini (firmware `CB-4 V1.0 090715`, one
+     KRS servo at ICS 2 with a bare horn, OWON SPE6103 at 7.4 V) through a
+     Kondo Dual USB Adapter HS (165c:0008), at 1.25 Mbit/s: requests built
+     and replies parsed with `rcb4.protocol` on the port
+     `RCB4Interface.open` had opened, every read compared with
+     `RCB4Interface`'s own.
 
 ### Not sourced — deliberately absent
 

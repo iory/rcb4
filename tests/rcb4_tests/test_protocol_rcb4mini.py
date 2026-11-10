@@ -91,9 +91,7 @@ def test_ram_write_size_is_bounded_by_the_length_byte():
 
 
 def unframed(hex_packet):
-    body, checksum_ok = protocol.unframe(bytes.fromhex(hex_packet))
-    assert checksum_ok
-    return body
+    return protocol.unframe(bytes.fromhex(hex_packet))
 
 
 def test_ack_reply():

@@ -19,6 +19,7 @@ from rcb4.asm import encode_servo_velocity_and_position_to_bytes
 from rcb4.asm import rcb4_checksum
 from rcb4.asm import rcb4_velocity
 from rcb4.ftdi_serial import open_ftdi_serial
+from rcb4.protocol.framing import ProtocolError
 from rcb4.protocol.framing import unframe
 
 # 4000.0 / 135
@@ -269,6 +270,16 @@ dual_usb_product_id = 0x0008
 dual_usb_ftdi_url = "ftdi://Kondo:DUAL USB ADAPTER/1"
 
 
+class FirmwareVersionError(RuntimeError):
+    """What answered is not an RCB-4mini.
+
+    A Dual USB Adapter in ICS mode (red LED) loops every byte back, and the
+    board's ack reply is byte for byte the ack request, so its loopback
+    passes :meth:`RCB4Interface.check_ack`; the version request is where it
+    shows.
+    """
+
+
 class RCB4Interface:
     # The number of data bytes per motion
     MotionSingleDataCount = 2048
@@ -433,6 +444,10 @@ class RCB4Interface:
     def auto_open(self, **open_kwargs):
         """Open the first Dual USB Adapter whose board answers.
 
+        An adapter that is not connected to an RCB-4mini -- one in ICS mode,
+        or another board -- is skipped, so a second adapter plugged in at the
+        same time does not stop the search.
+
         Parameters
         ----------
         **open_kwargs
@@ -443,7 +458,10 @@ class RCB4Interface:
                 try:
                     if self.open(port=port, baudrate=baudrate, **open_kwargs):
                         return True
-                except serial.SerialException:
+                except FirmwareVersionError:
+                    self.close()
+                    break               # an answer, but not an RCB-4mini
+                except (serial.SerialException, ProtocolError):
                     pass
                 self.close()
         return False
@@ -1026,7 +1044,7 @@ class RCB4Interface:
     def check_firmware_version(self):
         version = self.get_version()
         if version != b"\xfdCB-4 V1.0      090715          \xc7":
-            raise RuntimeError(
+            raise FirmwareVersionError(
                 "The firmware version is inconsistent. "
                 + "Perhaps are you using not RCB-4mini?"
                 + " https://kondo-robot.com/product/rcb4_mini"

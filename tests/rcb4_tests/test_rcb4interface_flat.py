@@ -2,11 +2,14 @@ import unittest
 
 import numpy as np
 
+from rcb4.rcb4interface import blank_startup_program
 from rcb4.rcb4interface import blink_startup_program
 from rcb4.rcb4interface import ConfigData
 from rcb4.rcb4interface import ics_unassigned
 from rcb4.rcb4interface import RamAddr
 from rcb4.rcb4interface import RCB4Interface
+from rcb4.rcb4interface import rom_config_and
+from rcb4.rcb4interface import rom_config_or
 from rcb4.rcb4interface import rom_timer_wait
 from rcb4.rcb4interface import ServoOnOffValues
 from rcb4.rcb4interface import startup_timer_wait_bytes
@@ -206,3 +209,80 @@ class TestBlinkProgram(unittest.TestCase):
     def test_hth4_code_is_not_a_blink_program(self):
         interface = FakeRomRCB4Interface(0x8393, project_rom())
         self.assertIsNone(interface.rom_startup_blinks())
+
+
+def run_config_program(code, config):
+    """Run ``code`` from address 0 as the board would, on the config word only.
+
+    Handles the commands blank_startup_program emits: AND / OR / MOV of a
+    literal into RAM, the timer wait (taken as already run out) and jumps.
+    Returns the green LED states seen and the config when the ROM program
+    bit went off.
+    """
+    leds = []
+    pc = 0
+    for _ in range(10000):
+        size, op, kind = code[pc], code[pc + 1], code[pc + 2]
+        command = code[pc:pc + size]
+        if op in (0x00, 0x01, 0x02) and kind == 0x02:
+            address = command[3] | command[4] << 8
+            value = command[6] | command[7] << 8
+            if address == 0x0000:
+                config = {0x00: value, 0x01: config & value, 0x02: config | value}[op]
+                led = bool(config & ConfigData.GreenLED.value)
+                if not leds or leds[-1] != led:
+                    leds.append(led)
+                if not config & ConfigData.EnableRunEeprom.value:
+                    return leds, config
+        elif op == 0x0B:
+            if command[5] == 0x00:
+                raise AssertionError("unconditional jump with the ROM program still on")
+            # Timer wait loop: the timer has run out, fall through.
+        pc += size
+    raise AssertionError("program did not stop")
+
+
+class TestBlankRom(unittest.TestCase):
+    """An erased ROM (no HeartToHeart4 project), as read on 2026-11-11."""
+
+    power_up_config = 0x831B  # measured on a board without a project
+
+    def test_erased_rom_gets_a_stop_program(self):
+        interface = FakeRomRCB4Interface(0x8393, b"\xff" * 0x094B)
+        self.assertFalse(interface.rom_has_project())
+        self.assertEqual(interface.blank_rom_startup(), {"erased": True})
+
+        changed = interface.flatten_rom_startup(blinks=3)
+
+        self.assertEqual(changed["config"], None)
+        self.assertEqual(changed["servo_bytes"], 0)
+        program = blank_startup_program(True, 3, 3)
+        self.assertGreater(changed["program_bytes"], 0)  # bytes that were not 0xFF
+        self.assertEqual(bytes(interface.rom[:len(program)]), program)
+        self.assertEqual(interface.blank_rom_startup(),
+                         {"erased": False, "blinks": 3, "led": True})
+        # A second run writes nothing; another blink count rewrites it.
+        interface.rom_writes = []
+        self.assertEqual(interface.flatten_rom_startup(blinks=3)["program_bytes"], 0)
+        self.assertEqual(interface.rom_writes, [])
+        interface.flatten_rom_startup(blinks=1, led=False)
+        self.assertEqual(interface.blank_rom_startup(),
+                         {"erased": False, "blinks": 1, "led": False})
+
+    def test_program_keeps_baud_rates_and_stops(self):
+        for blinks in (0, 3, 5):
+            leds, config = run_config_program(
+                blank_startup_program(True, blinks, 3), self.power_up_config)
+            # Power-up LED on, then off/on per blink, ending on.
+            self.assertEqual(leds, [True] + [False, True] * blinks)
+            stopped = (ConfigData.EnableRunEeprom.value | ConfigData.EnableReferenceTable.value
+                       | ConfigData.EnableServoResponse.value)
+            self.assertEqual(config, self.power_up_config & ~stopped)
+        leds, config = run_config_program(
+            blank_startup_program(False, 0, 3), self.power_up_config)
+        self.assertFalse(config & ConfigData.GreenLED.value)
+
+    def test_and_or_encoding(self):
+        # Same layout as the MOV literal -> RAM the project's startup uses.
+        self.assertEqual(rom_config_or(0x8000), bytes.fromhex("09020200000000808d"))
+        self.assertEqual(rom_config_and(0x7FFF), bytes.fromhex("090102000000ff7f8a"))

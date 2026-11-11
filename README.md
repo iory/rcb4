@@ -209,6 +209,13 @@ off) at power-up and then leaves it on, so a flat board can be told by eye (at m
 blinks fit in place of the startup code it replaces). The ROM program runs during the
 blinks, about 2 s; `rcb4-rom show` reports the blink count.
 
+A board without a HeartToHeart4 project (its ROM erased, reading 0xFF) has no config word
+or servo records to edit. `flat-startup` writes a small startup program at ROM address 0
+instead, where the board starts its ROM program at power-up: it turns vector jumps and the
+interpolation-end message off, blinks with `--blink`, sets the green LED and turns the ROM
+program off. It changes those bits of the power-up config with AND / OR, so the baud rates
+stay the firmware's, and the ICS table stays unassigned.
+
 ## Contributing
 
 ### Automatic Formatting

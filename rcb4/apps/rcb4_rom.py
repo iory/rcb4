@@ -10,7 +10,9 @@
 the HeartToHeart4 startup routine stops right after it writes the config
 word, before it holds the servos, moves them home or plays the startup
 motion, and every servo record starts free with no trim and no mixing.
-Software then sees the same board whatever project is in its ROM.
+Software then sees the same board whatever project is in its ROM. A ROM
+without a project (erased) gets a small startup program of its own that
+stops the ROM program, after blinking the LED with ``--blink``.
 """
 
 import argparse
@@ -49,7 +51,30 @@ def open_board(port):
     sys.exit(1)
 
 
+def show_blank(blank):
+    """Print what a ROM without a HeartToHeart4 project does at power-up."""
+    print("no HeartToHeart4 project in ROM; ICS numbers assigned at startup: none")
+    if blank["erased"]:
+        print("ROM is erased: the board runs on its firmware defaults "
+              + "(ROM program bit on, but nothing to run)")
+        print("startup is NOT flat (rcb4-rom flat-startup would write a startup "
+              + "program that stops the ROM program)")
+        return
+    if blank["blinks"]:
+        print(f"startup blinks the green LED {blank['blinks']} times, then stops the ROM program")
+    print(f"startup program leaves the green LED {'on' if blank['led'] else 'off'}")
+    print("startup is flat")
+
+
 def show(interface):
+    if not interface.rom_has_project():
+        blank = interface.blank_rom_startup()
+        if blank is None:
+            print("ROM holds neither a HeartToHeart4 project nor a program "
+                  + "rcb4-rom wrote; startup unknown")
+        else:
+            show_blank(blank)
+        return
     config = int.from_bytes(
         interface.read_rom(RomAddr.ConfigDataRomAddress.value, 2), "little")
     flags = {
@@ -110,7 +135,8 @@ def main():
         help="Leave the green LED off at power-up (default: on)")
     flat.add_argument(
         "--blink", type=int, default=0, metavar="N",
-        help="Blink the green LED N times at power-up (1-3), so a flat board "
+        help="Blink the green LED N times at power-up (at most 3 with a HeartToHeart4 "
+        + "project), so a flat board "
         + "can be told by eye")
     flat.add_argument(
         "--backup", default=None,
@@ -137,8 +163,8 @@ def main():
                 old, new = changed["config"]
                 print(f"Startup config {old:#06x} -> {new:#06x}")
             print(f"Servo data: {changed['servo_bytes']} bytes written")
-            if args.blink:
-                print(f"Blink program: {changed['program_bytes']} bytes written")
+            if changed["program_bytes"] or args.blink:
+                print(f"Startup program: {changed['program_bytes']} bytes written")
             if (changed["config"] is None and changed["servo_bytes"] == 0
                     and changed["program_bytes"] == 0):
                 print("The ROM already starts up flat; nothing written")

@@ -192,6 +192,15 @@ startup_timer_wait_bytes = bytes.fromhex(
 # it has run out (RCB-4 firmware reference, ダウンタイマー).
 timer0_address = 0x003C
 timer_tick_time = 0.1
+# AND and OR command bytes (RCB-4 command reference; kxreus rcb4asm.l
+# *rcb4-instructions*: :and #x1, :or #x2), same operand layout as MOV.
+rom_and_command = 0x01
+rom_or_command = 0x02
+# Where the board starts its ROM program at power-up: a HeartToHeart4
+# project's startup routine begins here (its first command writes the
+# config word), and an erased ROM reads 0xFF throughout.
+blank_startup_address = 0x000000
+erased_rom_byte = 0xFF
 
 
 def _rom_command(body):
@@ -247,6 +256,56 @@ def blink_startup_program(base_config, final_config, blinks, ticks,
         raise ValueError(
             f"{blinks} blinks need {len(code)} bytes; "
             + f"{startup_code_end - address} fit before the main loop")
+    return code
+
+
+def rom_config_and(mask):
+    """ROM command: config word (RAM 0x0000) &= literal ``mask``."""
+    return _rom_command([rom_and_command, 0x02, 0x00, 0x00, 0x00,
+                         mask & 0xFF, (mask >> 8) & 0xFF])
+
+
+def rom_config_or(bits):
+    """ROM command: config word (RAM 0x0000) |= literal ``bits``."""
+    return _rom_command([rom_or_command, 0x02, 0x00, 0x00, 0x00,
+                         bits & 0xFF, (bits >> 8) & 0xFF])
+
+
+def blank_startup_program(led, blinks, ticks):
+    """Startup program for a ROM without a HeartToHeart4 project.
+
+    Placed at :data:`blank_startup_address`, where the board starts its
+    ROM program at power-up. The config word the board powers up with is
+    kept except for the bits named here, changed with AND / OR, so the COM
+    and ICS baud rates are whatever the firmware set:
+
+    * vector jumps and the interpolation-end message off first (there are
+      no vectors in a blank ROM);
+    * ``blinks`` blinks of the green LED, ``ticks`` x 100 ms on, as long off;
+    * the green LED on (``led``) or off;
+    * the ROM program off, so the program stops there; a jump to itself
+      follows, as in :func:`blink_startup_program`.
+
+    The ICS table stays unassigned, as a blank ROM leaves it, so no servo
+    is commanded.
+    """
+    address = blank_startup_address
+    green = ConfigData.GreenLED.value
+    word = 0xFFFF
+    code = rom_config_and(word & ~(ConfigData.EnableReferenceTable.value
+                                   | ConfigData.EnableServoResponse.value))
+    for _ in range(blinks):
+        code += rom_config_or(green)
+        code += rom_timer_wait(address + len(code), ticks)
+        code += rom_config_and(word & ~green)
+        code += rom_timer_wait(address + len(code), ticks)
+    code += rom_config_or(green) if led else rom_config_and(word & ~green)
+    code += rom_config_and(word & ~ConfigData.EnableRunEeprom.value)
+    code += _rom_command([CommandTypes.Jump.value] + _address3(address + len(code)) + [0x00])
+    if address + len(code) > rom_project_size:
+        raise ValueError(
+            f"{blinks} blinks need {len(code)} bytes; "
+            + f"{rom_project_size - address} fit in the project area")
     return code
 
 
@@ -816,6 +875,36 @@ class RCB4Interface:
             offset += code[offset]
         return None
 
+    def rom_has_project(self):
+        """Whether the ROM holds a HeartToHeart4 project's startup routine."""
+        return self.read_rom(RomAddr.ConfigCmdExecute.value,
+                             len(config_cmd_execute_bytes)) == config_cmd_execute_bytes
+
+    def blank_rom_startup(self, blink_ticks=3):
+        """What a ROM without a HeartToHeart4 project runs at power-up.
+
+        Returns
+        -------
+        dict or None
+            ``{"erased": True}`` if the project area reads erased (0xFF),
+            ``{"erased": False, "blinks": n, "led": bool}`` if it starts with
+            a :func:`blank_startup_program`, else None (e.g. a project).
+        """
+        code = self.read_rom(blank_startup_address, rom_project_size - blank_startup_address)
+        if code == bytes([erased_rom_byte]) * len(code):
+            return {"erased": True}
+        for led in (True, False):
+            blinks = 0
+            while True:
+                try:
+                    program = blank_startup_program(led, blinks, blink_ticks)
+                except ValueError:
+                    break
+                if code.startswith(program):
+                    return {"erased": False, "blinks": blinks, "led": led}
+                blinks += 1
+        return None
+
     def flatten_rom_startup(self, led=True, blinks=0, blink_ticks=3):
         """Make the board start up flat, persistently, by editing its ROM.
 
@@ -837,6 +926,12 @@ class RCB4Interface:
 
         The COM and ICS baud rates and the ICS table are kept. Back the ROM
         up first (:meth:`backup_rom`); :meth:`restore_rom` puts it back.
+
+        A ROM without a project (erased, as a board that has never had one,
+        or holding a program this wrote before) gets
+        :func:`blank_startup_program` at :data:`blank_startup_address`
+        instead: it has no servo records or config word to edit, and its
+        ICS table stays unassigned.
 
         Parameters
         ----------
@@ -863,16 +958,21 @@ class RCB4Interface:
         Raises
         ------
         RuntimeError
-            If the ROM does not hold the startup routine this expects, in
-            which case nothing is written.
+            If the ROM holds neither the startup routine this expects nor
+            what a ROM without a project holds, in which case nothing is
+            written.
         """
-        if self.read_rom(RomAddr.ConfigCmdExecute.value,
-                         len(config_cmd_execute_bytes)) != config_cmd_execute_bytes:
-            raise RuntimeError(
-                f"ROM at {RomAddr.ConfigCmdExecute.value:#06x} is not the "
-                + "HeartToHeart4 startup's config write; not touching this ROM"
-            )
         changed = {"config": None, "servo_bytes": 0, "program_bytes": 0}
+        if not self.rom_has_project():
+            if self.blank_rom_startup(blink_ticks) is None:
+                raise RuntimeError(
+                    f"ROM at {RomAddr.ConfigCmdExecute.value:#06x} is not the "
+                    + "HeartToHeart4 startup's config write, and the ROM is not "
+                    + "erased either; not touching this ROM"
+                )
+            program = blank_startup_program(led, blinks, blink_ticks)
+            changed["program_bytes"] = self.write_rom(blank_startup_address, program)
+            return changed
         old = int.from_bytes(self.read_rom(RomAddr.ConfigDataRomAddress.value, 2), "little")
         stopped = old & ~(
             ConfigData.EnableRunEeprom.value

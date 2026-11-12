@@ -21,6 +21,7 @@ from rcb4.asm import rcb4_velocity
 from rcb4.ftdi_serial import open_ftdi_serial
 from rcb4.protocol.framing import ProtocolError
 from rcb4.protocol.framing import unframe
+from rcb4.protocol.rcb4mini import is_nak
 
 # 4000.0 / 135
 deg_to_servovector = 29.62962962962963
@@ -124,6 +125,20 @@ rcb4_dof = 36  # servo 35 + 1
 ics_slot_count = 35
 servo_record_size = 20
 servo_current_offset = 0x04  # followed by the reference position
+# A record's first two bytes: 0, then the servo ID the board talks to for
+# it (ICS number = 2 x ID + port; the port, 0 = SIO1-4 and 1 = SIO5-8, comes
+# from the ICS number, not the record). A project's startup routine copies
+# them from ROM. Without one nothing sets them, and on a board whose ROM was
+# erased they power up random (2026-11-12: ICS 2 held 59 00, ICS 5 ef c5),
+# so no servo answered until they were written. Measured on an RCB-4mini
+# with 22 servos (2026-11-12): with byte 0 = 0 all 22 answered, 12 on even
+# and 10 on odd ICS numbers; with byte 0 = 1 none of the 10 odd ones did,
+# and after byte 0 = 2 the board answered nothing until power-cycled. A
+# board without a project recorded earlier held 00 01 for ICS 2
+# (tests/rcb4_tests/test_protocol_rcb4mini.py).
+servo_record_head_offset = 0x00
+servo_record_head = 0x00
+servo_id_offset = 0x01
 ics_unassigned = 0xFFFF
 # Servo record members a HeartToHeart project sets (RCB-4 firmware reference,
 # "シリアルサーボ", in Kondo's RCB-4 reference set Ver.2.0,
@@ -175,6 +190,27 @@ rom_chunk_size = 64
 # and paced by rom_write_settle_time.
 rom_page_size = 128
 rom_write_settle_time = 0.02
+# The board sometimes refuses a request with [x, 0x15] and answers the same
+# request a moment later (rcb4/protocol/references.md), and sometimes does
+# not answer at all. Measured on an RCB-4mini (2026-11-11) over 8192 64-byte
+# ROM reads at 1.25 Mbit/s: 3 refusals and 3 replies that never came; each
+# of the 6 was answered when sent again, a lost one after a 0.2 s wait. A
+# full backup sends about 8200 reads, and connecting writes RAM some 400
+# times, so one of these must not end it. A lost reply used to close the
+# port, and the next request then raised "Serial is not opened." out of
+# auto_open (2026-11-12, 1 of 6 connects after a power cycle). ROM and RAM
+# reads and writes are sent again, up to request_retries times, after
+# nak_retry_delay for a refusal or the reply timeout without a reply.
+# A 64-byte reply takes under 1 ms at 1.25 Mbit/s and 6 ms at 115200.
+request_retries = 5
+nak_retry_delay = 0.01
+reply_timeout = 0.5
+# Reply timeout of a servo record read (_angle_vector). Such a read that
+# went unanswered used to reconnect at once (auto_open), which during a
+# servo probe re-ran the probe inside it, changed the ICS baud rate and the
+# assignment table, and left the outer probe with 0 servos or a stray one
+# (2026-11-12, 22 servos found as none or as ICS 5 alone).
+record_read_timeout = 0.1
 # Startup-routine code after RomAddr.ConfigCmdExecute that flatten_rom_startup
 # may replace: free, wait, hold, home and the startup-motion call, up to the
 # main loop (RCB-4 programming manual, EEPROM address map).
@@ -327,6 +363,10 @@ ack_timeout = 0.5
 dual_usb_vendor_id = 0x165C
 dual_usb_product_id = 0x0008
 dual_usb_ftdi_url = "ftdi://Kondo:DUAL USB ADAPTER/1"
+
+
+class ReplyTimeout(serial.SerialException):
+    """No complete reply arrived in time."""
 
 
 class FirmwareVersionError(RuntimeError):
@@ -560,14 +600,31 @@ class RCB4Interface:
     def ics_record_address(ics_number):
         return RamAddr.ServoRamAddress.value + servo_record_size * ics_number
 
+    def _prepare_ics_record(self, ics_number):
+        """Set up the record of one ICS number before it is assigned.
+
+        Head byte 0 and servo ID from the ICS number, current position cleared (a
+        stale value would be taken for a reply), reference free (the board
+        sends it as soon as the number is assigned; 7500 would move the
+        servo to the center with torque on), and both mixings without a
+        source, ratio 1, as on a board without a project. The trim is left
+        to :meth:`flatten_board`.
+        """
+        record = self.ics_record_address(ics_number)
+        free = ServoOnOffValues.OFF.value
+        self.write_move_com_to_ram_command(
+            record + servo_record_head_offset, [servo_record_head, ics_number >> 1])
+        self.write_move_com_to_ram_command(
+            record + servo_current_offset, [0, 0, free & 0xFF, free >> 8, 0])
+        no_mixing = [mixing_no_source & 0xFF, mixing_no_source >> 8, 1]
+        self.write_move_com_to_ram_command(
+            record + servo_mixing_offsets[0], no_mixing * len(servo_mixing_offsets))
+
     def assign_ics_number(self, ics_number):
         """Assign one ICS number (2 x servo ID + port) with the servo left free.
 
-        The reference is set to free before assigning, because the board
-        sends it to the servo as soon as the number is assigned; the stored
-        reference (7500 by default) would otherwise move the servo to the
-        center with torque on. The current position is cleared so that a
-        stale value is not taken for a reply.
+        Its record is set up first (:meth:`_prepare_ics_record`): servo ID,
+        current position cleared, reference free.
 
         Parameters
         ----------
@@ -577,13 +634,9 @@ class RCB4Interface:
         """
         if not 0 <= ics_number < ics_slot_count:
             raise ValueError(f"ICS number must be 0-{ics_slot_count - 1}, got {ics_number}")
-        record = self.ics_record_address(ics_number)
-        free = ServoOnOffValues.OFF.value
-        self.write_move_com_to_ram_command(
-            record + servo_current_offset, [0, 0, free & 0xFF, free >> 8, 0]
-        )
+        self._prepare_ics_record(ics_number)
         table = self.read_ics_assign_table()
-        table[ics_number] = record
+        table[ics_number] = self.ics_record_address(ics_number)
         return self.write_ics_assign_table(table)
 
     def unassign_ics_number(self, ics_number):
@@ -611,20 +664,16 @@ class RCB4Interface:
 
         Notes
         -----
-        The current position of every record is cleared so that a value
-        left from an earlier probe is not taken for a reply, and the
-        reference position is set to free, since the board sends it to the
-        servo as soon as the number is assigned.
+        Every record is set up first (:meth:`_prepare_ics_record`): servo
+        ID, current position cleared so that a value left from an
+        earlier probe is not taken for a reply, reference free.
         """
         records = (
             RamAddr.ServoRamAddress.value
             + servo_record_size * np.arange(ics_slot_count)
         ).astype(np.uint16)
-        free = ServoOnOffValues.OFF.value
-        for record in records:
-            self.write_move_com_to_ram_command(
-                int(record) + servo_current_offset, [0, 0, free & 0xFF, free >> 8, 0]
-            )
+        for ics_number in range(ics_slot_count):
+            self._prepare_ics_record(ics_number)
         self.write_ics_assign_table(records)
         time.sleep(ics_assign_settle_time)
         alive = self._angle_vector()[:ics_slot_count] > 0
@@ -704,12 +753,15 @@ class RCB4Interface:
 
         if changed["config"] is not None:
             print(f"Board config {config:#06x} -> {wanted:#06x} (flat)")
+        # Only the ICS numbers: on a board whose ROM was erased every record
+        # holds random bytes, and the values of all 35 filled the terminal.
+        # The values are in the returned dict.
         if changed["trim"]:
-            print(f"Cleared board trim on ICS {changed['trim']} (ICS number: "
-                  + "trim) and freed those servos")
+            print(f"Cleared board trim on ICS {sorted(changed['trim'])} "
+                  + "and freed those servos")
         if changed["mixing"]:
-            print(f"Disabled board mixing on ICS {changed['mixing']} (ICS number: "
-                  + "[(source, ratio)]) and freed those servos")
+            print(f"Disabled board mixing on ICS {sorted(changed['mixing'])} "
+                  + "and freed those servos")
         return changed
 
     @staticmethod
@@ -717,6 +769,37 @@ class RCB4Interface:
         if not 0 <= address <= 0x3FFFF:
             raise ValueError(f"ROM address must be 0x000000-0x03FFFF, got {address:#x}")
         return [address & 0xFF, (address >> 8) & 0xFF, (address >> 16) & 0xFF]
+
+    def _request(self, byte_list, timeout=reply_timeout):
+        """Send a request, again if refused or not answered.
+
+        For requests that may be sent twice: reads, and ROM writes, which
+        put the same bytes at the same address (:meth:`write_rom` reads
+        them back in any case).
+
+        Returns
+        -------
+        list of int
+            The reply body. Still a refusal if every try was refused; the
+            caller raises on it as on any unexpected reply.
+
+        Raises
+        ------
+        ReplyTimeout
+            If no try was answered (the port is then closed).
+        """
+        for attempt in range(request_retries + 1):
+            last = attempt == request_retries
+            try:
+                reply = self.serial_write(byte_list, timeout=timeout,
+                                          close_on_timeout=last)
+            except ReplyTimeout:
+                if last:
+                    raise
+                continue
+            if not is_nak(bytes(reply)) or last:
+                return reply
+            time.sleep(nak_retry_delay)
 
     def read_rom(self, address, size):
         """Read ``size`` bytes of the board's ROM (EEPROM) from ``address``.
@@ -739,7 +822,7 @@ class RCB4Interface:
             byte_list = [0x0B, CommandTypes.Move.value, mov_rom_to_com, 0x00, 0x00, 0x00]
             byte_list += self._rom_address_bytes(address + len(data)) + [chunk]
             byte_list.append(rcb4_checksum(byte_list))
-            reply = self.serial_write(byte_list)
+            reply = self._request(byte_list)
             if len(reply) != chunk + 1 or reply[0] != CommandTypes.Move.value:
                 raise serial.SerialException(
                     f"ROM read at {address + len(data):#08x} returned {bytes(reply).hex()}"
@@ -794,7 +877,7 @@ class RCB4Interface:
             byte_list = [7 + len(chunk), CommandTypes.Move.value, mov_literal_to_rom]
             byte_list += self._rom_address_bytes(address + offset) + chunk
             byte_list.append(rcb4_checksum(byte_list))
-            reply = self.serial_write(byte_list)
+            reply = self._request(byte_list)
             if list(reply) != [CommandTypes.Move.value, 0x06]:
                 raise serial.SerialException(
                     f"ROM write at {address + offset:#08x} not acknowledged: "
@@ -1072,7 +1155,7 @@ class RCB4Interface:
     def is_opened(self):
         return self.serial is not None
 
-    def serial_write(self, byte_list, timeout=10):
+    def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
         if self.serial is None:
             raise RuntimeError("Serial is not opened.")
 
@@ -1084,16 +1167,25 @@ class RCB4Interface:
             except serial.SerialException as e:
                 self.close()
                 print(f"Error sending data: {e}")
-            ret = self.serial_read(timeout)
+            ret = self.serial_read(timeout, close_on_timeout)
         return ret
 
-    def serial_read(self, timeout=10):
+    def serial_read(self, timeout=10, close_on_timeout=True):
         """Read one reply packet and return its body.
+
+        Parameters
+        ----------
+        timeout : float, optional
+            Seconds to wait for the whole packet.
+        close_on_timeout : bool, optional
+            Close the port when no complete packet arrives (default True).
+            False keeps it open, for a caller that sends the request again.
 
         Raises
         ------
-        serial.SerialException
-            If no complete packet arrives within ``timeout``.
+        ReplyTimeout
+            If no complete packet arrives within ``timeout`` (a
+            serial.SerialException).
         rcb4.protocol.framing.ChecksumError
             If the packet arrived whole but its checksum does not match: the
             board checksums its replies (``rcb4/protocol/references.md``), so
@@ -1116,15 +1208,17 @@ class RCB4Interface:
             else:
                 ready = remaining > 0
             if not ready:
-                self.close()
-                raise serial.SerialException("Timeout: No data received.")
+                if close_on_timeout:
+                    self.close()
+                raise ReplyTimeout("Timeout: No data received.")
 
             chunk = self.serial.read(self.serial.in_waiting or 1)
             if not chunk and not use_select:
                 continue
             if not chunk:
-                self.close()
-                raise serial.SerialException("Timeout: Incomplete data received.")
+                if close_on_timeout:
+                    self.close()
+                raise ReplyTimeout("Timeout: Incomplete data received.")
             read_data += chunk
             if len(read_data) > 0 and read_data[0] == len(read_data):
                 return unframe(read_data)
@@ -1196,7 +1290,7 @@ class RCB4Interface:
 
     def write_move_ram_to_com_command(self, src_addr, src_data_size):
         _, byte_list = self.move_ram_to_com_command(src_addr, src_data_size)
-        return self.serial_write(byte_list)[1:]
+        return self._request(byte_list)[1:]
 
     @staticmethod
     def move_com_to_ram_command(dest_addr, dest_data):
@@ -1219,8 +1313,9 @@ class RCB4Interface:
         return return_data_size, txbuf
 
     def write_move_com_to_ram_command(self, dest_addr, dest_data):
+        # Sent again if unanswered: the same bytes to the same RAM address.
         _, byte_list = self.move_com_to_ram_command(dest_addr, dest_data)
-        return self.serial_write(byte_list)[1:]
+        return self._request(byte_list)[1:]
 
     def reference_angle_vector(self, servo_ids=None):
         if servo_ids is None:
@@ -1260,8 +1355,9 @@ class RCB4Interface:
             while True:
                 _, byte_list = self.move_ram_to_com_command(ram, size)
                 try:
-                    byte_list = self.serial_write(byte_list, timeout=0.1)[1:]
+                    byte_list = self._request(byte_list, timeout=record_read_timeout)[1:]
                 except serial.SerialException as _:
+                    # Every try went unanswered: reconnect.
                     self.auto_open()
                     self.serial.flushInput()
                     continue

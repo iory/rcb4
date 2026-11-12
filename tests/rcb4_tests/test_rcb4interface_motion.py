@@ -34,7 +34,7 @@ class FakeBoard(RCB4Interface):
     def write_move_ram_to_com_command(self, src_addr, src_data_size):
         return list(self.ram[src_addr:src_addr + src_data_size])
 
-    def serial_write(self, byte_list, timeout=10):
+    def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
         self.sent.append(bytes(byte_list))
         return bytes([byte_list[1], self.ack])
 

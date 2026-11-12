@@ -19,7 +19,7 @@ class CapturingInterface(RCB4Interface):
         super().__init__()
         self.sent = []
 
-    def serial_write(self, byte_list, timeout=10):
+    def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
         packet = bytes(byte_list)
         self.sent.append(packet)
         # The reply the board gives to a command it accepted: its opcode and ACK.

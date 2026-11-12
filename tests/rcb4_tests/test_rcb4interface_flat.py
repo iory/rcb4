@@ -8,6 +8,9 @@ from rcb4.rcb4interface import ConfigData
 from rcb4.rcb4interface import ics_unassigned
 from rcb4.rcb4interface import RamAddr
 from rcb4.rcb4interface import RCB4Interface
+from rcb4.rcb4interface import reply_timeout
+from rcb4.rcb4interface import ReplyTimeout
+from rcb4.rcb4interface import request_retries
 from rcb4.rcb4interface import rom_config_and
 from rcb4.rcb4interface import rom_config_or
 from rcb4.rcb4interface import rom_timer_wait
@@ -94,7 +97,7 @@ class FakeRomRCB4Interface(FakeRamRCB4Interface):
         self.rom = bytearray(rom)
         self.rom_writes = []
 
-    def serial_write(self, byte_list, timeout=10):
+    def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
         kind = byte_list[2]
         if kind == 0x23:  # ROM -> COM
             address = byte_list[6] | byte_list[7] << 8 | byte_list[8] << 16
@@ -286,3 +289,90 @@ class TestBlankRom(unittest.TestCase):
         # Same layout as the MOV literal -> RAM the project's startup uses.
         self.assertEqual(rom_config_or(0x8000), bytes.fromhex("09020200000000808d"))
         self.assertEqual(rom_config_and(0x7FFF), bytes.fromhex("090102000000ff7f8a"))
+
+
+class RefusingRomRCB4Interface(FakeRomRCB4Interface):
+    """Refuses ROM requests of type ``kind`` with [0x00, 0x15] ``refusals`` times."""
+
+    def __init__(self, config, rom, refusals, kind=0x23):
+        super().__init__(config, rom)
+        self.refusals = refusals
+        self.kind = kind
+        self.requests = 0
+
+    def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
+        if byte_list[2] == self.kind:
+            self.requests += 1
+            if self.refusals > 0:
+                self.refusals -= 1
+                return [0x00, 0x15]
+        return super().serial_write(byte_list, timeout, close_on_timeout)
+
+
+class TestRomRefusal(unittest.TestCase):
+    """The board refused a ROM read during a backup (2026-11-11, at 0x014940)."""
+
+    def test_a_refused_read_is_sent_again(self):
+        interface = RefusingRomRCB4Interface(0x8393, project_rom(), refusals=2)
+        self.assertEqual(interface.read_rom(0x0333, 11), project_rom()[0x0333:0x0333 + 11])
+        self.assertEqual(interface.requests, 3)
+
+    def test_a_refused_write_is_sent_again(self):
+        interface = RefusingRomRCB4Interface(0x8393, project_rom(), refusals=2, kind=0x32)
+        self.assertEqual(interface.write_rom(0x0100, b"\x12\x34"), 2)
+        self.assertEqual(bytes(interface.rom[0x0100:0x0102]), b"\x12\x34")
+        self.assertEqual(interface.requests, 3)
+
+    def test_a_lost_reply_is_sent_again_without_closing(self):
+        interface = FakeRomRCB4Interface(0x8393, project_rom())
+        sent = []
+        answer = interface.serial_write
+
+        def lose_first(byte_list, timeout=10, close_on_timeout=True):
+            sent.append((timeout, close_on_timeout))
+            if len(sent) == 1:
+                raise ReplyTimeout("Timeout: No data received.")
+            return answer(byte_list, timeout, close_on_timeout)
+
+        interface.serial_write = lose_first
+        self.assertEqual(interface.read_rom(0x0333, 11), project_rom()[0x0333:0x0333 + 11])
+        self.assertEqual(sent, [(reply_timeout, False), (reply_timeout, False)])
+
+    def test_a_read_never_answered_raises(self):
+        interface = FakeRomRCB4Interface(0x8393, project_rom())
+        sent = []
+
+        def lose(byte_list, timeout=10, close_on_timeout=True):
+            sent.append(close_on_timeout)
+            raise ReplyTimeout("Timeout: No data received.")
+
+        interface.serial_write = lose
+        with self.assertRaises(ReplyTimeout):
+            interface.read_rom(0, 4)
+        # Only the last try closes the port.
+        self.assertEqual(sent, [False] * request_retries + [True])
+
+    def test_a_read_refused_every_time_raises(self):
+        import serial
+
+        interface = RefusingRomRCB4Interface(0x8393, project_rom(), refusals=100)
+        with self.assertRaises(serial.SerialException):
+            interface.read_rom(0, 4)
+
+
+class TestAssignRecords(unittest.TestCase):
+    """Records hold random bytes on a board whose ROM was erased (2026-11-11)."""
+
+    def test_assign_writes_id_and_no_mixing(self):
+        interface = FakeRamRCB4Interface(0x8391)
+        for ics_number in (2, 5):
+            interface.ram[record(ics_number):record(ics_number) + 20] = bytes(range(0x60, 0x74))
+            interface.assign_ics_number(ics_number)
+        self.assertEqual(interface.ram[record(2):record(2) + 2], bytes([0, 1]))
+        self.assertEqual(interface.ram[record(5):record(5) + 2], bytes([0, 2]))
+        for ics_number in (2, 5):
+            data = interface.ram[record(ics_number):record(ics_number) + 20]
+            self.assertEqual(data[4:9], bytes([0, 0, 0x00, 0x80, 0]))
+            self.assertEqual(data[14:20], bytes.fromhex("ffff01ffff01"))
+            self.assertEqual(interface.word(RamAddr.IcsAssignAddress.value + 2 * ics_number),
+                             record(ics_number))

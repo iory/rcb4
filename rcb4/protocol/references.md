@@ -27,7 +27,7 @@ version and batch move are shared, and the memory is not.
 | Firmware reply to `VERSION`: `fd "CB-4 V1.0      090715          " c7` | [17] `check_firmware_version`; **recorded** [19] |
 | The board's **replies carry the checksum** (`(len + sum(body)) & 0xFF`), like the requests, so `unframe` raises `ChecksumError` on a mismatch, and `RCB4Interface.serial_read` with it. [17] used to discard the reply's last byte without checking it, which is why this was once left open | **measured** [22]: all 7 replies matched (`VERSION`, a config read, five ICS 2 record reads with the servo limp, held and at -80, 0, 45 deg), and then 500 RAM reads in a row (4, 2 and 126 bytes in turn) parsed with the strict `unframe`: 500 ok, no `ChecksumError`, no NAK; the replies recorded in [19] and pinned in `test_protocol_rcb4mini.py` (ack, RAM reads, record reads) match as well. **Not measured on an ARM-H7**, which shares `unframe` |
 | COM port: **even parity** | [17] `RCB4Interface.open` |
-| Config word at `$0000`; COM rate in bits 6-7: `0` = 115200, `2` = 1.25 Mbit/s; the board acks a config write at the old rate, then switches | **measured** [19] (switched to 2, answered at 1.25 M only) |
+| Config word at `$0000`; COM rate in bits 6-7: `0` = 115200, `1` = 625000, `2` = 1.25 Mbit/s; the board acks a config write at the old rate, then switches | **measured** [19] (switched to 2, answered at 1.25 M only), [25] (switched to 1, answered at 625 k only) |
 | ICS rate in config bits 13-14: KRS servos set to 1.25 Mbit/s answer with `2`, not `0` or `1` (`3` also answered, meaning unknown, unused) | **measured** [19] |
 | ICS rate code `0` is 115200 bit/s on the ICS line | **measured** 2026-10-16 with a scope on the same rig (lab note, URL not captured); KRS servos set to 115200 (IDs 0, 2, 8) answered with it here, through rcb4 `assign_ics_servos` (config `0x8391`) |
 | ICS assignment table at `$0044`, one `uint16` per ICS number, `$FFFF` = unassigned, else the record address; loaded from the ROM project at power-up. A project may point a number at any 20 bytes of user RAM; a host that wants one record per number maps every such number back to its own record (`$0090` + 20 x number), servo off | [18] `servo_bus_rcb4.cpp` (cites the RCB-4 firmware reference); [21] firmware reference p.15 (records placed anywhere in user RAM `$0090..$048F`); **recorded** [19] |
@@ -102,10 +102,19 @@ and no checksum.
      position read, EEPROM baud field 115200) on a Kondo Dual USB Adapter HS
      in ICS mode, through `ICSServoController` with `rcb4.protocol.ics`. It
      answered nothing at 1.25 M and 625 k (`OSError`, no `IcsReplyError`).
+[25] Measured 2026-11-14 on two RCB-4mini boards (firmware `CB-4 V1.0
+     090715`; one with its ROM erased, one with a HeartToHeart4 project),
+     powered by an OWON SPE6103 at 7.4 V and cycled through it, on a Kondo
+     Dual USB Adapter HS: COM switched with `switch_com_baudrate` to code `1`
+     (config `0x0040`, `0x405b`) and answered at 625000 only; then 1024
+     64-byte ROM reads each, sent once: 0 refused or lost on both boards. At
+     1.25 M the project board lost 1-5 of 1024; the erased one lost 459 of
+     1024 (and 144 of 256 with its config set like the other board's), 0 at
+     625000 and 115200, so the fault is that board's 1.25 M link.
 
 ### Not sourced — deliberately absent
 
-- **625000 bit/s** on COM, and every ICS rate but 115200 and 1.25 M: their
+- **COM baud-rate code `3`**, and every ICS rate but 115200 and 1.25 M: their
   config values were not tried, so asking for one raises.
 - **Why large reads are refused or hang the board.** Not the address (a
   16-byte scan of `$0090..$0400` and `$01FC`+242 alone both answered), not

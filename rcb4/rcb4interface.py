@@ -352,11 +352,16 @@ ics_baudrate_shift = 13  # bit position of ConfigData.IcsBaudrate
 ics_assign_settle_time = 0.1
 com_baudrates = (1250000, 625000, 115200)
 # ConfigData.Baudrate register value for each COM baud rate, checked on an
-# RCB-4mini. 625000 is left out because its value has not been checked.
-com_baudrate_codes = {115200: 0, 1250000: 2}
+# RCB-4mini (625000 on two of them, 2026-11-14, rcb4/protocol/references.md).
+com_baudrate_codes = {115200: 0, 625000: 1, 1250000: 2}
 com_baudrate_shift = 6  # bit position of ConfigData.Baudrate
-# A wrong COM baud rate gets no reply, so do not wait long for it.
-ack_timeout = 0.5
+# A wrong COM baud rate gets no reply, so do not wait long for it. An ack is
+# sent up to request_retries + 1 times (a board whose link drops replies must
+# still be found), so each wrong rate costs about 6 x ack_timeout. Measured
+# on an RCB-4mini (2026-11-14): acks read with a 0.05 s timeout at 115200
+# were answered every time from 0.7 s after power-up on, during its ROM
+# blink program too.
+ack_timeout = 0.1
 
 # Kondo Dual USB Adapter HS. macOS has no driver for this VID, so no
 # /dev/cu.* appears and the adapter is opened through pyftdi instead.
@@ -494,18 +499,41 @@ class RCB4Interface:
         config = (self._config_data & ~mask) | (
             (com_baudrate_codes[baudrate] << com_baudrate_shift) & mask
         )
-        # The board acknowledges at the old baud rate, then switches.
-        self.write_move_com_to_ram_command(
-            RamAddr.ConfigRamAddress.value, [config & 0xFF, config >> 8]
-        )
-        self.close()
-        self.serial = self._open_serial(port, baudrate, timeout)
-        if self.check_ack(timeout=ack_timeout) is not True:
-            print(f"No reply after switching {port} to {baudrate} baud")
+        _, byte_list = self.move_com_to_ram_command(
+            RamAddr.ConfigRamAddress.value, [config & 0xFF, config >> 8])
+        old_baudrate = self.serial.baudrate
+        for _ in range(request_retries + 1):
+            # The board acknowledges at the old baud rate, then switches. A
+            # lost or corrupted acknowledgement leaves it unknown whether it
+            # switched, so the new rate is tried either way, and then the
+            # old one, where the write is sent again.
+            try:
+                reply = self.serial_write(byte_list, timeout=reply_timeout,
+                                          close_on_timeout=False)
+            except (ReplyTimeout, ProtocolError):
+                reply = None
+            if reply is not None and is_nak(bytes(reply)):
+                time.sleep(nak_retry_delay)
+                continue
+            self.close()
+            self.serial = self._open_serial(port, baudrate, timeout)
+            if self._answers_ack():
+                self._config_data = self.get_config()
+                print(f"Switched {port} to {baudrate} baud")
+                return True
+            self.close()
+            self.serial = self._open_serial(port, old_baudrate, timeout)
+            if not self._answers_ack():
+                break
+        print(f"No reply after switching {port} to {baudrate} baud")
+        return False
+
+    def _answers_ack(self):
+        """Whether the board answers an ack at the port's baud rate."""
+        try:
+            return self.check_ack()
+        except (ReplyTimeout, ProtocolError):
             return False
-        self._config_data = self.get_config()
-        print(f"Switched {port} to {baudrate} baud")
-        return True
 
     @staticmethod
     def _is_ftdi_url(port):
@@ -787,13 +815,16 @@ class RCB4Interface:
         ------
         ReplyTimeout
             If no try was answered (the port is then closed).
+        rcb4.protocol.framing.ProtocolError
+            If the last try's reply arrived corrupted (a corrupted reply
+            before it is sent again, as a lost one).
         """
         for attempt in range(request_retries + 1):
             last = attempt == request_retries
             try:
                 reply = self.serial_write(byte_list, timeout=timeout,
                                           close_on_timeout=last)
-            except ReplyTimeout:
+            except (ReplyTimeout, ProtocolError):
                 if last:
                     raise
                 continue
@@ -1224,14 +1255,17 @@ class RCB4Interface:
                 return unframe(read_data)
 
     def get_version(self):
+        # Sent again if refused, lost or corrupted, like any read.
         byte_list = [0x03, CommandTypes.Version.value, 0x00]
-        return self.serial_write(byte_list)
+        return self._request(byte_list)
 
-    def get_ack(self, timeout=10):
+    def get_ack(self, timeout=ack_timeout):
+        # Sent again if refused, lost or corrupted: a board whose COM link
+        # drops replies must not be taken for no board at all.
         byte_list = [0x04, CommandTypes.AckCheck.value, 0x06, 0x08]
-        return self.serial_write(byte_list, timeout=timeout)
+        return self._request(byte_list, timeout=timeout)
 
-    def check_ack(self, timeout=10):
+    def check_ack(self, timeout=ack_timeout):
         ack_byte_list = self.get_ack(timeout=timeout)
         return len(ack_byte_list) > 1 and ack_byte_list[1] == 0x06
 

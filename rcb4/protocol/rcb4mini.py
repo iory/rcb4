@@ -137,9 +137,9 @@ FLAT_FRAME = 0x0010
 
 COM_BITRATE_MASK = 0x00C0
 COM_BITRATE_SHIFT = 6
-#: Config value of the COM baud-rate field per host bit rate. Only the two that
-#: were switched to and answered on a board are listed; 625000 is not.
-COM_BITRATE_CODES = {115200: 0, 1250000: 2}
+#: Config value of the COM baud-rate field per host bit rate, each one switched
+#: to and answered on a board (references.md). Code 3 was never tried.
+COM_BITRATE_CODES = {115200: 0, 625000: 1, 1250000: 2}
 
 ICS_BITRATE_MASK = 0x6000
 ICS_BITRATE_SHIFT = 13

@@ -200,10 +200,12 @@ def test_config_bitrate_fields():
     assert protocol.with_com_bitrate(0xC313, 1250000) == 0xC393
     assert protocol.with_com_bitrate(0xC393, 115200) == 0xC313
     assert protocol.with_ics_bitrate(0x8313, 1250000) == 0xC313
+    assert protocol.with_com_bitrate(0x8313, 625000) == 0x8353
+    assert protocol.com_bitrate_of(0x8353) == 625000
     with pytest.raises(protocol.ProtocolError):
-        protocol.with_com_bitrate(0x8313, 625000)
+        protocol.with_com_bitrate(0x8313, 2000000)
     with pytest.raises(protocol.ProtocolError):
-        protocol.com_bitrate_of(0x8353)
+        protocol.com_bitrate_of(0x83D3)
 
 
 # Generated from rcb4 (github.com/iory/rcb4, e5cd18d) with

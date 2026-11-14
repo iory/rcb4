@@ -21,6 +21,7 @@ import sys
 
 import serial
 
+from rcb4.rcb4interface import com_baudrate_codes
 from rcb4.rcb4interface import com_baudrates
 from rcb4.rcb4interface import ConfigData
 from rcb4.rcb4interface import ics_slot_count
@@ -32,17 +33,29 @@ from rcb4.rcb4interface import servo_mixing_offsets
 from rcb4.rcb4interface import servo_record_size
 from rcb4.rcb4interface import ServoOnOffValues
 
+# The COM baud rate RCB4Interface.open switches to by default.
+default_com_baudrate = 1250000
 
-def open_board(port):
-    """Connect without touching any servo (no flattening, no assignment)."""
+
+def open_board(port, baudrate=default_com_baudrate):
+    """Connect without touching any servo (no flattening, no assignment).
+
+    Parameters
+    ----------
+    port : str or None
+        Serial port or ftdi:// URL; None for the first Dual USB Adapter.
+    baudrate : int, optional
+        COM baud rate to switch the board to (RAM only) for the session.
+    """
     interface = RCB4Interface()
     if port is None:
-        if interface.auto_open(servos=False):
+        if interface.auto_open(servos=False, target_baudrate=baudrate):
             return interface
     else:
-        for baudrate in com_baudrates:
+        for current in com_baudrates:
             try:
-                if interface.open(port=port, baudrate=baudrate, servos=False):
+                if interface.open(port=port, baudrate=current, servos=False,
+                                  target_baudrate=baudrate):
                     return interface
             except serial.SerialException:
                 pass
@@ -121,6 +134,12 @@ def main():
         description="Read, back up, restore and flatten the ROM of an RCB-4 board.")
     parser.add_argument("--port", default=None,
                         help="Serial port or ftdi:// URL (default: the first Dual USB Adapter)")
+    parser.add_argument(
+        "--baud", type=int, default=default_com_baudrate,
+        choices=sorted(com_baudrate_codes),
+        help="COM baud rate to talk to the board at, set in RAM only, so the "
+        + f"board powers up at its ROM setting again (default: {default_com_baudrate}). "
+        + "Lower it for a board whose ROM reads are refused at 1250000")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("show", help="Print what the board does at power-up")
     backup = sub.add_parser("backup", help="Save the whole ROM to a file")
@@ -143,7 +162,7 @@ def main():
         help="Where to save the ROM first (default: rcb4-rom-<date>.bin here)")
     args = parser.parse_args()
 
-    interface = open_board(args.port)
+    interface = open_board(args.port, args.baud)
     try:
         if args.command == "show":
             show(interface)

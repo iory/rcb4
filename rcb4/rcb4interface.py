@@ -352,8 +352,8 @@ ics_baudrate_shift = 13  # bit position of ConfigData.IcsBaudrate
 ics_assign_settle_time = 0.1
 com_baudrates = (1250000, 625000, 115200)
 # ConfigData.Baudrate register value for each COM baud rate, checked on an
-# RCB-4mini. 625000 is left out because its value has not been checked.
-com_baudrate_codes = {115200: 0, 1250000: 2}
+# RCB-4mini (625000 on two of them, 2026-11-14, rcb4/protocol/references.md).
+com_baudrate_codes = {115200: 0, 625000: 1, 1250000: 2}
 com_baudrate_shift = 6  # bit position of ConfigData.Baudrate
 # A wrong COM baud rate gets no reply, so do not wait long for it.
 ack_timeout = 0.5

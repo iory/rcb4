@@ -24,6 +24,7 @@ import serial
 from rcb4.rcb4interface import com_baudrate_codes
 from rcb4.rcb4interface import com_baudrates
 from rcb4.rcb4interface import ConfigData
+from rcb4.rcb4interface import default_com_baudrate
 from rcb4.rcb4interface import ics_slot_count
 from rcb4.rcb4interface import ics_unassigned
 from rcb4.rcb4interface import mixing_no_source
@@ -32,9 +33,6 @@ from rcb4.rcb4interface import RomAddr
 from rcb4.rcb4interface import servo_mixing_offsets
 from rcb4.rcb4interface import servo_record_size
 from rcb4.rcb4interface import ServoOnOffValues
-
-# The COM baud rate RCB4Interface.open switches to by default.
-default_com_baudrate = 1250000
 
 
 def open_board(port, baudrate=default_com_baudrate):
@@ -139,7 +137,8 @@ def main():
         choices=sorted(com_baudrate_codes),
         help="COM baud rate to talk to the board at, set in RAM only, so the "
         + f"board powers up at its ROM setting again (default: {default_com_baudrate}). "
-        + "Lower it for a board whose ROM reads are refused at 1250000")
+        + "115200 for a board whose link loses replies at 625000; 1250000 is "
+        + "faster on a board whose link holds at that rate")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("show", help="Print what the board does at power-up")
     backup = sub.add_parser("backup", help="Save the whole ROM to a file")

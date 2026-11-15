@@ -350,7 +350,15 @@ ics_baudrate_codes = (2, 1, 0)
 ics_baudrate_shift = 13  # bit position of ConfigData.IcsBaudrate
 # Time for the board to exchange a frame (~16 ms) with newly assigned servos.
 ics_assign_settle_time = 0.1
-com_baudrates = (1250000, 625000, 115200)
+# COM baud rate open() switches the board to. 625000, not 1.25 M: one
+# RCB-4mini lost 459 of 1024 ROM reads at 1.25 M and none at 625000, and a
+# full read + write control cycle still takes 17 ms there, about the board's
+# 15 ms output cycle (rcb4/protocol/references.md [25], [26]).
+default_com_baudrate = 625000
+# Rates to look for a board on: the default first (a board this driver left
+# running), then 115200 (what the erased board here powers up at), then 1.25 M
+# (what older rcb4 switched to).
+com_baudrates = (625000, 115200, 1250000)
 # ConfigData.Baudrate register value for each COM baud rate, checked on an
 # RCB-4mini (625000 on two of them, 2026-11-14, rcb4/protocol/references.md).
 com_baudrate_codes = {115200: 0, 625000: 1, 1250000: 2}
@@ -409,9 +417,9 @@ class RCB4Interface:
     def open(
         self,
         port="/dev/ttyUSB0",
-        baudrate=1250000,
+        baudrate=default_com_baudrate,
         timeout=0.01,
-        target_baudrate=1250000,
+        target_baudrate=default_com_baudrate,
         flat=True,
         servos=True,
     ):
@@ -428,8 +436,8 @@ class RCB4Interface:
             The timeout for the serial connection in seconds (default is 0.01).
         target_baudrate : int or None, optional
             COM baud rate to switch the board to after connecting (default is
-            1250000). Only RAM is written, so the board goes back to its ROM
-            setting on power off. None keeps ``baudrate``.
+            625000, ``default_com_baudrate``). Only RAM is written, so the
+            board goes back to its ROM setting on power off. None keeps ``baudrate``.
         flat : bool, optional
             If True (default), run the board as a board without a
             HeartToHeart project, whatever project its ROM holds

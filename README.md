@@ -204,10 +204,12 @@ servo record start free, with no trim and no mixing. The green LED is lit from p
 (`--no-led` to leave it off). The COM and ICS baud rates and the
 ICS table are kept. Pass `--port` to pick the adapter.
 
-`rcb4-rom` talks to the board at 1.25 Mbit/s (switched in RAM, so the board powers up at
-its ROM setting again). `--baud 625000` or `--baud 115200` picks a lower rate, for a board
-whose 1.25 Mbit/s link loses replies (one RCB-4mini lost 459 of 1024 ROM reads at 1.25 M
-and none at 625 k); a whole-ROM backup then takes longer.
+`rcb4-rom`, like `RCB4Interface.open`, talks to the board at 625000 baud (switched in RAM,
+so the board powers up at its ROM setting again). Not 1.25 Mbit/s: one RCB-4mini lost 459
+of 1024 ROM reads at 1.25 M and none at 625 k, and at 625 k a control cycle that reads every
+servo record and writes 22 targets still takes 17 ms (58.8 Hz), about the board's 15 ms
+output cycle. `--baud 1250000` is faster on a board whose link holds at that rate;
+`--baud 115200` is slower.
 
 `rcb4-rom flat-startup --blink 3` also blinks the green LED 3 times (0.3 s on, 0.3 s
 off) at power-up and then leaves it on, so a flat board can be told by eye (at most 3

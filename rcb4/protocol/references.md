@@ -111,6 +111,14 @@ and no checksum.
      1.25 M the project board lost 1-5 of 1024; the erased one lost 459 of
      1024 (and 144 of 256 with its config set like the other board's), 0 at
      625000 and 115200, so the fault is that board's 1.25 M link.
+[26] Measured 2026-11-15 on the erased RCB-4mini of [25], no servo attached,
+     same adapter and supply: one cycle = five 126-byte RAM reads of the 35
+     servo records + one multi-servo write of 32768 to ICS 0-21 (acked).
+     625000: 3000 cycles, mean 17.01 ms, p99 17.99, max 18.95 (58.8 Hz), 0
+     of 18005 requests lost, corrupted or refused; reading only ICS 0-21's
+     records (`plan_record_reads`, 4 reads) 12.00 ms (83.3 Hz). 115200: 1000
+     cycles, 76.90 ms (13.0 Hz), 0 of 6005. 1.25 M: `open` failed in
+     `flatten_board` (a record read answered 1 byte), so not measured.
 
 ### Not sourced — deliberately absent
 

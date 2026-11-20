@@ -809,9 +809,10 @@ class RCB4Interface:
     def _request(self, byte_list, timeout=reply_timeout):
         """Send a request, again if refused or not answered.
 
-        For requests that may be sent twice: reads, and ROM writes, which
+        For requests that may be sent twice: reads, ROM writes, which
         put the same bytes at the same address (:meth:`write_rom` reads
-        them back in any case).
+        them back in any case), and servo commands, which set absolute
+        targets or free the servos.
 
         Returns
         -------
@@ -1797,8 +1798,8 @@ class RCB4Interface:
         byte_list.insert(0, 2 + len(byte_list))
         byte_list.append(rcb4_checksum(byte_list))
 
-        # send the command
-        reply = self.serial_write(byte_list)
+        # send the command; absolute targets (and free) can be sent again
+        reply = self._request(byte_list)
         if list(reply) != [byte_list[1], 0x06]:
             raise serial.SerialException(
                 f"Servo command was not acknowledged: {bytes(reply).hex()}")

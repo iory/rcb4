@@ -5,7 +5,7 @@ except ImportError:
     PYFTDI_AVAILABLE = False
 
 
-def open_ftdi_serial(url, baudrate, timeout, parity="E"):
+def open_ftdi_serial(url, baudrate, timeout, parity="E", latency_timer_ms=1):
     """Open a pyftdi serial port without leaking a broken object on failure.
 
     ``serial_for_url`` builds the pyftdi ``Serial`` and opens it in one go.
@@ -14,6 +14,10 @@ def open_ftdi_serial(url, baudrate, timeout, parity="E"):
     finalizer then calls ``close()``, which reads ``self.udev`` and prints
     ``AttributeError: 'Serial' object has no attribute 'udev'`` for every
     failed attempt. Setting ``udev`` before opening lets ``close()`` succeed.
+
+    The FTDI latency timer is set to ``latency_timer_ms``. Its default of
+    16 ms delays every short reply by up to 16 ms, which dominates the time
+    of a request/reply exchange.
 
     Parameters
     ----------
@@ -25,6 +29,8 @@ def open_ftdi_serial(url, baudrate, timeout, parity="E"):
         Read timeout in seconds.
     parity : str, optional
         Parity, ``"E"`` (even) for ICS and RCB-4.
+    latency_timer_ms : int or None, optional
+        FTDI latency timer in ms (1-255). None leaves the chip's setting.
 
     Returns
     -------
@@ -36,4 +42,6 @@ def open_ftdi_serial(url, baudrate, timeout, parity="E"):
     port_serial.udev = None
     port_serial.parity = parity
     port_serial.open()
+    if latency_timer_ms is not None:
+        port_serial.udev.set_latency_timer(latency_timer_ms)
     return port_serial

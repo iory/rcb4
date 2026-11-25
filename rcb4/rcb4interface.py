@@ -19,6 +19,8 @@ from rcb4.asm import encode_servo_velocity_and_position_to_bytes
 from rcb4.asm import rcb4_checksum
 from rcb4.asm import rcb4_velocity
 from rcb4.ftdi_serial import open_ftdi_serial
+from rcb4.protocol import ics as ics_protocol
+from rcb4.protocol import rcb4mini as rcb4mini_protocol
 from rcb4.protocol.framing import ProtocolError
 from rcb4.protocol.framing import unframe
 from rcb4.protocol.rcb4mini import is_nak
@@ -211,6 +213,14 @@ reply_timeout = 0.5
 # assignment table, and left the outer probe with 0 servos or a stray one
 # (2026-11-12, 22 servos found as none or as ICS 5 alone).
 record_read_timeout = 0.1
+# User RAM that ics_relay() borrows for the command and the reply, 0x0400 up
+# to 0x0484; it restores what was there. A HeartToHeart project keeps
+# counters (0x0457) and user parameters (0x0462) in this span, which a power
+# cycle does not clear (rcb4/protocol/references.md).
+ics_relay_address = 0x0400
+# The relay was answered within 1.1 ms (EEPROM read and write included,
+# 1.25 Mbit/s on both lines); a servo at 115200 needs about 7 ms.
+ics_relay_timeout = 0.5
 # Startup-routine code after RomAddr.ConfigCmdExecute that flatten_rom_startup
 # may replace: free, wait, hold, home and the startup-motion call, up to the
 # main loop (RCB-4 programming manual, EEPROM address map).
@@ -1913,6 +1923,242 @@ class RCB4Interface:
         if list(reply) != [CommandTypes.ServoParam.value, 0x06]:
             raise serial.SerialException(f"Stretch was not acknowledged: {bytes(reply).hex()}")
         return True
+
+    def ics_relay(self, servo_id, command):
+        """Send one ICS command to a servo through the board and return the
+        data of its reply.
+
+        The board's ICS relay (``0x0E``) sends bytes from RAM on the servo's
+        ICS line and stores the reply in RAM. The command and the reply are
+        put in user RAM at ``ics_relay_address``, whose contents are restored
+        afterwards.
+
+        Parameters
+        ----------
+        servo_id : int
+            ICS number of a servo the board has found (``search_servo_ids``):
+            the board waits for the reply, and to a number with no servo it
+            answered nothing for over a second, once until power-cycled.
+        command : bytes
+            An ICS command (:mod:`rcb4.protocol.ics`) for the servo's ID,
+            ``servo_id // 2``. ID commands reach every servo on the line and
+            are refused.
+
+        Returns
+        -------
+        bytes
+            What :func:`rcb4.protocol.ics.parse_reply` returns for the reply.
+
+        Raises
+        ------
+        ValueError
+            If ``servo_id`` is no servo found, or ``command`` is an ID command
+            or for another ID.
+        serial.SerialException
+            If the board did not acknowledge the relay.
+        rcb4.protocol.ics.IcsReplyError
+            If the reply is not the answer to ``command``.
+        """
+        command = bytes(command)
+        servo_id = int(servo_id)
+        if servo_id not in [int(i) for i in self.search_servo_ids()]:
+            raise ValueError(
+                f"ICS {servo_id} is no servo the board found; the relay would"
+                + " wait for a reply that never comes")
+        ics_id, port = divmod(servo_id, 2)
+        if not command:
+            raise ValueError("empty ICS command")
+        if command[0] & ics_protocol.CMD_MASK == ics_protocol.CMD_ID:
+            raise ValueError("ID commands reach every servo on the line")
+        if command[0] & ics_protocol.ID_MASK != ics_id:
+            raise ValueError(
+                f"ICS {servo_id} is servo ID {ics_id}; command {command.hex()} is not for it")
+        reply_size = ics_protocol.reply_data_length(command)
+        tx_address = ics_relay_address
+        rx_address = ics_relay_address + rcb4mini_protocol.ICS_RELAY_MAX_BYTES
+        # Two reads, each within the 126 bytes this board reads safely.
+        saved = [(tx_address, self.write_move_ram_to_com_command(tx_address, len(command))),
+                 (rx_address, self.write_move_ram_to_com_command(rx_address, reply_size))]
+        try:
+            self.write_move_com_to_ram_command(tx_address, list(command))
+            # A reply never holds 0xFF (7-bit data, header below 0x80), so a
+            # byte still 0xFF afterwards is one the servo did not send.
+            self.write_move_com_to_ram_command(rx_address, [0xFF] * reply_size)
+            body = rcb4mini_protocol.build_ics_relay(
+                port, len(command), tx_address, rx_address)
+            reply = self.serial_write(list(rcb4mini_protocol.frame(body)),
+                                      timeout=ics_relay_timeout,
+                                      close_on_timeout=False)
+            if not rcb4mini_protocol.is_ics_relay_ack(bytes(reply)):
+                raise serial.SerialException(
+                    f"ICS relay was not acknowledged: {bytes(reply).hex()}")
+            received = bytes(self.write_move_ram_to_com_command(rx_address, reply_size))
+        finally:
+            for address, data in saved:
+                self.write_move_com_to_ram_command(address, list(data))
+        return ics_protocol.parse_reply(command, command + received)
+
+    def read_servo_eeprom(self, servo_id):
+        """The 64 EEPROM values of the servo at ICS number ``servo_id``.
+
+        Decode them with :func:`rcb4.protocol.ics.eeprom_value`, or read named
+        settings with :meth:`servo_settings`.
+        """
+        ics_id = int(servo_id) // 2
+        return list(self.ics_relay(
+            servo_id, ics_protocol.build_read(ics_id, ics_protocol.SC_EEPROM)))
+
+    def write_servo_eeprom(self, servo_id, eeprom):
+        """Write ``eeprom`` to the servo at ICS number ``servo_id`` and return
+        what it reads back.
+
+        The factory calibration and header are taken from the servo's own
+        EEPROM (``rcb4.protocol.ics.EEPROM_PROTECTED``), and so are its ID and
+        baud rate: the board addresses the servo by ID and talks to it at the
+        board's ICS rate, so changing either here would lose the servo.
+        :meth:`set_servo_id` changes the ID and follows the servo; change the
+        baud rate with the servo on an ICS adapter (:mod:`rcb4.ics`).
+
+        Raises
+        ------
+        rcb4.protocol.framing.ProtocolError
+            If the servo reads back other values than were written.
+        """
+        ics_id = int(servo_id) // 2
+        current = self.read_servo_eeprom(servo_id)
+        keep = []
+        for name in ("id", "baud"):
+            first, count, _, _ = ics_protocol.EEPROM_FIELDS[name]
+            keep.extend(range(first, first + count))
+        wanted = ics_protocol.merge_eeprom(current, eeprom, keep=keep)
+        if wanted == current:
+            return current
+        self.ics_relay(servo_id, ics_protocol.build_eeprom_write(ics_id, wanted))
+        written = self.read_servo_eeprom(servo_id)
+        if written != wanted:
+            raise ProtocolError(
+                f"ICS {servo_id} EEPROM reads {bytes(written).hex()} after"
+                + f" writing {bytes(wanted).hex()}")
+        return written
+
+    def servo_settings(self, servo_id):
+        """Every EEPROM field and flag of the servo at ICS number
+        ``servo_id``, by the names of ``rcb4.protocol.ics.EEPROM_FIELDS`` and
+        ``rcb4.protocol.ics.FLAG_BITS`` (flags as bool)."""
+        return ics_protocol.eeprom_settings(self.read_servo_eeprom(servo_id))
+
+    def set_servo_settings(self, servo_id, **settings):
+        """Change EEPROM settings of the servo at ICS number ``servo_id``.
+
+        Parameters
+        ----------
+        servo_id : int
+            ICS number of a servo the board has found.
+        **settings
+            Field or flag names of :meth:`servo_settings`, e.g.
+            ``rotation=True``, ``reverse=False``, ``pwm_inhibit=True``,
+            ``current_limit=40``, ``temperature_limit=70``. ``baud`` and
+            ``slave`` are refused: each makes the servo unreachable for the
+            board (a slave does not reply). ``id`` is refused too: use
+            :meth:`set_servo_id`, which follows the servo to its new ICS
+            number. ``flags`` is refused; set flags by name. ``free`` is
+            read-only.
+
+        Returns
+        -------
+        dict
+            The settings read back after the write.
+
+        Notes
+        -----
+        In rotation mode the board's position target is a speed, so a servo
+        whose ``rotation`` changes is switched off before the write and left
+        off: command it again for what the new mode means.
+        """
+        refused = sorted(set(settings) & {"id", "baud", "slave", "flags"})
+        if refused:
+            raise ValueError(
+                f"{refused} cannot be set here: baud and slave make the servo"
+                + " unreachable for the board, id goes through set_servo_id,"
+                + " flags are set by name")
+        eeprom = self.read_servo_eeprom(servo_id)
+        wanted = list(eeprom)
+        for name, value in settings.items():
+            wanted = ics_protocol.with_eeprom_value(wanted, name, value)
+        if (ics_protocol.eeprom_value(wanted, "rotation")
+                != ics_protocol.eeprom_value(eeprom, "rotation")):
+            self.free([servo_id])
+        return ics_protocol.eeprom_settings(self.write_servo_eeprom(servo_id, wanted))
+
+    def set_servo_id(self, servo_id, new_id):
+        """Give the servo at ICS number ``servo_id`` the ID ``new_id``, and
+        follow it to its new ICS number.
+
+        The board calls a servo by ICS number = 2 x ID + port, so the servo
+        moves to ``2 * new_id + servo_id % 2`` on the same port. That number
+        is assigned with its servo free before the write (a reference left
+        there by a project would move the servo the moment it answers), and
+        the old number is unassigned after it.
+
+        Parameters
+        ----------
+        servo_id : int
+            ICS number of a servo the board has found.
+        new_id : int
+            The new servo ID.
+
+        Returns
+        -------
+        int
+            The servo's new ICS number.
+
+        Raises
+        ------
+        ValueError
+            If ``servo_id`` is no servo found, the new number is out of range,
+            or a servo already answers on it (two servos with one ID on a line
+            would answer together). Nothing is written then.
+        rcb4.protocol.framing.ProtocolError
+            If the servo does not answer on its new number with the new ID.
+        """
+        servo_id, new_id = int(servo_id), int(new_id)
+        new_number = 2 * new_id + servo_id % 2
+        if new_number == servo_id:
+            return servo_id
+        if not 0 <= new_number < ics_slot_count:
+            raise ValueError(
+                f"ID {new_id} on this port is ICS {new_number}; the board has 0-{ics_slot_count - 1}")
+        found = [int(i) for i in self.search_servo_ids()]
+        if servo_id not in found:
+            raise ValueError(f"ICS {servo_id} is no servo the board found")
+        if new_number in found:
+            raise ValueError(f"ICS {new_number} already has a servo with ID {new_id}")
+        previous = int(self.read_ics_assign_table()[new_number])
+        self.assign_ics_number(new_number)
+        time.sleep(ics_assign_settle_time)
+        if self.read_ics_current(new_number):
+            # A servo the board was not talking to already has this ID.
+            table = self.read_ics_assign_table()
+            table[new_number] = previous
+            self.write_ics_assign_table(table)
+            raise ValueError(f"a servo already answers as ID {new_id} on ICS {new_number}")
+        self.free([servo_id])
+        eeprom = self.read_servo_eeprom(servo_id)
+        wanted = ics_protocol.merge_eeprom(
+            eeprom, ics_protocol.with_eeprom_value(eeprom, "id", new_id))
+        self.ics_relay(servo_id, ics_protocol.build_eeprom_write(servo_id // 2, wanted))
+        self.unassign_ics_number(servo_id)
+        # The old record keeps the servo's last position, which would still
+        # be taken for a servo there.
+        self.write_move_com_to_ram_command(
+            self.ics_record_address(servo_id) + servo_current_offset, [0, 0])
+        time.sleep(ics_assign_settle_time)
+        self.servo_sorted_ids = None
+        if new_number not in [int(i) for i in self.search_servo_ids()]:
+            raise ProtocolError(f"no servo answers on ICS {new_number} after the ID write")
+        if self.servo_settings(new_number)["id"] != new_id:
+            raise ProtocolError(f"the servo on ICS {new_number} does not read ID {new_id}")
+        return new_number
 
     @property
     def joint_to_actuator_matrix(self):

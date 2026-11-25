@@ -68,6 +68,19 @@ STRETCH_MAX = 127
 #: Bytes of the ICS number mask in ``OP_SERVO_PARAM``: bit n = ICS number n.
 SERVO_MASK_BYTES = 5
 
+#: ICS relay (ICS通信): send bytes from RAM on one ICS line and store the
+#: servo's reply in RAM, so a host can send any ICS command -- an EEPROM read
+#: or write included -- to a servo on the board. The board learns the reply's
+#: length from the command and waits for it: to a number with no servo it
+#: answered nothing for over a second, and once until power-cycled
+#: (references.md).
+OP_ICS_RELAY = 0x0E
+#: Most bytes one relay sends that were measured: an EEPROM write (command,
+#: sub-command, 64 values). The command reference gives 1..64.
+ICS_RELAY_MAX_BYTES = 66
+#: Last RAM address.
+RAM_END = 0x048F
+
 #: Byte the board puts after the echoed opcode to acknowledge a write or ack.
 ACK_BYTE = 0x06
 #: Second byte of a refusal. The board sometimes answers a request with a
@@ -210,6 +223,27 @@ def build_ram_write(address: int, data: bytes) -> bytes:
                   0x00]) + bytes(data)
 
 
+def build_ics_relay(port: int, count: int, tx_address: int,
+                    rx_address: int) -> bytes:
+    """Body of an ICS relay: send the ``count`` bytes at RAM ``tx_address`` on
+    the ICS line of ``port`` (0 = SIO1-4, 1 = SIO5-8) and store the servo's
+    reply, without the loopback, at RAM ``rx_address``.
+
+    Only for a servo known to be on that line: the board waits for the reply
+    and answers nothing until it comes (see :data:`OP_ICS_RELAY`).
+    """
+    if port not in range(ICS_PORT_COUNT):
+        raise ProtocolError(f"ICS port {port} is not 0 or 1")
+    if not 0 < count <= ICS_RELAY_MAX_BYTES:
+        raise ProtocolError(
+            f"ICS relay of {count} bytes; it carries 1..{ICS_RELAY_MAX_BYTES}")
+    for name, address in (("tx", tx_address), ("rx", rx_address)):
+        if not 0 <= address <= RAM_END:
+            raise ProtocolError(f"{name} address {address:#x} is outside RAM")
+    return bytes([OP_ICS_RELAY, port, count, tx_address & 0xFF, tx_address >> 8,
+                  rx_address & 0xFF, rx_address >> 8])
+
+
 # --------------------------------------------------------------------------
 # Reply parsers
 # --------------------------------------------------------------------------
@@ -233,6 +267,11 @@ def is_write_ack(body: bytes) -> bool:
 def is_stretch_ack(body: bytes) -> bool:
     """Whether ``body`` acknowledges a :func:`build_stretch`."""
     return bytes(body) == bytes([OP_SERVO_PARAM, ACK_BYTE])
+
+
+def is_ics_relay_ack(body: bytes) -> bool:
+    """Whether ``body`` acknowledges a :func:`build_ics_relay`."""
+    return bytes(body) == bytes([OP_ICS_RELAY, ACK_BYTE])
 
 
 def parse_ram_read(body: bytes, size: int) -> bytes:

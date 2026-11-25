@@ -112,6 +112,110 @@ def merge_eeprom(current: Sequence[int], wanted: Sequence[int],
     return wanted
 
 
+#: EEPROM fields: name -> (first 0-based byte, number of 4-bit bytes, lowest
+#: value, highest value), from the manual's EEPROM table (p.23-24). A field's
+#: value is its bytes read as hex digits, most significant first.
+EEPROM_FIELDS = {
+    "stretch": (2, 2, 2, 254),
+    "speed": (4, 2, 1, 127),
+    "punch": (6, 2, 0, 10),
+    "dead_band": (8, 2, 0, 5),
+    "damping": (10, 2, 1, 255),
+    "safe_timer": (12, 2, 10, 255),
+    "flags": (14, 2, 0, 0xFF),
+    "pulse_max": (16, 4, 3500, 11500),
+    "pulse_min": (20, 4, 3500, 11500),
+    "baud": (26, 2, 0, 0x0A),
+    "temperature_limit": (28, 2, 1, 127),
+    "current_limit": (30, 2, 1, 63),
+    "response": (50, 2, 1, 5),
+    "user_offset": (52, 2, -127, 127),
+    "id": (56, 2, 0, MAX_ID),
+}
+
+#: Bits of the ``flags`` field (p.24, フラグの詳細).
+FLAG_BITS = {
+    "slave": 0x80,
+    "rotation": 0x10,
+    "pwm_inhibit": 0x08,
+    "free": 0x02,
+    "reverse": 0x01,
+}
+#: Flag bit that is always 1 (1固定: "write nothing but 1").
+FLAG_FIXED_ONE = 0x04
+#: Flags the servo reports but takes no write of (FREE: 読み出し参照のみ可).
+FLAG_READ_ONLY = ("free",)
+
+#: ``baud`` field value per bit rate (p.23).
+EEPROM_BAUD_CODES = {115200: 0x0A, 625000: 0x01, 1250000: 0x00}
+
+
+def _check_eeprom(eeprom: Sequence[int]) -> list:
+    eeprom = [int(v) for v in eeprom]
+    if len(eeprom) != EEPROM_BYTES:
+        raise ProtocolError(
+            f"EEPROM has {len(eeprom)} values; it is {EEPROM_BYTES}")
+    return eeprom
+
+
+def eeprom_value(eeprom: Sequence[int], name: str) -> int:
+    """The value of field ``name`` (:data:`EEPROM_FIELDS`) or flag ``name``
+    (:data:`FLAG_BITS`, as 0 or 1) in ``eeprom``."""
+    eeprom = _check_eeprom(eeprom)
+    if name in FLAG_BITS:
+        return int(bool(eeprom_value(eeprom, "flags") & FLAG_BITS[name]))
+    if name not in EEPROM_FIELDS:
+        raise ProtocolError(f"no EEPROM field {name!r}")
+    first, count, low, _ = EEPROM_FIELDS[name]
+    value = 0
+    for nibble in eeprom[first:first + count]:
+        value = value << 4 | nibble & 0x0F
+    if low < 0 and value & 0x80:
+        value -= 0x100
+    return value
+
+
+def eeprom_settings(eeprom: Sequence[int]) -> dict:
+    """Every field of :data:`EEPROM_FIELDS` and flag of :data:`FLAG_BITS`
+    (as bool) in ``eeprom``."""
+    settings = {name: eeprom_value(eeprom, name) for name in EEPROM_FIELDS}
+    settings.update({name: bool(eeprom_value(eeprom, name)) for name in FLAG_BITS})
+    return settings
+
+
+def with_eeprom_value(eeprom: Sequence[int], name: str, value: int) -> list:
+    """``eeprom`` with field or flag ``name`` set to ``value``.
+
+    Raises
+    ------
+    ProtocolError
+        If ``value`` is outside the field's range, the flag is read-only, or
+        ``name`` is a protected byte's field.
+    """
+    eeprom = _check_eeprom(eeprom)
+    value = int(value)
+    if name in FLAG_BITS:
+        if name in FLAG_READ_ONLY:
+            raise ProtocolError(f"flag {name!r} is read-only")
+        flags = eeprom_value(eeprom, "flags")
+        flags = flags | FLAG_BITS[name] if value else flags & ~FLAG_BITS[name]
+        return with_eeprom_value(eeprom, "flags", flags)
+    if name not in EEPROM_FIELDS:
+        raise ProtocolError(f"no EEPROM field {name!r}")
+    first, count, low, high = EEPROM_FIELDS[name]
+    _check_7bit(name, value, low, high)
+    if name == "flags":
+        # FREE is the servo's to report: written back as read.
+        free = FLAG_BITS["free"]
+        value = value & ~free | eeprom_value(eeprom, "flags") & free | FLAG_FIXED_ONE
+    if name == "stretch" and value % 2:
+        raise ProtocolError(f"stretch {value} is odd; the EEPROM takes even values")
+    raw = value & (1 << 4 * count) - 1
+    for i in range(count):
+        eeprom[first + i] = raw >> 4 * (count - 1 - i) & 0x0F
+    return eeprom
+
+
 #: ID command sub-commands, sent three times.
 SC_ID_READ = 0x00
 SC_ID_WRITE = 0x01

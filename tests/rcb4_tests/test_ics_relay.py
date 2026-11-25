@@ -89,26 +89,37 @@ class RelayBoard(RCB4Interface):
     """A board with RAM and one servo at ICS ``servo``, answering the relay
     as the recorded board did."""
 
-    def __init__(self, servo=3, eeprom=EEPROM):
+    def __init__(self, servo=3, eeprom=EEPROM, others=None):
         super().__init__()
         self.ram = bytearray(range(256)) * 5
         self.servo = servo
         self.eeprom = list(eeprom)
+        # ICS number -> {sub-command: value} of servos that only answer reads.
+        self.others = dict(others or {})
         self.relays = []
         self.freed = []
 
     def search_servo_ids(self):
-        return [self.servo]
+        return sorted([self.servo] + list(self.others))
 
     def free(self, servo_ids=None):
         self.freed.extend(servo_ids)
 
-    def _relay(self, port, count, tx, rx):
+    def _board_relay(self, port, count, tx, rx):
+        if tx & 0xFF:
+            return False                  # measured: no reply, then 0E 15
         command = bytes(self.ram[tx:tx + count])
         self.relays.append(command)
         ics_id = command[0] & ics.ID_MASK
-        assert 2 * ics_id + port == self.servo
-        if command[0] & ics.CMD_MASK == ics.CMD_READ:
+        number = 2 * ics_id + port
+        if number in self.others:
+            value = self.others[number][command[1]]
+            self.ram[rx:rx + 3] = bytes([0x20 | ics_id, command[1], value])
+            return True
+        assert number == self.servo
+        if command[:2] == bytes([0xA0 | ics_id, ics.SC_CURRENT]):
+            reply = bytes([0x20 | ics_id, ics.SC_CURRENT, 0])
+        elif command[0] & ics.CMD_MASK == ics.CMD_READ:
             reply = bytes([0x20 | ics_id, 0]) + bytes(self.eeprom)
         else:
             self.eeprom = list(command[2:])
@@ -116,6 +127,7 @@ class RelayBoard(RCB4Interface):
             # The servo answers to its new ID from now on (measured).
             self.servo = 2 * ics.eeprom_value(self.eeprom, "id") + port
         self.ram[rx:rx + len(reply)] = reply
+        return True
 
     def read_ics_current(self, ics_number):
         return 7461 if ics_number == self.servo else 0
@@ -130,8 +142,10 @@ class RelayBoard(RCB4Interface):
             self.ram[address:address + len(data)] = data
             return bytes([protocol.OP_MOVE, protocol.ACK_BYTE])
         if body[0] == protocol.OP_ICS_RELAY:
-            self._relay(body[1], body[2], body[3] | body[4] << 8, body[5] | body[6] << 8)
-            return bytes([protocol.OP_ICS_RELAY, protocol.ACK_BYTE])
+            answered = self._board_relay(
+                body[1], body[2], body[3] | body[4] << 8, body[5] | body[6] << 8)
+            return bytes([protocol.OP_ICS_RELAY,
+                          protocol.ACK_BYTE if answered else protocol.NAK_BYTE])
         raise AssertionError(f"unexpected request {body.hex()}")
 
 
@@ -191,9 +205,10 @@ def test_set_servo_id_follows_the_servo():
     assert board.servo == 11
     assert ics.eeprom_value(board.eeprom, "id") == 5
     assert board.freed == [3]
+    before = RelayBoard().read_ics_assign_table()
     table = board.read_ics_assign_table()
     assert table[11] == board.ics_record_address(11)
-    assert table[3] == 0xFFFF
+    assert table[3] == before[3]
 
 
 def test_set_servo_id_refuses_an_id_in_use():
@@ -203,3 +218,21 @@ def test_set_servo_id_refuses_an_id_in_use():
         board.set_servo_id(3, 5)
     assert board.relays == []
     assert board.read_ics_assign_table()[11] != board.ics_record_address(11)
+
+
+def test_current_and_temperature_of_every_servo_in_one_batch():
+    board = RelayBoard(others={5: {ics.SC_CURRENT: 64 + 15, ics.SC_TEMPERATURE: 60},
+                               7: {ics.SC_CURRENT: 20, ics.SC_TEMPERATURE: 0}})
+    before = bytes(board.ram)
+    current = board.read_servo_current()
+    assert current.tolist() == pytest.approx([0.0, -1.5, 2.0])
+    temperature = board.read_servo_temperature([5, 7])
+    assert temperature[0] == pytest.approx(80, abs=1) and temperature[1] == 0
+    assert bytes(board.ram) == before
+
+
+def test_replies_that_do_not_fit_are_sent_in_more_batches():
+    board = RelayBoard(others={})
+    eeprom_read = ics.build_read(1, ics.SC_EEPROM)
+    replies = board.ics_relay_many([(3, eeprom_read)] * 3)
+    assert [list(r) for r in replies] == [EEPROM] * 3

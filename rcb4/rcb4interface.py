@@ -24,6 +24,7 @@ from rcb4.protocol import rcb4mini as rcb4mini_protocol
 from rcb4.protocol.framing import ProtocolError
 from rcb4.protocol.framing import unframe
 from rcb4.protocol.rcb4mini import is_nak
+from rcb4.temperature import setting_value_to_temperature
 
 # 4000.0 / 135
 deg_to_servovector = 29.62962962962963
@@ -213,14 +214,16 @@ reply_timeout = 0.5
 # assignment table, and left the outer probe with 0 servos or a stray one
 # (2026-11-12, 22 servos found as none or as ICS 5 alone).
 record_read_timeout = 0.1
-# User RAM that ics_relay() borrows for the command and the reply, 0x0400 up
-# to 0x0484; it restores what was there. A HeartToHeart project keeps
-# counters (0x0457) and user parameters (0x0462) in this span, which a power
-# cycle does not clear (rcb4/protocol/references.md).
+# User RAM that ics_relay() borrows for the command and the replies, 0x0400 up
+# to at most 0x048F; it restores what was there. The command has to start at
+# a multiple of 0x100 (rcb4/protocol/references.md). A HeartToHeart project
+# keeps counters (0x0457) and user parameters (0x0462) in this span.
 ics_relay_address = 0x0400
 # The relay was answered within 1.1 ms (EEPROM read and write included,
-# 1.25 Mbit/s on both lines); a servo at 115200 needs about 7 ms.
-ics_relay_timeout = 0.5
+# 1.25 Mbit/s on both lines). Without a reply from the servo the board waits
+# 2.08 s and then refuses (0E 15); waiting longer reads that refusal instead
+# of leaving it for the next request.
+ics_relay_timeout = 2.5
 # Startup-routine code after RomAddr.ConfigCmdExecute that flatten_rom_startup
 # may replace: free, wait, hold, home and the startup-motion call, up to the
 # main loop (RCB-4 programming manual, EEPROM address map).
@@ -1937,8 +1940,8 @@ class RCB4Interface:
         ----------
         servo_id : int
             ICS number of a servo the board has found (``search_servo_ids``):
-            the board waits for the reply, and to a number with no servo it
-            answered nothing for over a second, once until power-cycled.
+            the board waits for the reply, and for a number with no servo it
+            answers nothing for 2.08 s and then refuses.
         command : bytes
             An ICS command (:mod:`rcb4.protocol.ics`) for the servo's ID,
             ``servo_id // 2``. ID commands reach every servo on the line and
@@ -1959,44 +1962,164 @@ class RCB4Interface:
         rcb4.protocol.ics.IcsReplyError
             If the reply is not the answer to ``command``.
         """
-        command = bytes(command)
-        servo_id = int(servo_id)
-        if servo_id not in [int(i) for i in self.search_servo_ids()]:
+        return self.ics_relay_many([(servo_id, command)])[0]
+
+    def ics_relay_many(self, requests):
+        """Send ICS commands to servos through the board, one after another,
+        and return the data of each reply.
+
+        Like :meth:`ics_relay`, with the RAM saved, cleared and read back once
+        for all of them: one relay per command plus a few requests per batch,
+        instead of six requests per command. The board takes one relay at a
+        time (a second one sent before the first was answered is lost), so
+        they are still sent one by one.
+
+        Parameters
+        ----------
+        requests : sequence of (int, bytes)
+            ``(servo_id, command)`` pairs, as for :meth:`ics_relay`. Every
+            one is checked before anything is sent.
+
+        Returns
+        -------
+        list of bytes
+            The reply data, in the order of ``requests``.
+        """
+        found = [int(i) for i in self.search_servo_ids()]
+        requests = [(int(servo_id), bytes(command)) for servo_id, command in requests]
+        for servo_id, command in requests:
+            self._check_relay_request(servo_id, command, found)
+        replies = []
+        start = 0
+        while start < len(requests):
+            batch = self._relay_batch(requests[start:])
+            replies.extend(self._send_relay_batch(batch))
+            start += len(batch)
+        return replies
+
+    @staticmethod
+    def _check_relay_request(servo_id, command, found):
+        if servo_id not in found:
             raise ValueError(
-                f"ICS {servo_id} is no servo the board found; the relay would"
-                + " wait for a reply that never comes")
-        ics_id, port = divmod(servo_id, 2)
+                f"ICS {servo_id} is no servo the board found; the board would"
+                + " wait 2 s for a reply that never comes")
         if not command:
             raise ValueError("empty ICS command")
         if command[0] & ics_protocol.CMD_MASK == ics_protocol.CMD_ID:
             raise ValueError("ID commands reach every servo on the line")
+        ics_id = servo_id // 2
         if command[0] & ics_protocol.ID_MASK != ics_id:
             raise ValueError(
                 f"ICS {servo_id} is servo ID {ics_id}; command {command.hex()} is not for it")
-        reply_size = ics_protocol.reply_data_length(command)
+        if len(command) > rcb4mini_protocol.ICS_RELAY_MAX_BYTES:
+            raise ValueError(f"ICS command of {len(command)} bytes is too long to relay")
+
+    @staticmethod
+    def _relay_batch(requests):
+        """The leading requests whose replies fit in RAM after the command
+        area (at least one)."""
+        tx_size = max(len(command) for _, command in requests)
+        room = rcb4mini_protocol.RAM_END + 1 - (ics_relay_address + tx_size)
+        batch, used = [], 0
+        for request in requests:
+            size = ics_protocol.reply_data_length(request[1])
+            if batch and used + size > room:
+                break
+            batch.append(request)
+            used += size
+        return batch
+
+    def _read_ram(self, address, size):
+        data = b""
+        while len(data) < size:
+            n = min(rcb4mini_protocol.READ_CHUNK_BYTES, size - len(data))
+            data += bytes(self.write_move_ram_to_com_command(address + len(data), n))
+        return data
+
+    def _write_ram(self, address, data):
+        data = bytes(data)
+        for i in range(0, len(data), rcb4mini_protocol.READ_CHUNK_BYTES):
+            self.write_move_com_to_ram_command(
+                address + i, list(data[i:i + rcb4mini_protocol.READ_CHUNK_BYTES]))
+
+    def _send_relay_batch(self, batch):
+        # The command must start at a multiple of 0x100: from any other
+        # address the board sent nothing the servo answered
+        # (rcb4/protocol/references.md), so every command goes to
+        # ics_relay_address in turn and the replies follow it.
         tx_address = ics_relay_address
-        rx_address = ics_relay_address + rcb4mini_protocol.ICS_RELAY_MAX_BYTES
-        # Two reads, each within the 126 bytes this board reads safely.
-        saved = [(tx_address, self.write_move_ram_to_com_command(tx_address, len(command))),
-                 (rx_address, self.write_move_ram_to_com_command(rx_address, reply_size))]
+        tx_size = max(len(command) for _, command in batch)
+        rx_address = tx_address + tx_size
+        sizes = [ics_protocol.reply_data_length(command) for _, command in batch]
+        span = tx_size + sum(sizes)
+        saved = self._read_ram(tx_address, span)
         try:
-            self.write_move_com_to_ram_command(tx_address, list(command))
             # A reply never holds 0xFF (7-bit data, header below 0x80), so a
             # byte still 0xFF afterwards is one the servo did not send.
-            self.write_move_com_to_ram_command(rx_address, [0xFF] * reply_size)
-            body = rcb4mini_protocol.build_ics_relay(
-                port, len(command), tx_address, rx_address)
-            reply = self.serial_write(list(rcb4mini_protocol.frame(body)),
-                                      timeout=ics_relay_timeout,
-                                      close_on_timeout=False)
-            if not rcb4mini_protocol.is_ics_relay_ack(bytes(reply)):
-                raise serial.SerialException(
-                    f"ICS relay was not acknowledged: {bytes(reply).hex()}")
-            received = bytes(self.write_move_ram_to_com_command(rx_address, reply_size))
+            self._write_ram(rx_address, b"\xff" * sum(sizes))
+            offset = rx_address
+            for (servo_id, command), size in zip(batch, sizes):
+                self.write_move_com_to_ram_command(tx_address, list(command))
+                body = rcb4mini_protocol.build_ics_relay(
+                    servo_id % 2, len(command), tx_address, offset)
+                reply = self.serial_write(list(rcb4mini_protocol.frame(body)),
+                                          timeout=ics_relay_timeout,
+                                          close_on_timeout=False)
+                if not rcb4mini_protocol.is_ics_relay_ack(bytes(reply)):
+                    raise serial.SerialException(
+                        f"ICS relay to ICS {servo_id} was not acknowledged:"
+                        + f" {bytes(reply).hex()}")
+                offset += size
+            received = self._read_ram(rx_address, sum(sizes))
         finally:
-            for address, data in saved:
-                self.write_move_com_to_ram_command(address, list(data))
-        return ics_protocol.parse_reply(command, command + received)
+            self._write_ram(tx_address, saved)
+        replies, offset = [], 0
+        for (_, command), size in zip(batch, sizes):
+            replies.append(ics_protocol.parse_reply(
+                command, command + received[offset:offset + size]))
+            offset += size
+        return replies
+
+    def _read_servo_values(self, subcommand, servo_ids):
+        if servo_ids is None:
+            servo_ids = self.search_servo_ids()
+        servo_ids = [int(i) for i in servo_ids]
+        replies = self.ics_relay_many(
+            [(i, ics_protocol.build_read(i // 2, subcommand)) for i in servo_ids])
+        return np.array([reply[0] for reply in replies], dtype=np.int32)
+
+    def read_servo_current(self, servo_ids=None):
+        """Current of each servo in amperes, signed by direction (the ICS
+        value is 0.1 A per count, 64..127 the other direction), as
+        ARMH7Interface returns it. Servos that do not measure current
+        (KRS-3301/3302, ICS manual) read 0.
+
+        Parameters
+        ----------
+        servo_ids : array_like, optional
+            ICS numbers. Default: every servo found.
+        """
+        raw = self._read_servo_values(ics_protocol.SC_CURRENT, servo_ids)
+        reverse = raw >= 64
+        amperes = np.where(reverse, raw - 64, raw) / 10.0
+        # + 0.0 turns the -0.0 of a reverse zero into 0.0.
+        return (np.where(reverse, -amperes, amperes) + 0.0).astype(np.float32)
+
+    def read_servo_temperature(self, servo_ids=None):
+        """Temperature of each servo in degrees Celsius, estimated from the
+        ICS value (smaller is hotter) with the table ARMH7Interface uses.
+        A value of 0 is returned as 0: servos that do not measure it
+        (KRS-3301/3302, ICS manual) answer 0, the hottest value.
+
+        Parameters
+        ----------
+        servo_ids : array_like, optional
+            ICS numbers. Default: every servo found.
+        """
+        raw = self._read_servo_values(ics_protocol.SC_TEMPERATURE, servo_ids)
+        celsius = setting_value_to_temperature[raw].astype(np.float32)
+        celsius[raw == 0] = 0
+        return celsius
 
     def read_servo_eeprom(self, servo_id):
         """The 64 EEPROM values of the servo at ICS number ``servo_id``.
@@ -2031,11 +2154,11 @@ class RCB4Interface:
             first, count, _, _ = ics_protocol.EEPROM_FIELDS[name]
             keep.extend(range(first, first + count))
         wanted = ics_protocol.merge_eeprom(current, eeprom, keep=keep)
-        if wanted == current:
+        if ics_protocol.same_eeprom(wanted, current):
             return current
         self.ics_relay(servo_id, ics_protocol.build_eeprom_write(ics_id, wanted))
         written = self.read_servo_eeprom(servo_id)
-        if written != wanted:
+        if not ics_protocol.same_eeprom(written, wanted):
             raise ProtocolError(
                 f"ICS {servo_id} EEPROM reads {bytes(written).hex()} after"
                 + f" writing {bytes(wanted).hex()}")
@@ -2097,8 +2220,8 @@ class RCB4Interface:
         The board calls a servo by ICS number = 2 x ID + port, so the servo
         moves to ``2 * new_id + servo_id % 2`` on the same port. That number
         is assigned with its servo free before the write (a reference left
-        there by a project would move the servo the moment it answers), and
-        the old number is unassigned after it.
+        there by a project would move the servo the moment it answers). The
+        old number's assignment is left as it was.
 
         Parameters
         ----------
@@ -2147,9 +2270,10 @@ class RCB4Interface:
         wanted = ics_protocol.merge_eeprom(
             eeprom, ics_protocol.with_eeprom_value(eeprom, "id", new_id))
         self.ics_relay(servo_id, ics_protocol.build_eeprom_write(servo_id // 2, wanted))
-        self.unassign_ics_number(servo_id)
-        # The old record keeps the servo's last position, which would still
-        # be taken for a servo there.
+        # The old number stays assigned as it was (a project's table is left
+        # alone; with no servo on it the board just gets no reply), but its
+        # record keeps the servo's last position, which would still be taken
+        # for a servo there.
         self.write_move_com_to_ram_command(
             self.ics_record_address(servo_id) + servo_current_offset, [0, 0])
         time.sleep(ics_assign_settle_time)

@@ -175,6 +175,18 @@ def eeprom_value(eeprom: Sequence[int], name: str) -> int:
     return value
 
 
+def same_eeprom(a: Sequence[int], b: Sequence[int]) -> bool:
+    """Whether two EEPROMs hold the same settings: equal but for the FREE
+    flag, which is the servo's state (it changes when the servo is released
+    or held), not a setting."""
+    a, b = _check_eeprom(a), _check_eeprom(b)
+    first = EEPROM_FIELDS["flags"][0] + 1          # the flags' low nibble
+    free = FLAG_BITS["free"]
+    a[first] &= ~free
+    b[first] &= ~free
+    return a == b
+
+
 def eeprom_settings(eeprom: Sequence[int]) -> dict:
     """Every field of :data:`EEPROM_FIELDS` and flag of :data:`FLAG_BITS`
     (as bool) in ``eeprom``."""

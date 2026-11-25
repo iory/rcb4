@@ -2015,8 +2015,9 @@ class RCB4Interface:
         The factory calibration and header are taken from the servo's own
         EEPROM (``rcb4.protocol.ics.EEPROM_PROTECTED``), and so are its ID and
         baud rate: the board addresses the servo by ID and talks to it at the
-        board's ICS rate, so changing either would lose the servo. Change
-        those with the servo on an ICS adapter (:mod:`rcb4.ics`).
+        board's ICS rate, so changing either here would lose the servo.
+        :meth:`set_servo_id` changes the ID and follows the servo; change the
+        baud rate with the servo on an ICS adapter (:mod:`rcb4.ics`).
 
         Raises
         ------
@@ -2056,10 +2057,12 @@ class RCB4Interface:
         **settings
             Field or flag names of :meth:`servo_settings`, e.g.
             ``rotation=True``, ``reverse=False``, ``pwm_inhibit=True``,
-            ``current_limit=40``, ``temperature_limit=70``. ``id``, ``baud``
-            and ``slave`` are refused: each makes the servo unreachable for
-            the board (a slave does not reply). ``flags`` is refused too; set
-            flags by name. ``free`` is read-only.
+            ``current_limit=40``, ``temperature_limit=70``. ``baud`` and
+            ``slave`` are refused: each makes the servo unreachable for the
+            board (a slave does not reply). ``id`` is refused too: use
+            :meth:`set_servo_id`, which follows the servo to its new ICS
+            number. ``flags`` is refused; set flags by name. ``free`` is
+            read-only.
 
         Returns
         -------
@@ -2075,8 +2078,9 @@ class RCB4Interface:
         refused = sorted(set(settings) & {"id", "baud", "slave", "flags"})
         if refused:
             raise ValueError(
-                f"{refused} cannot be set through the board: id, baud and"
-                + " slave make the servo unreachable for it; set flags by name")
+                f"{refused} cannot be set here: baud and slave make the servo"
+                + " unreachable for the board, id goes through set_servo_id,"
+                + " flags are set by name")
         eeprom = self.read_servo_eeprom(servo_id)
         wanted = list(eeprom)
         for name, value in settings.items():
@@ -2085,6 +2089,76 @@ class RCB4Interface:
                 != ics_protocol.eeprom_value(eeprom, "rotation")):
             self.free([servo_id])
         return ics_protocol.eeprom_settings(self.write_servo_eeprom(servo_id, wanted))
+
+    def set_servo_id(self, servo_id, new_id):
+        """Give the servo at ICS number ``servo_id`` the ID ``new_id``, and
+        follow it to its new ICS number.
+
+        The board calls a servo by ICS number = 2 x ID + port, so the servo
+        moves to ``2 * new_id + servo_id % 2`` on the same port. That number
+        is assigned with its servo free before the write (a reference left
+        there by a project would move the servo the moment it answers), and
+        the old number is unassigned after it.
+
+        Parameters
+        ----------
+        servo_id : int
+            ICS number of a servo the board has found.
+        new_id : int
+            The new servo ID.
+
+        Returns
+        -------
+        int
+            The servo's new ICS number.
+
+        Raises
+        ------
+        ValueError
+            If ``servo_id`` is no servo found, the new number is out of range,
+            or a servo already answers on it (two servos with one ID on a line
+            would answer together). Nothing is written then.
+        rcb4.protocol.framing.ProtocolError
+            If the servo does not answer on its new number with the new ID.
+        """
+        servo_id, new_id = int(servo_id), int(new_id)
+        new_number = 2 * new_id + servo_id % 2
+        if new_number == servo_id:
+            return servo_id
+        if not 0 <= new_number < ics_slot_count:
+            raise ValueError(
+                f"ID {new_id} on this port is ICS {new_number}; the board has 0-{ics_slot_count - 1}")
+        found = [int(i) for i in self.search_servo_ids()]
+        if servo_id not in found:
+            raise ValueError(f"ICS {servo_id} is no servo the board found")
+        if new_number in found:
+            raise ValueError(f"ICS {new_number} already has a servo with ID {new_id}")
+        previous = int(self.read_ics_assign_table()[new_number])
+        self.assign_ics_number(new_number)
+        time.sleep(ics_assign_settle_time)
+        if self.read_ics_current(new_number):
+            # A servo the board was not talking to already has this ID.
+            table = self.read_ics_assign_table()
+            table[new_number] = previous
+            self.write_ics_assign_table(table)
+            raise ValueError(f"a servo already answers as ID {new_id} on ICS {new_number}")
+        self.free([servo_id])
+        eeprom = self.read_servo_eeprom(servo_id)
+        wanted = ics_protocol.merge_eeprom(
+            eeprom, ics_protocol.with_eeprom_value(eeprom, "id", new_id))
+        self.ics_relay(servo_id, ics_protocol.build_eeprom_write(servo_id // 2, wanted))
+        self.unassign_ics_number(servo_id)
+        # The old record keeps the servo's last position, which would still
+        # be taken for a servo there.
+        self.write_move_com_to_ram_command(
+            self.ics_record_address(servo_id) + servo_current_offset, [0, 0])
+        time.sleep(ics_assign_settle_time)
+        self.servo_sorted_ids = None
+        if new_number not in [int(i) for i in self.search_servo_ids()]:
+            raise ProtocolError(f"no servo answers on ICS {new_number} after the ID write")
+        if self.servo_settings(new_number)["id"] != new_id:
+            raise ProtocolError(f"the servo on ICS {new_number} does not read ID {new_id}")
+        return new_number
 
     @property
     def joint_to_actuator_matrix(self):

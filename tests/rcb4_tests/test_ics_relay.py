@@ -113,7 +113,12 @@ class RelayBoard(RCB4Interface):
         else:
             self.eeprom = list(command[2:])
             reply = bytes([0x40 | ics_id, 0])
+            # The servo answers to its new ID from now on (measured).
+            self.servo = 2 * ics.eeprom_value(self.eeprom, "id") + port
         self.ram[rx:rx + len(reply)] = reply
+
+    def read_ics_current(self, ics_number):
+        return 7461 if ics_number == self.servo else 0
 
     def serial_write(self, byte_list, timeout=10, close_on_timeout=True):
         body = protocol.unframe(bytes(byte_list))
@@ -178,3 +183,23 @@ def test_refused_before_anything_is_sent(call):
     with pytest.raises(ValueError):
         call(board)
     assert board.relays == []
+
+
+def test_set_servo_id_follows_the_servo():
+    board = RelayBoard()
+    assert board.set_servo_id(3, 5) == 11
+    assert board.servo == 11
+    assert ics.eeprom_value(board.eeprom, "id") == 5
+    assert board.freed == [3]
+    table = board.read_ics_assign_table()
+    assert table[11] == board.ics_record_address(11)
+    assert table[3] == 0xFFFF
+
+
+def test_set_servo_id_refuses_an_id_in_use():
+    board = RelayBoard()
+    board.read_ics_current = lambda ics_number: 7500   # ID 5 answers already
+    with pytest.raises(ValueError):
+        board.set_servo_id(3, 5)
+    assert board.relays == []
+    assert board.read_ics_assign_table()[11] != board.ics_record_address(11)

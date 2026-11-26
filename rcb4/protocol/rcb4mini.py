@@ -71,9 +71,9 @@ SERVO_MASK_BYTES = 5
 #: ICS relay (ICS通信): send bytes from RAM on one ICS line and store the
 #: servo's reply in RAM, so a host can send any ICS command -- an EEPROM read
 #: or write included -- to a servo on the board. The board learns the reply's
-#: length from the command and waits for it: to a number with no servo it
-#: answered nothing for over a second, and once until power-cycled
-#: (references.md).
+#: length from the command and waits for it: without a reply it answers
+#: nothing for 2.08 s and then refuses. The command must start at a multiple
+#: of 0x100, and the board takes one relay at a time (references.md).
 OP_ICS_RELAY = 0x0E
 #: Most bytes one relay sends that were measured: an EEPROM write (command,
 #: sub-command, 64 values). The command reference gives 1..64.

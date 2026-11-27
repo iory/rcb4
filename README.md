@@ -211,6 +211,13 @@ servo record and writes 22 targets still takes 17 ms (58.8 Hz), about the board'
 output cycle. `--baud 1250000` is faster on a board whose link holds at that rate;
 `--baud 115200` is slower.
 
+`rcb4-rom set-baud 1250000` makes the board power up at 1250000 baud on COM, for
+firmware that talks to it at a fixed rate. It backs the ROM up first, like `flat-startup`,
+and changes only the COM baud bits of the startup config (also in the config writes of a
+`--blink` program), the same setting HeartToHeart4's "save all to ROM" stores. It needs a
+HeartToHeart4 project in ROM; a ROM without one has no startup config to set it in.
+`rcb4-rom show` prints the COM baud rate at power-up.
+
 `rcb4-rom flat-startup --blink 3` also blinks the green LED 3 times (0.3 s on, 0.3 s
 off) at power-up and then leaves it on, so a flat board can be told by eye (at most 3
 blinks fit in place of the startup code it replaces). The ROM program runs during the
@@ -227,6 +234,7 @@ stay the firmware's, and the ICS table stays unassigned.
 
 ### Automatic Formatting
 This repository uses `ruff` for both linting and formatting which is configured in `pyproject.toml`, you can run with:
+
 ```
 pip install ruff
 ruff format
@@ -235,11 +243,13 @@ ruff check --fix .
 
 ### Clang-Format
 To install `clang-format`, you can use the following command:
+
 ```
 pip install clang-format
 ```
 
 Once installed, you can format your files using a `.clang-format` configuration file. To format a file, run:
+
 ```
 clang-format -i <filename>
 ```

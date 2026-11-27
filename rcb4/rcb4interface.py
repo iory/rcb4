@@ -1158,6 +1158,87 @@ class RCB4Interface:
             changed["config"] = (old, new)
         return changed
 
+    def rom_com_baudrate(self):
+        """COM baud rate the board powers up at, from its ROM.
+
+        Returns
+        -------
+        int or None
+            The baud rate in the startup config of a HeartToHeart4 project,
+            or None if the ROM holds no project (the firmware then picks
+            the rate) or the register holds a value not in
+            ``com_baudrate_codes``.
+        """
+        if not self.rom_has_project():
+            return None
+        config = int.from_bytes(
+            self.read_rom(RomAddr.ConfigDataRomAddress.value, 2), "little")
+        code = (config & ConfigData.Baudrate.value) >> com_baudrate_shift
+        for baudrate, value in com_baudrate_codes.items():
+            if value == code:
+                return baudrate
+        return None
+
+    def set_rom_com_baudrate(self, baudrate):
+        """Make the board power up at ``baudrate`` on COM, by editing its ROM.
+
+        A HeartToHeart4 project's startup routine copies the config word at
+        RomAddr.ConfigDataRomAddress into RAM (RomAddr.ConfigCmdExecute),
+        and the COM baud rate is bits 6-7 of that word. This changes those
+        bits and nothing else, the same word HeartToHeart4's "save all to
+        ROM" writes. A blink program from :meth:`flatten_rom_startup`
+        writes whole config words after that, so the baud bits of each of
+        its config writes are changed too. The new rate takes effect at the
+        next power-up. Back the ROM up first (:meth:`backup_rom`).
+
+        Parameters
+        ----------
+        baudrate : int
+            A key of ``com_baudrate_codes``.
+
+        Returns
+        -------
+        dict
+            ``{"config": (old, new) or None, "program_bytes": int}``, what
+            was changed.
+
+        Raises
+        ------
+        ValueError
+            If ``baudrate`` is not supported.
+        RuntimeError
+            If the ROM holds no HeartToHeart4 project: it then has no config
+            word to edit, and nothing is written.
+        """
+        if baudrate not in com_baudrate_codes:
+            raise ValueError(
+                f"Unsupported COM baud rate {baudrate}. "
+                + f"Supported: {sorted(com_baudrate_codes)}")
+        if not self.rom_has_project():
+            raise RuntimeError(
+                "ROM holds no HeartToHeart4 project, so it has no startup config "
+                + "word to set the COM baud rate in; not touching this ROM")
+        mask = ConfigData.Baudrate.value
+        bits = (com_baudrate_codes[baudrate] << com_baudrate_shift) & mask
+        changed = {"config": None, "program_bytes": 0}
+        if self.rom_startup_blinks() is not None:
+            code = bytearray(self.read_rom(
+                startup_code_start, startup_code_end - startup_code_start))
+            prefix = rom_config_write(0)[:6]
+            offset = 0
+            while offset < len(code) and 0 < code[offset] <= len(code) - offset:
+                size = code[offset]
+                if bytes(code[offset:offset + 6]) == prefix:
+                    config = int.from_bytes(code[offset + 6:offset + 8], "little")
+                    code[offset:offset + size] = rom_config_write((config & ~mask) | bits)
+                offset += size
+            changed["program_bytes"] = self.write_rom(startup_code_start, bytes(code))
+        old = int.from_bytes(self.read_rom(RomAddr.ConfigDataRomAddress.value, 2), "little")
+        new = (old & ~mask) | bits
+        if self.write_rom(RomAddr.ConfigDataRomAddress.value, new.to_bytes(2, "little")):
+            changed["config"] = (old, new)
+        return changed
+
     def assign_ics_servos(self, flat=True):
         """Assign the ICS numbers connected servos answer on.
 

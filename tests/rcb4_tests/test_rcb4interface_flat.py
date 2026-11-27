@@ -214,6 +214,50 @@ class TestBlinkProgram(unittest.TestCase):
         self.assertIsNone(interface.rom_startup_blinks())
 
 
+class TestRomComBaudrate(unittest.TestCase):
+
+    def test_only_the_baud_bits_of_the_startup_config_change(self):
+        interface = FakeRomRCB4Interface(0x8393, project_rom())
+        self.assertEqual(interface.rom_com_baudrate(), 115200)
+
+        changed = interface.set_rom_com_baudrate(1250000)
+
+        self.assertEqual(changed, {"config": (0x001B, 0x009B), "program_bytes": 0})
+        self.assertEqual(interface.rom_com_baudrate(), 1250000)
+        self.assertEqual(interface.rom_writes, [(0x05DC, b"\x9b")])
+        # A second run writes nothing.
+        interface.rom_writes = []
+        changed = interface.set_rom_com_baudrate(1250000)
+        self.assertEqual(changed, {"config": None, "program_bytes": 0})
+        self.assertEqual(interface.rom_writes, [])
+
+    def test_a_blink_programs_config_writes_get_the_new_rate(self):
+        interface = FakeRomRCB4Interface(0x8393, project_rom())
+        interface.flatten_rom_startup(blinks=3)
+
+        changed = interface.set_rom_com_baudrate(625000)
+
+        self.assertEqual(changed["config"], (0x0013, 0x0053))
+        program = blink_startup_program(0x0053, 0x8051, 3, 3)
+        self.assertEqual(bytes(interface.rom[0x033E:0x033E + len(program)]), program)
+        self.assertGreater(changed["program_bytes"], 0)
+        self.assertEqual(interface.rom_startup_blinks(), 3)
+
+    def test_a_rom_without_a_project_is_not_written(self):
+        interface = FakeRomRCB4Interface(0x8393, b"\xff" * 0x094B)
+        self.assertIsNone(interface.rom_com_baudrate())
+
+        with self.assertRaises(RuntimeError):
+            interface.set_rom_com_baudrate(1250000)
+        self.assertEqual(interface.rom_writes, [])
+
+    def test_an_unsupported_rate_is_refused(self):
+        interface = FakeRomRCB4Interface(0x8393, project_rom())
+        with self.assertRaises(ValueError):
+            interface.set_rom_com_baudrate(57600)
+        self.assertEqual(interface.rom_writes, [])
+
+
 def run_config_program(code, config):
     """Run ``code`` from address 0 as the board would, on the config word only.
 

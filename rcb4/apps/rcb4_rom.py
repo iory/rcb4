@@ -5,6 +5,7 @@
     rcb4-rom backup rom.bin
     rcb4-rom flat-startup            # backs the ROM up first, then writes
     rcb4-rom restore rom.bin
+    rcb4-rom set-baud 1250000        # backs the ROM up first, then writes
 
 ``flat-startup`` makes the board power up without commanding any servo:
 the HeartToHeart4 startup routine stops right after it writes the config
@@ -13,6 +14,9 @@ motion, and every servo record starts free with no trim and no mixing.
 Software then sees the same board whatever project is in its ROM. A ROM
 without a project (erased) gets a small startup program of its own that
 stops the ROM program, after blinking the LED with ``--blink``.
+
+``set-baud`` sets the COM baud rate the board powers up at, in the
+startup config of a HeartToHeart4 project.
 """
 
 import argparse
@@ -97,6 +101,8 @@ def show(interface):
     }
     print(f"startup config {config:#06x}: " + ", ".join(
         f"{name} {'on' if config & bit else 'off'}" for name, bit in flags.items()))
+    baudrate = interface.rom_com_baudrate()
+    print(f"COM baud rate at power-up: {baudrate if baudrate else 'unknown'}")
     table = interface.read_rom(RomAddr.ServoDataRamAddress.value, 2 * ics_slot_count)
     assigned = [n for n in range(ics_slot_count)
                 if int.from_bytes(table[2 * n:2 * n + 2], "little") != ics_unassigned]
@@ -125,6 +131,14 @@ def show(interface):
             and not not_flat)
     print("startup is flat" if flat else
           "startup is NOT flat (rcb4-rom flat-startup would change it)")
+
+
+def backup_first(interface, path):
+    """Save the whole ROM before writing it, and say how to undo."""
+    path = path or datetime.now().strftime("rcb4-rom-%Y%m%d-%H%M%S.bin")
+    data = interface.backup_rom(path)
+    print(f"Saved {len(data)} bytes of ROM to {path} "
+          + f"(undo with: rcb4-rom restore {path})")
 
 
 def main():
@@ -159,6 +173,14 @@ def main():
     flat.add_argument(
         "--backup", default=None,
         help="Where to save the ROM first (default: rcb4-rom-<date>.bin here)")
+    set_baud = sub.add_parser(
+        "set-baud",
+        help="Set the COM baud rate the board powers up at (writes ROM; needs a "
+        + "HeartToHeart4 project in ROM)")
+    set_baud.add_argument("baudrate", type=int, choices=sorted(com_baudrate_codes))
+    set_baud.add_argument(
+        "--backup", default=None,
+        help="Where to save the ROM first (default: rcb4-rom-<date>.bin here)")
     args = parser.parse_args()
 
     interface = open_board(args.port, args.baud)
@@ -171,11 +193,24 @@ def main():
         elif args.command == "restore":
             written = interface.restore_rom(args.path)
             print(f"Restored {args.path}: {written} bytes differed and were written")
+        elif args.command == "set-baud":
+            if not interface.rom_has_project():
+                print("ROM holds no HeartToHeart4 project, so it has no startup config "
+                      + "to set the COM baud rate in; nothing written", file=sys.stderr)
+                sys.exit(1)
+            backup_first(interface, args.backup)
+            changed = interface.set_rom_com_baudrate(args.baudrate)
+            if changed["config"] is not None:
+                old, new = changed["config"]
+                print(f"Startup config {old:#06x} -> {new:#06x}")
+            if changed["program_bytes"]:
+                print(f"Blink program: {changed['program_bytes']} bytes written")
+            if changed["config"] is None and changed["program_bytes"] == 0:
+                print(f"The board already powers up at {args.baudrate} baud; nothing written")
+            else:
+                print(f"Powers up at {args.baudrate} baud from the next power-up")
         elif args.command == "flat-startup":
-            path = args.backup or datetime.now().strftime("rcb4-rom-%Y%m%d-%H%M%S.bin")
-            data = interface.backup_rom(path)
-            print(f"Saved {len(data)} bytes of ROM to {path} "
-                  + f"(undo with: rcb4-rom restore {path})")
+            backup_first(interface, args.backup)
             changed = interface.flatten_rom_startup(led=not args.no_led, blinks=args.blink)
             if changed["config"] is not None:
                 old, new = changed["config"]
